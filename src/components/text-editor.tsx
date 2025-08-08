@@ -60,6 +60,24 @@ export default function TextEditor({ textElements, setTextElements }: TextEditor
                   onChange={(e) => updateTextElement(element.id, { content: e.target.value })}
                 />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor={`font-family-${element.id}`}>Font Family</Label>
+                <Select
+                  value={element.fontFamily}
+                  onValueChange={(value) => updateTextElement(element.id, { fontFamily: value })}
+                >
+                  <SelectTrigger id={`font-family-${element.id}`}>
+                    <SelectValue placeholder="Select font" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Inter">Inter</SelectItem>
+                    <SelectItem value="Arial">Arial</SelectItem>
+                    <SelectItem value="Verdana">Verdana</SelectItem>
+                    <SelectItem value="Georgia">Georgia</SelectItem>
+                    <SelectItem value="Times New Roman">Times New Roman</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor={`color-${element.id}`}>Color</Label>
@@ -81,7 +99,10 @@ export default function TextEditor({ textElements, setTextElements }: TextEditor
                             <SelectValue placeholder="Select weight" />
                         </SelectTrigger>
                         <SelectContent>
+                            <SelectItem value="300">Light</SelectItem>
                             <SelectItem value="400">Regular</SelectItem>
+                            <SelectItem value="500">Medium</SelectItem>
+                            <SelectItem value="600">Semi-Bold</SelectItem>
                             <SelectItem value="700">Bold</SelectItem>
                         </SelectContent>
                     </Select>
