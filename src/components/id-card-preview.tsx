@@ -3,16 +3,17 @@
 import React, { forwardRef } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import type { Template, ImageElement, TextElement } from "@/types";
+import type { Template, ImageElement, TextElement, ShapeElement } from "@/types";
 
 interface IdCardPreviewProps {
   template: Template;
   image: ImageElement;
   textElements: TextElement[];
+  shapeElements: ShapeElement[];
 }
 
 const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
-  ({ template, image, textElements }, ref) => {
+  ({ template, image, textElements, shapeElements }, ref) => {
     return (
       <div
         ref={ref}
@@ -23,6 +24,21 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
           height: `${template.height}px`,
         }}
       >
+        {/* Shape Elements */}
+        {shapeElements.map((shape) => (
+          <div
+            key={shape.id}
+            className="absolute"
+            style={{
+              left: `${shape.x}%`,
+              top: `${shape.y}%`,
+              width: `${shape.width}%`,
+              height: `${shape.height}%`,
+              backgroundColor: shape.color,
+            }}
+          />
+        ))}
+
         {/* User Photo */}
         {image.src && (
           <div

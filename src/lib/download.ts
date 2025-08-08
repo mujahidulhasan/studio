@@ -1,6 +1,6 @@
 "use client";
 
-import type { Template, ImageElement, TextElement } from "@/types";
+import type { Template, ImageElement, TextElement, ShapeElement } from "@/types";
 
 const toBase64 = (file: File): Promise<string> =>
   new Promise((resolve, reject) => {
@@ -14,7 +14,8 @@ const toBase64 = (file: File): Promise<string> =>
 export async function downloadAsSvg(
   template: Template,
   image: ImageElement,
-  texts: TextElement[]
+  texts: TextElement[],
+  shapes: ShapeElement[]
 ) {
   let imageBase64 = image.src || "";
 
@@ -33,6 +34,14 @@ export async function downloadAsSvg(
       return `<text x="${x}" y="${y}" font-family="${text.fontFamily}, sans-serif" font-size="${text.fontSize}" font-weight="${text.fontWeight}" fill="${text.color}" text-anchor="middle" dominant-baseline="middle">${sanitizedContent}</text>`;
     })
     .join("");
+
+  const shapeElementsSvg = shapes.map(shape => {
+    const x = (template.width * shape.x) / 100;
+    const y = (template.height * shape.y) / 100;
+    const width = (template.width * shape.width) / 100;
+    const height = (template.height * shape.height) / 100;
+    return `<rect x="${x}" y="${y}" width="${width}" height="${height}" fill="${shape.color}" />`
+  }).join("");
 
     let imageSvg = "";
     if (imageBase64) {
@@ -67,6 +76,9 @@ export async function downloadAsSvg(
       </style>
       <rect width="100%" height="100%" fill="white"/>
       
+      <!-- Shape Elements -->
+      ${shapeElementsSvg}
+
       <!-- Static Template Elements -->
        ${template.id === 'modern' ? `<rect width="100%" height="16" y="${template.height-16}" fill="#78B0FF" fill-opacity="0.8" />` : ''}
        ${template.id === 'classic' ? `<text x="${template.width - 16}" y="24" text-anchor="end" font-size="10" font-weight="bold" fill="#a0aec0">EMPLOYEE ID</text>` : ''}

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useCallback } from "react";
-import type { Template, ImageElement, TextElement } from "@/types";
+import type { Template, ImageElement, TextElement, ShapeElement } from "@/types";
 import { templates } from "@/components/template-selector";
 import Header from "@/components/header";
 import EditorPanel from "@/components/editor-panel";
@@ -40,13 +40,14 @@ export default function Home() {
       color: "#333333",
     },
   ]);
+  const [shapeElements, setShapeElements] = useState<ShapeElement[]>([]);
   const idCardRef = useRef<HTMLDivElement>(null);
 
   const handleDownload = useCallback(async () => {
     if (idCardRef.current) {
-      await downloadAsSvg(template, image, textElements);
+      await downloadAsSvg(template, image, textElements, shapeElements);
     }
-  }, [template, image, textElements]);
+  }, [template, image, textElements, shapeElements]);
 
   return (
     <div className="flex flex-col h-screen bg-background font-body">
@@ -60,6 +61,8 @@ export default function Home() {
             setImage={setImage}
             textElements={textElements}
             setTextElements={setTextElements}
+            shapeElements={shapeElements}
+            setShapeElements={setShapeElements}
           />
         </div>
         <div className="lg:col-span-2 flex flex-col items-center justify-center gap-6">
@@ -68,6 +71,7 @@ export default function Home() {
             template={template}
             image={image}
             textElements={textElements}
+            shapeElements={shapeElements}
           />
           <Button onClick={handleDownload} size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90">
             <Download className="mr-2 h-5 w-5" />

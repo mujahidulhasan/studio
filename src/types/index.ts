@@ -16,6 +16,16 @@ export interface ImageElement {
   scale: number; // percentage
 }
 
+export interface ShapeElement {
+  id: string;
+  type: 'rectangle';
+  x: number; // percentage
+  y: number; // percentage
+  width: number; // percentage
+  height: number; // percentage
+  color: string;
+}
+
 export interface Template {
   id: string;
   name: string;
