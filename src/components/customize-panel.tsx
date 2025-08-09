@@ -3,7 +3,7 @@ import React from "react";
 import type { Dispatch, SetStateAction } from "react";
 import CustomizeImagePanel from "@/components/customize-image-panel";
 import CustomizeTextPanel from "@/components/customize-text-panel";
-import type { ImageElement, TextElement } from "@/types";
+import type { ImageElement, TextElement, ShapeElement } from "@/types";
 import { Button } from "./ui/button";
 import { X } from "lucide-react";
 
@@ -13,10 +13,12 @@ interface CustomizePanelProps {
     setImage: Dispatch<SetStateAction<ImageElement>>;
     textElements: TextElement[];
     setTextElements: Dispatch<SetStateAction<TextElement[]>>;
+    shapeElements: ShapeElement[];
+    setShapeElements: Dispatch<SetStateAction<ShapeElement[]>>;
     onClose: () => void;
 }
 
-export default function CustomizePanel({ selectedElement, image, setImage, textElements, setTextElements, onClose }: CustomizePanelProps) {
+export default function CustomizePanel({ selectedElement, image, setImage, textElements, setTextElements, shapeElements, setShapeElements, onClose }: CustomizePanelProps) {
     
     const getPanelTitle = () => {
         if (!selectedElement) return "";
@@ -52,7 +54,7 @@ export default function CustomizePanel({ selectedElement, image, setImage, textE
                         onUpdate={handleUpdateText}
                     />
                 )}
-                {/* Add other customize panels here, e.g., for text, shapes */}
+                {/* Add shape customizer here later if needed */}
             </div>
         </div>
     );

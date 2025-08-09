@@ -17,6 +17,7 @@ export interface TextElement {
 }
 
 export interface ImageElement {
+  id: 'image';
   src: string | null;
   x: number; // percentage for positioning within its frame
   y: number; // percentage

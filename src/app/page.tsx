@@ -26,6 +26,7 @@ const toolConfig = [
 export default function Home() {
   const [template, setTemplate] = useState<Template>(templates[0]);
   const [image, setImage] = useState<ImageElement>({
+    id: "image",
     src: "https://placehold.co/150x150.png",
     x: 50,
     y: 50,
@@ -229,6 +230,8 @@ export default function Home() {
                         setImage={setImage}
                         textElements={textElements}
                         setTextElements={setTextElements}
+                        shapeElements={shapeElements}
+                        setShapeElements={setShapeElements}
                         onClose={closeCustomizePanel}
                      />
                 )}
@@ -243,6 +246,7 @@ export default function Home() {
                     setImage={setImage}
                     textElements={textElements}
                     shapeElements={shapeElements}
+                    setShapeElements={setShapeElements}
                     slotPunch={'none'}
                     isBackside={isBackside}
                     selectedElement={selectedElement}
