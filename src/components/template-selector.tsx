@@ -49,37 +49,35 @@ export default function TemplateSelector({ selectedTemplate, onSelectTemplate }:
 
   return (
     <div className="space-y-4">
-      <div className="space-y-2">
-        <Label>Orientation</Label>
-        <div className="flex items-end gap-3 rounded-xl bg-gray-200 p-4">
+       <div className="font-bold text-base text-black">Orientation</div>
+        <div className="flex items-center gap-2 rounded-full bg-gray-200 p-2 w-fit">
             <div
                 onClick={() => handleOrientationChange('horizontal')}
                 className={cn(
-                    "flex w-[100px] cursor-pointer flex-col items-center rounded-2xl bg-gray-200 p-3 transition-colors",
-                    !isVertical && "bg-white text-[#4bb058]"
+                    "flex w-[80px] cursor-pointer flex-col items-center rounded-lg p-2 transition-colors",
+                    !isVertical ? "bg-white text-[#4bb058]" : "bg-gray-200 text-gray-700"
                 )}
             >
                 <div className={cn(
-                    "mb-2.5 h-12 w-16 rounded-2xl border-4 border-[#999] transition-colors",
-                    !isVertical && "border-[#4bb058]"
+                    "mb-1.5 h-[30px] w-[38px] rounded-md border-[3px]",
+                     !isVertical ? "border-[#4bb058]" : "border-gray-400"
                 )}></div>
                 <span className="text-sm font-bold">Horizontal</span>
             </div>
             <div
                 onClick={() => handleOrientationChange('vertical')}
                 className={cn(
-                  "flex w-[100px] cursor-pointer flex-col items-center rounded-2xl bg-gray-200 p-3 transition-colors",
-                  isVertical && "bg-white text-[#4bb058]"
+                  "flex w-[80px] cursor-pointer flex-col items-center rounded-lg p-2 transition-colors",
+                  isVertical ? "bg-white text-[#4bb058]" : "bg-gray-200 text-gray-700"
                 )}
             >
                  <div className={cn(
-                    "mb-2.5 h-16 w-12 rounded-2xl border-4 border-[#999] transition-colors",
-                    isVertical && "border-[#4bb058]"
+                    "mb-1.5 h-[38px] w-[24px] rounded-md border-[3px]",
+                    isVertical ? "border-[#4bb058]" : "border-gray-400"
                 )}></div>
                 <span className="text-sm font-bold">Vertical</span>
             </div>
         </div>
-      </div>
     </div>
   );
 }
