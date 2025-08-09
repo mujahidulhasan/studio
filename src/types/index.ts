@@ -34,3 +34,5 @@ export interface Template {
   previewUrl: string;
   dataAiHint: string;
 }
+
+export type SlotPunch = 'none' | 'short-side' | 'long-side';

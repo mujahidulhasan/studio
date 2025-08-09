@@ -5,7 +5,7 @@ import TemplateSelector from "@/components/template-selector";
 import ImageEditor from "@/components/image-editor";
 import TextEditor from "@/components/text-editor";
 import ShapeEditor from "@/components/shape-editor";
-import type { Template, ImageElement, TextElement, ShapeElement } from "@/types";
+import type { Template, ImageElement, TextElement, ShapeElement, SlotPunch } from "@/types";
 
 interface EditorPanelProps {
   activeTab: string;
@@ -17,6 +17,8 @@ interface EditorPanelProps {
   setTextElements: Dispatch<SetStateAction<TextElement[]>>;
   shapeElements: ShapeElement[];
   setShapeElements: Dispatch<SetStateAction<ShapeElement[]>>;
+  slotPunch: SlotPunch;
+  setSlotPunch: Dispatch<SetStateAction<SlotPunch>>;
 }
 
 export default function EditorPanel({
@@ -29,10 +31,19 @@ export default function EditorPanel({
   setTextElements,
   shapeElements,
   setShapeElements,
+  slotPunch,
+  setSlotPunch,
 }: EditorPanelProps) {
   return (
     <div>
-        {activeTab === 'template' && <TemplateSelector selectedTemplate={template} onSelectTemplate={setTemplate} />}
+        {activeTab === 'template' && (
+            <TemplateSelector 
+                selectedTemplate={template} 
+                onSelectTemplate={setTemplate}
+                slotPunch={slotPunch}
+                setSlotPunch={setSlotPunch}
+            />
+        )}
         {activeTab === 'photo' && <ImageEditor image={image} setImage={setImage} />}
         {activeTab === 'text' && <TextEditor textElements={textElements} setTextElements={setTextElements} />}
         {activeTab === 'shapes' && <ShapeEditor shapeElements={shapeElements} setShapeElements={setShapeElements} />}

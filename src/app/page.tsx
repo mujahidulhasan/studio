@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useCallback } from "react";
-import type { Template, ImageElement, TextElement, ShapeElement } from "@/types";
+import type { Template, ImageElement, TextElement, ShapeElement, SlotPunch } from "@/types";
 import { templates } from "@/components/template-selector";
 import Header from "@/components/header";
 import EditorPanel from "@/components/editor-panel";
@@ -23,6 +23,7 @@ const toolConfig = [
 
 export default function Home() {
   const [template, setTemplate] = useState<Template>(templates[0]);
+  const [slotPunch, setSlotPunch] = useState<SlotPunch>('none');
   const [image, setImage] = useState<ImageElement>({
     src: null,
     x: 50,
@@ -54,6 +55,7 @@ export default function Home() {
   const [shapeElements, setShapeElements] = useState<ShapeElement[]>([]);
   const idCardRef = useRef<HTMLDivElement>(null);
   const [activePanel, setActivePanel] = useState<string | null>('template');
+  const [isBackside, setIsBackside] = useState(false);
 
 
   const handleDownload = useCallback(async () => {
@@ -111,6 +113,8 @@ export default function Home() {
                                 setTextElements={setTextElements}
                                 shapeElements={shapeElements}
                                 setShapeElements={setShapeElements}
+                                slotPunch={slotPunch}
+                                setSlotPunch={setSlotPunch}
                             />
                         </div>
                      </div>
@@ -125,11 +129,19 @@ export default function Home() {
                     image={image}
                     textElements={textElements}
                     shapeElements={shapeElements}
+                    slotPunch={slotPunch}
+                    isBackside={isBackside}
                 />
-                <Button onClick={handleDownload} size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90">
-                    <Download className="mr-2 h-5 w-5" />
-                    Download ID
-                </Button>
+                <div className="flex items-center gap-4">
+                   <div className="flex items-center bg-muted rounded-lg p-1">
+                        <Button onClick={() => setIsBackside(false)} size="sm" className={cn(!isBackside ? 'bg-background shadow' : 'bg-transparent text-muted-foreground')}>Front Side</Button>
+                        <Button onClick={() => setIsBackside(true)} size="sm" className={cn(isBackside ? 'bg-background shadow' : 'bg-transparent text-muted-foreground')}>Back Side</Button>
+                   </div>
+                    <Button onClick={handleDownload} size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90">
+                        <Download className="mr-2 h-5 w-5" />
+                        Download ID
+                    </Button>
+                </div>
             </main>
         </div>
       </div>
