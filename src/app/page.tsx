@@ -69,7 +69,7 @@ export default function Home() {
       <Header />
       <div className="flex flex-1 overflow-hidden">
         {/* Icon Strip */}
-        <div className="w-16 h-full bg-muted/30 flex flex-col items-center py-4 space-y-1 border-r">
+        <div className="w-16 h-full bg-muted/30 flex flex-col items-center py-4 space-y-1 border-r z-20">
           {toolConfig.map((tool) => (
             <button
               key={tool.id}
@@ -85,51 +85,53 @@ export default function Home() {
             </button>
           ))}
         </div>
+        
+        <div className="relative flex-1">
+            {/* Tool Panel */}
+            <div className={cn(
+                "absolute top-0 left-0 h-full bg-card border-r transition-transform duration-300 ease-in-out overflow-y-auto z-10",
+                activePanel ? "translate-x-0 w-80" : "-translate-x-full w-80"
+            )}>
+                {activePanel && (
+                     <div className="p-4 flex flex-col h-full">
+                        <div className="flex items-center justify-between mb-4">
+                            <h2 className="text-lg font-semibold">{currentTool?.label}</h2>
+                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setActivePanel(null)}>
+                                <X className="w-4 h-4"/>
+                            </Button>
+                        </div>
+                        <div className="flex-1">
+                            <EditorPanel
+                                activeTab={activePanel}
+                                template={template}
+                                setTemplate={setTemplate}
+                                image={image}
+                                setImage={setImage}
+                                textElements={textElements}
+                                setTextElements={setTextElements}
+                                shapeElements={shapeElements}
+                                setShapeElements={setShapeElements}
+                            />
+                        </div>
+                     </div>
+                )}
+            </div>
 
-        {/* Tool Panel */}
-        <div className={cn(
-            "h-full bg-card border-r transition-all duration-300 ease-in-out overflow-y-auto",
-            activePanel ? "w-80" : "w-0"
-        )}>
-            {activePanel && (
-                 <div className="p-4 flex flex-col h-full">
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-lg font-semibold">{currentTool?.label}</h2>
-                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setActivePanel(null)}>
-                            <X className="w-4 h-4"/>
-                        </Button>
-                    </div>
-                    <div className="flex-1">
-                        <EditorPanel
-                            activeTab={activePanel}
-                            template={template}
-                            setTemplate={setTemplate}
-                            image={image}
-                            setImage={setImage}
-                            textElements={textElements}
-                            setTextElements={setTextElements}
-                            shapeElements={shapeElements}
-                            setShapeElements={setShapeElements}
-                        />
-                    </div>
-                 </div>
-            )}
+            {/* Workspace */}
+            <main className="w-full h-full flex flex-col items-center justify-center gap-6 p-4 md:p-8">
+                <IdCardPreview
+                    ref={idCardRef}
+                    template={template}
+                    image={image}
+                    textElements={textElements}
+                    shapeElements={shapeElements}
+                />
+                <Button onClick={handleDownload} size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90">
+                    <Download className="mr-2 h-5 w-5" />
+                    Download ID
+                </Button>
+            </main>
         </div>
-
-        {/* Workspace */}
-        <main className="flex-1 flex flex-col items-center justify-center gap-6 p-4 md:p-8">
-            <IdCardPreview
-                ref={idCardRef}
-                template={template}
-                image={image}
-                textElements={textElements}
-                shapeElements={shapeElements}
-            />
-            <Button onClick={handleDownload} size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90">
-                <Download className="mr-2 h-5 w-5" />
-                Download ID
-            </Button>
-        </main>
       </div>
     </div>
   );
