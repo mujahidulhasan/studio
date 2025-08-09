@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label";
-import type { Template, SlotPunch } from "@/types";
+import type { Template } from "@/types";
 import { Button } from "./ui/button";
 import { CheckCircle } from "lucide-react";
 
@@ -65,11 +65,9 @@ const OptionCard = ({ label, icon, selected, ...props }: OptionCardProps) => (
 interface TemplateSelectorProps {
   selectedTemplate: Template;
   onSelectTemplate: (template: Template) => void;
-  slotPunch: SlotPunch;
-  setSlotPunch: (slotPunch: SlotPunch) => void;
 }
 
-export default function TemplateSelector({ selectedTemplate, onSelectTemplate, slotPunch, setSlotPunch }: TemplateSelectorProps) {
+export default function TemplateSelector({ selectedTemplate, onSelectTemplate }: TemplateSelectorProps) {
   const isVertical = selectedTemplate.width < selectedTemplate.height;
 
   const handleOrientationChange = (orientation: 'horizontal' | 'vertical') => {
@@ -94,48 +92,6 @@ export default function TemplateSelector({ selectedTemplate, onSelectTemplate, s
                 icon={<div className="w-10 h-16 bg-muted rounded-sm"/>}
             />
         </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label>Backside Printing</Label>
-        <RadioGroup defaultValue="no-back" className="grid grid-cols-3 gap-2">
-            <Label className="flex flex-col items-center justify-center rounded-md border p-3 text-center text-sm hover:border-primary cursor-pointer has-[:checked]:border-primary has-[:checked]:ring-2 has-[:checked]:ring-primary">
-                <RadioGroupItem value="no-back" className="sr-only"/>
-                No Back
-            </Label>
-             <Label className="flex flex-col items-center justify-center rounded-md border p-3 text-center text-sm hover:border-primary cursor-pointer has-[:checked]:border-primary has-[:checked]:ring-2 has-[:checked]:ring-primary">
-                <RadioGroupItem value="bw" className="sr-only"/>
-                Black & White
-            </Label>
-             <Label className="flex flex-col items-center justify-center rounded-md border p-3 text-center text-sm hover:border-primary cursor-pointer has-[:checked]:border-primary has-[:checked]:ring-2 has-[:checked]:ring-primary">
-                <RadioGroupItem value="color" className="sr-only"/>
-                Full Color
-            </Label>
-        </RadioGroup>
-        <div className="flex items-center space-x-2 mt-2">
-            <Checkbox id="duplicate-front" />
-            <label htmlFor="duplicate-front" className="text-sm font-medium leading-none">
-                Duplicate front on backside
-            </label>
-        </div>
-      </div>
-      
-       <div className="space-y-2">
-        <Label>Slot Punch</Label>
-         <RadioGroup value={slotPunch} onValueChange={(value: SlotPunch) => setSlotPunch(value)} className="grid grid-cols-3 gap-2">
-            <Label className="flex flex-col items-center justify-center rounded-md border p-3 text-center text-sm hover:border-primary cursor-pointer has-[:checked]:border-primary has-[:checked]:ring-2 has-[:checked]:ring-primary">
-                <RadioGroupItem value="none" className="sr-only"/>
-                None
-            </Label>
-             <Label className="flex flex-col items-center justify-center rounded-md border p-3 text-center text-sm hover:border-primary cursor-pointer has-[:checked]:border-primary has-[:checked]:ring-2 has-[:checked]:ring-primary">
-                <RadioGroupItem value="short-side" className="sr-only"/>
-                Short-Side
-            </Label>
-             <Label className="flex flex-col items-center justify-center rounded-md border p-3 text-center text-sm hover:border-primary cursor-pointer has-[:checked]:border-primary has-[:checked]:ring-2 has-[:checked]:ring-primary">
-                <RadioGroupItem value="long-side" className="sr-only"/>
-                Long-Side
-            </Label>
-        </RadioGroup>
       </div>
     </div>
   );

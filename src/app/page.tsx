@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useCallback } from "react";
-import type { Template, ImageElement, TextElement, ShapeElement, SlotPunch } from "@/types";
+import type { Template, ImageElement, TextElement, ShapeElement } from "@/types";
 import { templates } from "@/components/template-selector";
 import Header from "@/components/header";
 import EditorPanel from "@/components/editor-panel";
@@ -23,7 +23,6 @@ const toolConfig = [
 
 export default function Home() {
   const [template, setTemplate] = useState<Template>(templates[0]);
-  const [slotPunch, setSlotPunch] = useState<SlotPunch>('none');
   const [image, setImage] = useState<ImageElement>({
     src: null,
     x: 50,
@@ -113,8 +112,6 @@ export default function Home() {
                                 setTextElements={setTextElements}
                                 shapeElements={shapeElements}
                                 setShapeElements={setShapeElements}
-                                slotPunch={slotPunch}
-                                setSlotPunch={setSlotPunch}
                             />
                         </div>
                      </div>
@@ -129,7 +126,7 @@ export default function Home() {
                     image={image}
                     textElements={textElements}
                     shapeElements={shapeElements}
-                    slotPunch={slotPunch}
+                    slotPunch={'none'}
                     isBackside={isBackside}
                 />
                 <div className="flex items-center gap-4">
