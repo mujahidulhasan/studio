@@ -62,7 +62,8 @@ export default function Home() {
   const [shapeElements, setShapeElements] = useState<ShapeElement[]>([]);
   const idCardRef = useRef<HTMLDivElement>(null);
   const [activeTool, setActiveTool] = useState<string | null>('template');
-  const [selectedElement, setSelectedElement] = useState<string | null>('image');
+  const [selectedElement, setSelectedElement] = useState<string | null>(null);
+  const [isCustomizePanelOpen, setIsCustomizePanelOpen] = useState(false);
   const [isBackside, setIsBackside] = useState(false);
 
 
@@ -72,32 +73,48 @@ export default function Home() {
     }
   }, [template, image, textElements, shapeElements]);
 
+  const handleSelectElement = (elementId: string | null) => {
+    setSelectedElement(elementId);
+    if (elementId) {
+        setActiveTool(null);
+    }
+  }
+
+  const toggleCustomizePanel = () => {
+    // Can only open customize if an element is selected
+    if (selectedElement) {
+        setIsCustomizePanelOpen(!isCustomizePanelOpen);
+    } else {
+        setIsCustomizePanelOpen(false);
+    }
+  }
+
   const currentToolConfig = toolConfig.find(t => t.id === activeTool);
-  const isCustomizePanelOpen = !!selectedElement;
 
   return (
     <div className="flex flex-col h-screen bg-background font-body" onClick={(e) => {
         // If click is outside the preview and the customize panel, deselect
         const target = e.target as HTMLElement;
-        if (!target.closest('#id-card-preview') && !target.closest('#customize-panel')) {
-             setSelectedElement(null);
+        if (!target.closest('#id-card-preview') && !target.closest('#customize-panel') && !target.closest('#icon-strip')) {
+             handleSelectElement(null);
         }
     }}>
       <Header />
       <div className="flex flex-1 overflow-hidden">
         {/* Icon Strip */}
-        <div className="w-16 h-full bg-card flex flex-col items-center py-4 space-y-1 border-r z-20">
+        <div id="icon-strip" className="w-16 h-full bg-card flex flex-col items-center py-4 space-y-1 border-r z-20">
           {toolConfig.map((tool) => (
             <button
               key={tool.id}
               onClick={() => {
-                setActiveTool(activeTool === tool.id && !tool.disabled ? null : tool.id)
-                setSelectedElement(null)
+                setActiveTool(activeTool === tool.id && !tool.disabled ? null : tool.id);
+                handleSelectElement(null);
+                setIsCustomizePanelOpen(false);
               }}
               disabled={tool.disabled}
               className={cn(
                 "flex flex-col items-center justify-center p-2 rounded-lg w-14 h-14 transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
-                activeTool === tool.id && !isCustomizePanelOpen ? "bg-primary/20 text-primary" : "hover:bg-accent/50"
+                activeTool === tool.id ? "bg-primary/20 text-primary" : "hover:bg-accent/50"
               )}
             >
               <tool.icon className="w-6 h-6" />
@@ -106,12 +123,17 @@ export default function Home() {
           ))}
            <button
               key="customize"
-              onClick={() => {
-                setActiveTool(null)
-                setSelectedElement(selectedElement ? null : 'image' /* default to image for now */)
+               onClick={() => {
+                if(selectedElement) {
+                    setIsCustomizePanelOpen(!isCustomizePanelOpen)
+                    setActiveTool(null)
+                } else {
+                    // Maybe select image by default? or toast a message
+                }
               }}
+              disabled={!selectedElement}
               className={cn(
-                "flex flex-col items-center justify-center p-2 rounded-lg w-14 h-14 transition-colors",
+                "flex flex-col items-center justify-center p-2 rounded-lg w-14 h-14 transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
                 isCustomizePanelOpen ? "bg-green-600 text-white" : "hover:bg-accent/50"
               )}
             >
@@ -124,9 +146,9 @@ export default function Home() {
             {/* Tool Panel */}
             <div className={cn(
                 "absolute top-0 left-0 h-full bg-card border-r transition-transform duration-300 ease-in-out overflow-y-auto z-10",
-                activeTool && !isCustomizePanelOpen ? "translate-x-0 w-80" : "-translate-x-full w-80"
+                activeTool ? "translate-x-0 w-80" : "-translate-x-full w-80"
             )}>
-                {activeTool && !isCustomizePanelOpen && (
+                {activeTool && (
                      <div className="p-4 flex flex-col h-full">
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="text-lg font-semibold">{currentToolConfig?.label}</h2>
@@ -161,7 +183,7 @@ export default function Home() {
                         selectedElement={selectedElement}
                         image={image}
                         setImage={setImage}
-                        onClose={() => setSelectedElement(null)}
+                        onClose={() => setIsCustomizePanelOpen(false)}
                      />
                 )}
             </div>
@@ -179,8 +201,8 @@ export default function Home() {
                     isBackside={isBackside}
                     isSelected={selectedElement === 'image'}
                     onImageSelect={() => {
-                        setActiveTool(null);
-                        setSelectedElement('image');
+                        handleSelectElement('image');
+                        setIsCustomizePanelOpen(true);
                     }}
                 />
                 <div className="flex items-center gap-4">
