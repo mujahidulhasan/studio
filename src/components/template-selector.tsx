@@ -51,24 +51,24 @@ export default function TemplateSelector({ selectedTemplate, onSelectTemplate }:
     <div className="space-y-6">
       <div className="space-y-2">
         <Label>Orientation</Label>
-        <div className="flex rounded-md border border-input bg-background p-1">
+        <div className="flex rounded-md border border-input bg-background p-1 group">
             <Button 
                 onClick={() => handleOrientationChange('horizontal')}
                 variant={!isVertical ? 'secondary' : 'ghost'}
-                className="flex-1 flex flex-col items-center h-auto py-2"
+                className="flex-1 flex flex-col items-center h-auto py-2 text-gray-500 hover:bg-white [&>svg]:hover:stroke-[#4bb058]"
             >
-                <svg width="32" height="20" viewBox="0 0 32 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-1.5 h-8">
-                    <rect x="1" y="1" width="30" height="18" rx="2" stroke="currentColor" strokeWidth="2"/>
+                <svg width="40" height="28" viewBox="0 0 40 28" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-1.5 h-10 stroke-[#c0c5ca] transition-colors">
+                    <rect x="2" y="2" width="36" height="24" rx="2" strokeWidth="4"/>
                 </svg>
                 <span className="text-xs">Horizontal</span>
             </Button>
             <Button
                 onClick={() => handleOrientationChange('vertical')}
                 variant={isVertical ? 'secondary' : 'ghost'}
-                className="flex-1 flex flex-col items-center h-auto py-2"
+                className="flex-1 flex flex-col items-center h-auto py-2 text-gray-500 hover:bg-white [&>svg]:hover:stroke-[#4bb058]"
             >
-                <svg width="20" height="32" viewBox="0 0 20 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-1.5 h-8">
-                     <rect x="1" y="1" width="18" height="30" rx="2" stroke="currentColor" strokeWidth="2"/>
+                <svg width="28" height="40" viewBox="0 0 28 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-1.5 h-10 stroke-[#c0c5ca] transition-colors">
+                     <rect x="2" y="2" width="24" height="36" rx="2" strokeWidth="4"/>
                 </svg>
                 <span className="text-xs">Vertical</span>
             </Button>
