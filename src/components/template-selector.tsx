@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import type { Template } from "@/types";
+import { Separator } from "@/components/ui/separator";
 
 export const templates: Template[] = [
   {
@@ -47,8 +48,10 @@ export default function TemplateSelector({ selectedTemplate, onSelectTemplate }:
 
   return (
     <div className="space-y-4">
+      <div className="font-bold text-base text-black">Card</div>
+      <Separator />
        <div className="font-bold text-base text-black">Orientation</div>
-        <div className="flex items-center gap-2 w-fit">
+        <div className="flex items-center gap-2">
             <div
                 onClick={() => handleOrientationChange('horizontal')}
                 className={cn(
