@@ -7,8 +7,16 @@ import Header from "@/components/header";
 import EditorPanel from "@/components/editor-panel";
 import IdCardPreview from "@/components/id-card-preview";
 import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
+import { Download, PanelLeft } from "lucide-react";
 import { downloadAsSvg } from "@/lib/download";
+import {
+  SidebarProvider,
+  Sidebar,
+  SidebarHeader,
+  SidebarContent,
+  SidebarTrigger,
+  SidebarInset,
+} from "@/components/ui/sidebar";
 
 export default function Home() {
   const [template, setTemplate] = useState<Template>(templates[0]);
@@ -50,35 +58,44 @@ export default function Home() {
   }, [template, image, textElements, shapeElements]);
 
   return (
-    <div className="flex flex-col h-screen bg-background font-body">
-      <Header />
-      <main className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-8 p-4 md:p-8 overflow-hidden">
-        <div className="lg:col-span-1 bg-card p-6 rounded-lg shadow-sm overflow-y-auto">
-          <EditorPanel
-            template={template}
-            setTemplate={setTemplate}
-            image={image}
-            setImage={setImage}
-            textElements={textElements}
-            setTextElements={setTextElements}
-            shapeElements={shapeElements}
-            setShapeElements={setShapeElements}
-          />
+    <SidebarProvider>
+      <div className="flex flex-col h-screen bg-background font-body">
+        <Header />
+        <div className="flex flex-1 overflow-hidden">
+          <Sidebar collapsible="icon">
+            <SidebarContent>
+              <EditorPanel
+                template={template}
+                setTemplate={setTemplate}
+                image={image}
+                setImage={setImage}
+                textElements={textElements}
+                setTextElements={setTextElements}
+                shapeElements={shapeElements}
+                setShapeElements={setShapeElements}
+              />
+            </SidebarContent>
+          </Sidebar>
+          <SidebarInset>
+            <main className="flex-1 flex flex-col items-center justify-center gap-6 p-4 md:p-8">
+               <div className="absolute top-4 left-4">
+                  <SidebarTrigger />
+               </div>
+              <IdCardPreview
+                ref={idCardRef}
+                template={template}
+                image={image}
+                textElements={textElements}
+                shapeElements={shapeElements}
+              />
+              <Button onClick={handleDownload} size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90">
+                <Download className="mr-2 h-5 w-5" />
+                Download ID
+              </Button>
+            </main>
+          </SidebarInset>
         </div>
-        <div className="lg:col-span-2 flex flex-col items-center justify-center gap-6">
-          <IdCardPreview
-            ref={idCardRef}
-            template={template}
-            image={image}
-            textElements={textElements}
-            shapeElements={shapeElements}
-          />
-          <Button onClick={handleDownload} size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90">
-            <Download className="mr-2 h-5 w-5" />
-            Download ID
-          </Button>
-        </div>
-      </main>
-    </div>
+      </div>
+    </SidebarProvider>
   );
 }
