@@ -51,31 +51,33 @@ export default function TemplateSelector({ selectedTemplate, onSelectTemplate }:
     <div className="space-y-4">
       <div className="space-y-2">
         <Label>Orientation</Label>
-        <div className="flex rounded-md border border-input bg-background p-1 group text-gray-500">
-            <Button
+        <div className="flex items-end gap-3 rounded-xl bg-gray-200 p-4">
+            <div
                 onClick={() => handleOrientationChange('horizontal')}
-                variant={!isVertical ? 'secondary' : 'ghost'}
-                className={cn("flex-1 flex flex-col items-center h-auto py-2 hover:bg-white [&>svg]:hover:stroke-[#4bb058] hover:text-[#4bb058]",
-                    !isVertical && "bg-white text-[#4bb058] [&>svg]:stroke-[#4bb058]"
+                className={cn(
+                    "flex w-[100px] cursor-pointer flex-col items-center rounded-2xl bg-gray-200 p-3 transition-colors",
+                    !isVertical && "bg-white text-[#4bb058]"
                 )}
             >
-                <svg width="32" height="22" viewBox="0 0 32 22" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-1.5 h-8 stroke-[#c0c5ca] transition-colors">
-                    <rect x="2" y="2" width="28" height="18" rx="2" strokeWidth="4"/>
-                </svg>
-                <span className="text-xs font-bold">Horizontal</span>
-            </Button>
-            <Button
+                <div className={cn(
+                    "mb-2.5 h-12 w-16 rounded-2xl border-4 border-[#999] transition-colors",
+                    !isVertical && "border-[#4bb058]"
+                )}></div>
+                <span className="text-sm font-bold">Horizontal</span>
+            </div>
+            <div
                 onClick={() => handleOrientationChange('vertical')}
-                variant={isVertical ? 'secondary' : 'ghost'}
-                className={cn("flex-1 flex flex-col items-center h-auto py-2 hover:bg-white [&>svg]:hover:stroke-[#4bb058] hover:text-[#4bb058]",
-                    isVertical && "bg-white text-[#4bb058] [&>svg]:stroke-[#4bb058]"
+                className={cn(
+                  "flex w-[100px] cursor-pointer flex-col items-center rounded-2xl bg-gray-200 p-3 transition-colors",
+                  isVertical && "bg-white text-[#4bb058]"
                 )}
             >
-                <svg width="22" height="32" viewBox="0 0 22 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-1.5 h-8 stroke-[#c0c5ca] transition-colors">
-                     <rect x="2" y="2" width="18" height="28" rx="2" strokeWidth="4"/>
-                </svg>
-                <span className="text-xs font-bold">Vertical</span>
-            </Button>
+                 <div className={cn(
+                    "mb-2.5 h-16 w-12 rounded-2xl border-4 border-[#999] transition-colors",
+                    isVertical && "border-[#4bb058]"
+                )}></div>
+                <span className="text-sm font-bold">Vertical</span>
+            </div>
         </div>
       </div>
     </div>
