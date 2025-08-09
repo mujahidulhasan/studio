@@ -1,13 +1,15 @@
+
 "use client";
 
 import type { Dispatch, SetStateAction } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Slider } from "@/components/ui/slider";
-import { Plus, Trash2 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Type, AlignLeft, User, PenSquare, Bookmark, MoreHorizontal, HelpCircle } from "lucide-react";
 import type { TextElement } from "@/types";
 
 interface TextEditorProps {
@@ -15,11 +17,36 @@ interface TextEditorProps {
   setTextElements: Dispatch<SetStateAction<TextElement[]>>;
 }
 
+const OptionButton = ({ icon: Icon, label, onClick, fullWidth = false }: { icon: React.ElementType, label: string, onClick?: () => void, fullWidth?: boolean }) => (
+  <button
+    onClick={onClick}
+    className={`flex items-center justify-center w-full p-4 space-x-2 text-center bg-white border rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50
+      ${fullWidth ? 'col-span-2' : ''}
+    `}
+  >
+    <Icon className="w-6 h-6 text-gray-600" />
+    <span className="font-medium text-gray-800">{label}</span>
+  </button>
+);
+
+const VariableOptionButton = ({ icon: Icon, label, onClick, fullWidth = false }: { icon: React.ElementType, label: string, onClick?: () => void, fullWidth?: boolean }) => (
+  <button
+    onClick={onClick}
+    className={`flex flex-col items-center justify-center w-full p-3 space-y-1 text-center bg-white border rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50
+      ${fullWidth ? 'col-span-2' : ''}
+    `}
+  >
+    <Icon className="w-6 h-6 text-gray-600" />
+    <span className="text-sm font-medium text-gray-800">{label}</span>
+  </button>
+);
+
+
 export default function TextEditor({ textElements, setTextElements }: TextEditorProps) {
-  const addTextElement = () => {
+  const addTextElement = (content: string) => {
     const newElement: TextElement = {
       id: `text-${Date.now()}`,
-      content: "New Text",
+      content: content,
       x: 50,
       y: 50,
       fontSize: 16,
@@ -30,111 +57,43 @@ export default function TextEditor({ textElements, setTextElements }: TextEditor
     setTextElements([...textElements, newElement]);
   };
 
-  const updateTextElement = (id: string, newProps: Partial<TextElement>) => {
-    setTextElements(
-      textElements.map((el) => (el.id === id ? { ...el, ...newProps } : el))
-    );
-  };
-
-  const removeTextElement = (id: string) => {
-    setTextElements(textElements.filter((el) => el.id !== id));
-  };
-
   return (
     <div className="space-y-6">
-      <Button onClick={addTextElement} className="w-full">
-        <Plus className="mr-2 h-4 w-4" /> Add Text Field
-      </Button>
-      <Accordion type="multiple" className="w-full space-y-2">
-        {textElements.map((element, index) => (
-          <AccordionItem key={element.id} value={element.id} className="border rounded-md px-4 bg-background">
-            <AccordionTrigger className="py-3 text-sm font-medium hover:no-underline">
-              Text Field {index + 1}
-            </AccordionTrigger>
-            <AccordionContent className="space-y-4 pt-2">
-              <div className="space-y-2">
-                <Label htmlFor={`content-${element.id}`}>Content</Label>
-                <Input
-                  id={`content-${element.id}`}
-                  value={element.content}
-                  onChange={(e) => updateTextElement(element.id, { content: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor={`font-family-${element.id}`}>Font Family</Label>
-                <Select
-                  value={element.fontFamily}
-                  onValueChange={(value) => updateTextElement(element.id, { fontFamily: value })}
-                >
-                  <SelectTrigger id={`font-family-${element.id}`}>
-                    <SelectValue placeholder="Select font" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Open Sans">Open Sans</SelectItem>
-                    <SelectItem value="Arial">Arial</SelectItem>
-                    <SelectItem value="Verdana">Verdana</SelectItem>
-                    <SelectItem value="Georgia">Georgia</SelectItem>
-                    <SelectItem value="Times New Roman">Times New Roman</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor={`color-${element.id}`}>Color</Label>
-                  <Input
-                    id={`color-${element.id}`}
-                    type="color"
-                    value={element.color}
-                    onChange={(e) => updateTextElement(element.id, { color: e.target.value })}
-                    className="p-1 h-10"
-                  />
-                </div>
-                 <div className="space-y-2">
-                    <Label htmlFor={`font-weight-${element.id}`}>Weight</Label>
-                    <Select
-                        value={String(element.fontWeight)}
-                        onValueChange={(value) => updateTextElement(element.id, { fontWeight: Number(value) })}
-                    >
-                        <SelectTrigger id={`font-weight-${element.id}`}>
-                            <SelectValue placeholder="Select weight" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="300">Light</SelectItem>
-                            <SelectItem value="400">Regular</SelectItem>
-                            <SelectItem value="600">Semi-Bold</SelectItem>
-                            <SelectItem value="700">Bold</SelectItem>
-                        </SelectContent>
-                    </Select>
-                 </div>
-              </div>
-              <div className="space-y-2">
-                <Label>Font Size: {element.fontSize}px</Label>
-                <Slider
-                  value={[element.fontSize]}
-                  onValueChange={([value]) => updateTextElement(element.id, { fontSize: value })}
-                  min={8} max={72} step={1}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Position (X, Y)</Label>
-                <div className="space-y-2">
-                   <Slider value={[element.x]} onValueChange={([value]) => updateTextElement(element.id, { x: value })} />
-                   <Slider value={[element.y]} onValueChange={([value]) => updateTextElement(element.id, { y: value })} />
-                </div>
-              </div>
-              <Button
-                variant="destructive"
-                size="sm"
-                className="w-full"
-                onClick={() => removeTextElement(element.id)}
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Remove
-              </Button>
-            </AccordionContent>
-          </AccordionItem>
-        ))}
-      </Accordion>
+      <div>
+        <h3 className="text-md font-semibold text-gray-800 mb-3">Static Text</h3>
+        <div className="grid grid-cols-2 gap-4">
+            <OptionButton icon={Type} label="Single Line" onClick={() => addTextElement("Single Line")} />
+            <OptionButton icon={AlignLeft} label="Multi Line Text" onClick={() => addTextElement("Multi\nLine")} />
+        </div>
+      </div>
+      <div>
+        <div className="flex items-center mb-3">
+            <h3 className="text-md font-semibold text-gray-800">Variable Text</h3>
+            <HelpCircle className="w-4 h-4 text-gray-400 ml-2" />
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+            <VariableOptionButton icon={User} label="Full Name" onClick={() => addTextElement("{{fullName}}")} />
+            <VariableOptionButton icon={PenSquare} label="First Name" onClick={() => addTextElement("{{firstName}}")} />
+            <VariableOptionButton icon={PenSquare} label="Last Name" onClick={() => addTextElement("{{lastName}}")} />
+            <VariableOptionButton icon={Bookmark} label="Title" onClick={() => addTextElement("{{title}}")} />
+             <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <div className="flex flex-col items-center justify-center w-full p-3 space-y-1 text-center bg-white border rounded-lg shadow-sm hover:bg-gray-50 cursor-pointer">
+                        <MoreHorizontal className="w-6 h-6 text-gray-600" />
+                        <span className="text-sm font-medium text-gray-800">More</span>
+                    </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56">
+                <DropdownMenuItem onSelect={() => addTextElement("{{department}}")}>
+                    Department
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => addTextElement("{{employeeId}}")}>
+                    Employee ID
+                </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+        </div>
+      </div>
     </div>
   );
 }

@@ -65,6 +65,7 @@ export default function Home() {
   const [selectedElement, setSelectedElement] = useState<string | null>(null);
   const [isCustomizePanelOpen, setIsCustomizePanelOpen] = useState(false);
   const [isBackside, setIsBackside] = useState(false);
+  const wasCustomizePanelManuallyClosed = useRef(false);
 
 
   const handleDownload = useCallback(async () => {
@@ -76,19 +77,47 @@ export default function Home() {
   const handleSelectElement = (elementId: string | null) => {
     const isSameElement = selectedElement === elementId;
     setSelectedElement(elementId);
+    
     if (elementId) {
         setActiveTool(null);
     }
+    
     // Only open customize panel if it's a new selection
+    // and it wasn't manually closed before for the same selection.
     if (elementId && !isSameElement) {
+        if (!wasCustomizePanelManuallyClosed.current) {
+            setIsCustomizePanelOpen(true);
+        }
+    } else if (elementId && isSameElement) {
+        // If same element is clicked, and panel was closed, open it.
+        if (wasCustomizePanelManuallyClosed.current) {
+             setIsCustomizePanelOpen(true);
+             wasCustomizePanelManuallyClosed.current = false;
+        }
+    }
+
+    if (elementId && isSameElement) {
         setIsCustomizePanelOpen(true);
+    } else if (elementId) {
+        setIsCustomizePanelOpen(true);
+        wasCustomizePanelManuallyClosed.current = false;
     }
   }
 
+  const closeCustomizePanel = () => {
+    setIsCustomizePanelOpen(false);
+    wasCustomizePanelManuallyClosed.current = true;
+  }
+
   const toggleCustomizePanel = () => {
-    // Can only open customize if an element is selected
     if (selectedElement) {
-        setIsCustomizePanelOpen(!isCustomizePanelOpen);
+        const willBeOpen = !isCustomizePanelOpen;
+        setIsCustomizePanelOpen(willBeOpen);
+        if (!willBeOpen) {
+            wasCustomizePanelManuallyClosed.current = true;
+        } else {
+            wasCustomizePanelManuallyClosed.current = false;
+        }
     } else {
         setIsCustomizePanelOpen(false);
     }
@@ -129,12 +158,10 @@ export default function Home() {
            <button
               key="customize"
                onClick={() => {
-                if(selectedElement) {
-                    setIsCustomizePanelOpen(!isCustomizePanelOpen)
+                 toggleCustomizePanel()
+                 if(selectedElement) {
                     setActiveTool(null)
-                } else {
-                    // Maybe select image by default? or toast a message
-                }
+                 }
               }}
               disabled={!selectedElement}
               className={cn(
@@ -188,7 +215,7 @@ export default function Home() {
                         selectedElement={selectedElement}
                         image={image}
                         setImage={setImage}
-                        onClose={() => setIsCustomizePanelOpen(false)}
+                        onClose={closeCustomizePanel}
                      />
                 )}
             </div>
