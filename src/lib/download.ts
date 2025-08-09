@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { Template, ImageElement, TextElement, ShapeElement } from "@/types";
@@ -30,30 +31,56 @@ export async function downloadAsSvg(
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&apos;");
+      
+      const textAnchor = text.align === 'left' ? 'start' : text.align === 'right' ? 'end' : 'middle';
 
-      return `<text x="${x}" y="${y}" font-family="${text.fontFamily}, sans-serif" font-size="${text.fontSize}" font-weight="${text.fontWeight}" fill="${text.color}" text-anchor="middle" dominant-baseline="middle">${sanitizedContent}</text>`;
+      return `<text x="${x}" y="${y}" font-family="${text.fontFamily}, sans-serif" font-size="${text.fontSize}" font-weight="${text.isBold ? 'bold' : text.fontWeight}" font-style="${text.isItalic ? 'italic' : 'normal'}" text-decoration="${text.isUnderline ? 'underline' : 'none'}" fill="${text.color}" opacity="${1 - (text.transparency || 0) / 100}" text-anchor="${textAnchor}" dominant-baseline="middle" transform="rotate(${text.rotation || 0} ${x} ${y})">${sanitizedContent}</text>`;
     })
     .join("");
 
-  const shapeElementsSvg = shapes.map(shape => {
-    const x = (template.width * shape.x) / 100;
-    const y = (template.height * shape.y) / 100;
-    const width = (template.width * shape.width) / 100;
-    const height = (template.height * shape.height) / 100;
-    return `<rect x="${x}" y="${y}" width="${width}" height="${height}" fill="${shape.color}" />`
-  }).join("");
+    const shapeElementsSvg = shapes.map(shape => {
+        const x = (template.width * (shape.x - shape.width / 2)) / 100;
+        const y = (template.height * (shape.y - shape.height / 2)) / 100;
+        const width = (template.width * shape.width) / 100;
+        const height = (template.height * shape.height) / 100;
+        const cx = x + width / 2;
+        const cy = y + height / 2;
+
+        const commonAttributes = `
+            stroke="${shape.strokeColor}"
+            stroke-width="${shape.strokeWidth}"
+            opacity="${1 - (shape.transparency || 0) / 100}"
+            transform="rotate(${shape.rotation || 0} ${cx} ${cy})"
+        `;
+    
+        if (shape.type === 'rectangle') {
+            return `<rect x="${x}" y="${y}" width="${width}" height="${height}" fill="${shape.fillColor}" ${commonAttributes} />`;
+        }
+        if (shape.type === 'circle') {
+            return `<ellipse cx="${cx}" cy="${cy}" rx="${width / 2}" ry="${height / 2}" fill="${shape.fillColor}" ${commonAttributes} />`;
+        }
+        if (shape.type === 'line') {
+             return `<line x1="${x}" y1="${cy}" x2="${x + width}" y2="${cy}" stroke="${shape.strokeColor}" stroke-width="${shape.strokeWidth}" opacity="${1-(shape.transparency || 0) / 100}" transform="rotate(${shape.rotation || 0} ${cx} ${cy})" />`;
+        }
+        if (shape.type === 'triangle') {
+             const points = `${cx},${y} ${x + width},${y + height} ${x},${y + height}`;
+             return `<polygon points="${points}" fill="${shape.fillColor}" ${commonAttributes} />`;
+        }
+        return '';
+    }).join("");
+
 
     let imageSvg = "";
     if (imageBase64) {
-        // These values are based on the new interactive image preview
-        const imgWidth = 150; 
-        const imgHeight = 150;
-        const imgX = (template.width * image.x) / 100;
-        const imgY = (template.height * image.y) / 100;
-
+        const imgContainerWidth = (template.width * image.width) / 100;
+        const imgContainerHeight = (template.height * image.height) / 100;
+        const imgContainerX = (template.width * image.x) / 100 - imgContainerWidth/2;
+        const imgContainerY = (template.height * image.y) / 100 - imgContainerHeight/2;
+       
         imageSvg = `
-          <g transform="translate(${imgX} ${imgY}) rotate(${image.rotation}) scale(${image.scale / 100})">
-            <image href="${imageBase64}" x="-${imgWidth / 2}" y="-${imgHeight / 2}" width="${imgWidth}" height="${imgHeight}" />
+          <g transform="translate(${imgContainerX + imgContainerWidth/2} ${imgContainerY + imgContainerHeight/2}) rotate(${image.rotation}) translate(-${imgContainerX + imgContainerWidth/2}, -${imgContainerY + imgContainerHeight/2})">
+            <image href="${imageBase64}" x="${imgContainerX}" y="${imgContainerY}" width="${imgContainerWidth}" height="${imgContainerHeight}" opacity="${1-image.transparency/100}" />
+             ${image.borderSize > 0 ? `<rect x="${imgContainerX}" y="${imgContainerY}" width="${imgContainerWidth}" height="${imgContainerHeight}" fill="none" stroke="${image.borderColor}" stroke-width="${image.borderSize}" />` : ''}
           </g>
         `;
     }

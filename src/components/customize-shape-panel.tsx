@@ -34,21 +34,6 @@ export default function CustomizeShapePanel({ element, onUpdate }: CustomizeShap
     
     return (
         <div className="space-y-4">
-            {element.type !== 'line' && (
-                <div className="space-y-2">
-                    <Label>Fill Color</Label>
-                    <div className="flex items-center gap-2 border rounded-md p-1">
-                         <Input
-                            type="color"
-                            value={element.fillColor}
-                            onChange={(e) => onUpdate({...element, fillColor: e.target.value})}
-                            className="p-0 h-8 w-8 border-none"
-                         />
-                         <span>{element.fillColor}</span>
-                    </div>
-                </div>
-            )}
-
             <div className="space-y-2">
                 <div className="flex justify-between items-center">
                     <Label>{element.type === 'line' ? 'Line Thickness' : 'Line Thickness'}</Label>
@@ -68,6 +53,21 @@ export default function CustomizeShapePanel({ element, onUpdate }: CustomizeShap
                      <span>{element.strokeColor}</span>
                 </div>
             </div>
+            
+            {element.type !== 'line' && (
+                <div className="space-y-2">
+                    <Label>Fill Color</Label>
+                    <div className="flex items-center gap-2 border rounded-md p-1">
+                         <Input
+                            type="color"
+                            value={element.fillColor}
+                            onChange={(e) => onUpdate({...element, fillColor: e.target.value})}
+                            className="p-0 h-8 w-8 border-none"
+                         />
+                         <span>{element.fillColor}</span>
+                    </div>
+                </div>
+            )}
 
             <div className="space-y-2">
                 <div className="flex justify-between items-center">

@@ -289,7 +289,6 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                            backgroundColor: shape.type !== 'triangle' ? shape.fillColor : undefined,
                            border: `${shape.strokeWidth}px solid ${shape.strokeColor}`,
                            boxSizing: 'border-box',
-                           opacity: 1 - (shape.transparency || 0) / 100,
                         };
                         
                         if (shape.type === 'circle') {
@@ -305,7 +304,9 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                                  borderLeft: `${size/2}px solid transparent`,
                                  borderRight: `${size/2}px solid transparent`,
                                  borderBottom: `${size}px solid ${shape.fillColor}`,
-                                 opacity: 1 - (shape.transparency || 0) / 100,
+                                 borderTop: `${shape.strokeWidth}px solid ${shape.strokeColor}`,
+                                 borderLeftColor: 'transparent',
+                                 borderRightColor: 'transparent',
                              }}/>
                         } else if (shape.type === 'line') {
                             style.height = `${shape.strokeWidth}px`;
