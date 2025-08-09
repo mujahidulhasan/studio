@@ -74,9 +74,14 @@ export default function Home() {
   }, [template, image, textElements, shapeElements]);
 
   const handleSelectElement = (elementId: string | null) => {
+    const isSameElement = selectedElement === elementId;
     setSelectedElement(elementId);
     if (elementId) {
         setActiveTool(null);
+    }
+    // Only open customize panel if it's a new selection
+    if (elementId && !isSameElement) {
+        setIsCustomizePanelOpen(true);
     }
   }
 
@@ -202,7 +207,6 @@ export default function Home() {
                     isSelected={selectedElement === 'image'}
                     onImageSelect={() => {
                         handleSelectElement('image');
-                        setIsCustomizePanelOpen(true);
                     }}
                 />
                 <div className="flex items-center gap-4">
