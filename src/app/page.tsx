@@ -21,7 +21,7 @@ const toolConfig = [
     { id: "records", icon: Database, label: "Records", disabled: true },
 ];
 
-export default function Home() {
+export default function Home(props: {}) {
   const [template, setTemplate] = useState<Template>(templates[0]);
   const [image, setImage] = useState<ImageElement>({
     src: null,
