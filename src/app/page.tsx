@@ -7,21 +7,21 @@ import Header from "@/components/header";
 import EditorPanel from "@/components/editor-panel";
 import IdCardPreview from "@/components/id-card-preview";
 import { Button } from "@/components/ui/button";
-import { Download, PanelLeft, LayoutTemplate, ImageIcon, Type, Square, Shield, Database, X } from "lucide-react";
+import { Download, PanelLeft, LayoutTemplate, Image as ImageIcon, Type, Square, Shield, Database, X } from "lucide-react";
 import { downloadAsSvg } from "@/lib/download";
 import { cn } from "@/lib/utils";
 
 
 const toolConfig = [
     { id: "template", icon: LayoutTemplate, label: "Card Options" },
-    { id: "photo", icon: ImageIcon, label: "Image" },
+    { id: "photo", icon: ImageIcon, label: "Images" },
     { id: "text", icon: Type, label: "Text" },
     { id: "shapes", icon: Square, label: "Shapes" },
     { id: "security", icon: Shield, label: "Security", disabled: true },
     { id: "records", icon: Database, label: "Records", disabled: true },
 ];
 
-export default function Home(props: {}) {
+export default function Home() {
   const [template, setTemplate] = useState<Template>(templates[0]);
   const [image, setImage] = useState<ImageElement>({
     src: null,
@@ -96,7 +96,7 @@ export default function Home(props: {}) {
                 {activePanel && (
                      <div className="p-4 flex flex-col h-full">
                         <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-lg font-semibold">{currentTool?.label}</h2>
+                            <h2 className="text-lg font-semibold">{currentTool?.label === 'Images' ? 'Images' : currentTool?.label}</h2>
                             <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setActivePanel(null)}>
                                 <X className="w-4 h-4"/>
                             </Button>

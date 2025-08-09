@@ -48,9 +48,9 @@ export default function TemplateSelector({ selectedTemplate, onSelectTemplate }:
 
   return (
     <div className="space-y-4">
-      <Separator />
       <div className="space-y-3">
         <div className="font-medium text-sm text-black">Orientation</div>
+        <Separator className="my-2" />
         <div className="flex items-center gap-2 bg-muted p-1 rounded-lg">
             <div
                 onClick={() => handleOrientationChange('horizontal')}
