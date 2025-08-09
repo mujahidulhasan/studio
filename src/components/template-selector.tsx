@@ -48,13 +48,17 @@ export default function TemplateSelector({ selectedTemplate, onSelectTemplate }:
 
   return (
     <div className="space-y-4">
+       <div className="space-y-3">
+        <div className="font-bold text-base text-black">Card</div>
+      </div>
+      <Separator />
       <div className="space-y-3">
         <div className="font-bold text-base text-black">Orientation</div>
         <div className="flex items-center gap-2">
             <div
                 onClick={() => handleOrientationChange('horizontal')}
                 className={cn(
-                    "flex w-[80px] cursor-pointer flex-col items-center rounded-lg p-2 transition-colors",
+                    "flex w-auto cursor-pointer flex-col items-center rounded-lg p-2 transition-colors",
                     !isVertical ? "bg-white text-[#4bb058]" : "bg-transparent text-gray-700 hover:bg-white/50"
                 )}
             >
@@ -67,7 +71,7 @@ export default function TemplateSelector({ selectedTemplate, onSelectTemplate }:
             <div
                 onClick={() => handleOrientationChange('vertical')}
                 className={cn(
-                  "flex w-[80px] cursor-pointer flex-col items-center rounded-lg p-2 transition-colors",
+                  "flex w-auto cursor-pointer flex-col items-center rounded-lg p-2 transition-colors",
                   isVertical ? "bg-white text-[#4bb058]" : "bg-transparent text-gray-700 hover:bg-white/50"
                 )}
             >
