@@ -38,6 +38,8 @@ export interface ShapeElement {
   width: number; // percentage
   height: number; // percentage
   color: string;
+  rotation: number;
+  transparency: number;
 }
 
 export interface Template {

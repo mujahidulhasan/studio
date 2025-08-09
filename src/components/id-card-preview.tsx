@@ -13,6 +13,7 @@ interface IdCardPreviewProps {
   image: ImageElement;
   setImage: React.Dispatch<React.SetStateAction<ImageElement>>;
   textElements: TextElement[];
+  setTextElements: React.Dispatch<React.SetStateAction<TextElement[]>>;
   shapeElements: ShapeElement[];
   setShapeElements: React.Dispatch<React.SetStateAction<ShapeElement[]>>;
   slotPunch: SlotPunch;
@@ -68,13 +69,17 @@ type InteractionTarget =
     | null;
 
 const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
-  ({ template, image, setImage, textElements, shapeElements, setShapeElements, slotPunch, isBackside, selectedElement, onSelectElement }, ref) => {
+  ({ template, image, setImage, textElements, setTextElements, shapeElements, setShapeElements, slotPunch, isBackside, selectedElement, onSelectElement }, ref) => {
     const [interaction, setInteraction] = useState<InteractionMode>('none');
     const [startPoint, setStartPoint] = useState({ x: 0, y: 0 });
     const [originalTarget, setOriginalTarget] = useState<InteractionTarget>(null);
-    const imageContainerRef = useRef<HTMLDivElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
 
     const isImageSelected = selectedElement === 'image';
+    
+    const getShapeUpdater = (id: string) => (updater: (s: ShapeElement) => ShapeElement) => {
+        setShapeElements(prev => prev.map(s => s.id === id ? updater(s) : s));
+    }
 
     const handleInteractionStart = (e: React.MouseEvent<HTMLDivElement>, mode: InteractionMode, target: InteractionTarget) => {
         if (!target) return;
@@ -84,7 +89,7 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
         setInteraction(mode);
         setOriginalTarget(target);
 
-        const cardRect = (ref as React.RefObject<HTMLDivElement>)?.current?.getBoundingClientRect();
+        const cardRect = containerRef.current?.getBoundingClientRect();
         if (!cardRect) return;
 
         const startX = e.clientX - cardRect.left;
@@ -104,87 +109,86 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
         e.preventDefault();
         e.stopPropagation();
 
-        const cardRect = (ref as React.RefObject<HTMLDivElement>)?.current?.getBoundingClientRect();
+        const cardRect = containerRef.current?.getBoundingClientRect();
         if (!cardRect) return;
 
         const currentX = e.clientX - cardRect.left;
         const currentY = e.clientY - cardRect.top;
         const dx = (currentX - startPoint.x);
         const dy = (currentY - startPoint.y);
-        
-        if (originalTarget.type === 'image') {
-            const originalImage = originalTarget.element;
-            const rad = (originalImage.rotation * Math.PI) / 180;
-            const cos = Math.cos(-rad);
-            const sin = Math.sin(-rad);
-            const rotDx = dx * cos - dy * sin;
-            const rotDy = dx * sin + dy * cos;
 
-            switch (interaction) {
-                case 'dragging': {
-                    setImage(prev => ({
-                        ...prev,
-                        x: ((currentX - startPoint.x) / cardRect.width) * 100,
-                        y: ((currentY - startPoint.y) / cardRect.height) * 100,
-                    }));
-                    break;
-                }
-                case 'rotating': {
-                    const centerX = (image.x / 100) * cardRect.width;
-                    const centerY = (image.y / 100) * cardRect.height;
-                    const startAngle = Math.atan2(startPoint.y - centerY, startPoint.x - centerX) * (180 / Math.PI);
-                    const currentAngle = Math.atan2(currentY - centerY, currentX - centerX) * (180 / Math.PI);
-                    const angleDelta = currentAngle - startAngle;
-                    let newRotation = (originalImage.rotation + angleDelta);
-                    setImage(prev => ({...prev, rotation: newRotation}));
-                    break;
-                }
-                case 'resizing-br': {
-                     setImage(prev => ({
-                        ...prev,
-                        width: (originalImage.width + (rotDx / cardRect.width) * 100),
-                        height: (originalImage.height + (rotDy / cardRect.height) * 100),
-                     }));
-                     break;
-                }
-                case 'resizing-bl': {
-                     setImage(prev => ({
-                        ...prev,
-                        width: (originalImage.width - (rotDx / cardRect.width) * 100),
-                        height: (originalImage.height + (rotDy / cardRect.height) * 100),
-                        x: originalImage.x + (dx/cardRect.width)*50,
-                        y: originalImage.y + (dy/cardRect.height)*50,
-                     }));
-                     break;
-                }
-                case 'resizing-tr': {
-                     setImage(prev => ({
-                        ...prev,
-                        width: (originalImage.width + (rotDx / cardRect.width) * 100),
-                        height: (originalImage.height - (rotDy / cardRect.height) * 100),
-                        x: originalImage.x + (dx/cardRect.width)*50,
-                        y: originalImage.y + (dy/cardRect.height)*50,
-                     }));
-                     break;
-                }
-                 case 'resizing-tl': {
-                     setImage(prev => ({
-                        ...prev,
-                        width: (originalImage.width - (rotDx / cardRect.width) * 100),
-                        height: (originalImage.height - (rotDy / cardRect.height) * 100),
-                        x: originalImage.x + (dx/cardRect.width)*50,
-                        y: originalImage.y + (dy/cardRect.height)*50,
-                     }));
-                     break;
-                }
+        const updateElement = (updater: (prev: any) => any) => {
+            if (originalTarget.type === 'image') {
+                setImage(updater);
+            } else if (originalTarget.type === 'shape') {
+                const shapeUpdater = getShapeUpdater(originalTarget.element.id);
+                shapeUpdater(updater as (s: ShapeElement) => ShapeElement);
             }
-        } else if (originalTarget.type === 'shape') {
-             if (interaction === 'dragging') {
-                setShapeElements(prev => prev.map(s => 
-                    s.id === originalTarget.element.id 
-                    ? { ...s, x: ((currentX - startPoint.x) / cardRect.width) * 100, y: ((currentY - startPoint.y) / cardRect.height) * 100 }
-                    : s
-                ));
+        };
+        
+        const originalElement = originalTarget.element;
+        const rad = (originalElement.rotation * Math.PI) / 180;
+        const cos = Math.cos(-rad);
+        const sin = Math.sin(-rad);
+        const rotDx = dx * cos - dy * sin;
+        const rotDy = dx * sin + dy * cos;
+
+        switch (interaction) {
+            case 'dragging': {
+                updateElement(prev => ({
+                    ...prev,
+                    x: ((currentX - startPoint.x) / cardRect.width) * 100,
+                    y: ((currentY - startPoint.y) / cardRect.height) * 100,
+                }));
+                break;
+            }
+            case 'rotating': {
+                const centerX = (originalElement.x / 100) * cardRect.width;
+                const centerY = (originalElement.y / 100) * cardRect.height;
+                const startAngle = Math.atan2(startPoint.y - centerY, startPoint.x - centerX) * (180 / Math.PI);
+                const currentAngle = Math.atan2(currentY - centerY, currentX - centerX) * (180 / Math.PI);
+                const angleDelta = currentAngle - startAngle;
+                let newRotation = (originalElement.rotation + angleDelta);
+                updateElement(prev => ({...prev, rotation: newRotation}));
+                break;
+            }
+            case 'resizing-br': {
+                 updateElement(prev => ({
+                    ...prev,
+                    width: (originalElement.width + (rotDx / cardRect.width) * 100),
+                    height: (originalElement.height + (rotDy / cardRect.height) * 100),
+                 }));
+                 break;
+            }
+            case 'resizing-bl': {
+                 updateElement(prev => ({
+                    ...prev,
+                    width: (originalElement.width - (rotDx / cardRect.width) * 100),
+                    height: (originalElement.height + (rotDy / cardRect.height) * 100),
+                    x: originalElement.x + (dx/cardRect.width)*50,
+                    y: originalElement.y + (dy/cardRect.height)*50,
+                 }));
+                 break;
+            }
+            case 'resizing-tr': {
+                 updateElement(prev => ({
+                    ...prev,
+                    width: (originalElement.width + (rotDx / cardRect.width) * 100),
+                    height: (originalElement.height - (rotDy / cardRect.height) * 100),
+                    x: originalElement.x + (dx/cardRect.width)*50,
+                    y: originalElement.y + (dy/cardRect.height)*50,
+                 }));
+                 break;
+            }
+             case 'resizing-tl': {
+                 updateElement(prev => ({
+                    ...prev,
+                    width: (originalElement.width - (rotDx / cardRect.width) * 100),
+                    height: (originalElement.height - (rotDy / cardRect.height) * 100),
+                    x: originalElement.x + (dx/cardRect.width)*50,
+                    y: originalElement.y + (dy/cardRect.height)*50,
+                 }));
+                 break;
             }
         }
     };
@@ -200,6 +204,61 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
         { bottom: '-4px', left: '-4px', cursor: 'nesw-resize', mode: 'resizing-bl' as InteractionMode },
         { bottom: '-4px', right: '-4px', cursor: 'nwse-resize', mode: 'resizing-br' as InteractionMode },
     ];
+
+    const renderInteractiveShell = (element: ImageElement | ShapeElement, type: 'image' | 'shape', children: React.ReactNode) => {
+        const isSelected = selectedElement === element.id;
+
+        return (
+             <div
+                className="absolute group"
+                 style={{
+                    top: `${element.y}%`,
+                    left: `${element.x}%`,
+                    width: `${element.width}%`,
+                    height: `${element.height}%`,
+                    transform: `translate(-50%, -50%) rotate(${element.rotation}deg)`,
+                    transformOrigin: 'center center',
+                    cursor: interaction === 'dragging' ? 'grabbing' : 'grab',
+                    opacity: 1 - ((element as any).transparency || 0) / 100,
+                }}
+                onMouseDown={(e) => handleInteractionStart(e, 'dragging', {type, element} as InteractionTarget)}
+            >
+                <div className={cn(
+                    "relative w-full h-full",
+                    isSelected ? "border border-blue-500" : "border-transparent"
+                )}
+                 style={{
+                    borderWidth: '1px',
+                    boxSizing: 'border-box'
+                 }}
+                >
+                    {children}
+                </div>
+                
+                {isSelected && <>
+                    {/* Resize Handles */}
+                    {resizeHandles.map((handle) => (
+                         <div
+                            key={handle.mode}
+                            className="absolute w-2 h-2 bg-white border border-blue-500 z-10"
+                            style={{ ...handle, cursor: handle.cursor }}
+                            onMouseDown={(e) => handleInteractionStart(e, handle.mode, {type, element} as InteractionTarget)}
+                        />
+                    ))}
+
+                    {/* Rotate Handle */}
+                    <div className="absolute w-px h-4 bg-blue-500 z-10" style={{top: '-20px', left: '50%', transform: 'translateX(-50%)'}}></div>
+                    <div
+                        className="absolute w-4 h-4 bg-white border border-blue-500 rounded-full z-10"
+                        style={{ top: '-28px', left: '50%', transform: 'translateX(-50%)', cursor: 'alias'}}
+                        onMouseDown={(e) => handleInteractionStart(e, 'rotating', {type, element} as InteractionTarget)}
+                    >
+                    </div>
+                </>}
+
+            </div>
+        )
+    }
     
     return (
       <div
@@ -214,161 +273,113 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
         onMouseUp={handleInteractionEnd}
         onMouseLeave={handleInteractionEnd}
       >
-        {isBackside ? (
-            <div className="w-full h-full flex items-center justify-center text-muted-foreground bg-gray-50">
-                Back Side
-            </div>
-        ) : (
-            <>
-                {/* Shape Elements */}
-                {shapeElements.map((shape) => {
-                    const style: React.CSSProperties = {
-                        position: 'absolute',
-                        left: `${shape.x}%`,
-                        top: `${shape.y}%`,
-                        width: `${shape.width}%`,
-                        height: `${shape.height}%`,
-                        transform: 'translate(-50%, -50%)',
-                        cursor: interaction === 'dragging' && selectedElement === shape.id ? 'grabbing' : 'grab',
-                    };
-                    
-                    let shapeContent;
-                    
-                    if (shape.type === 'circle') {
-                        shapeContent = <div className="w-full h-full rounded-full" style={{backgroundColor: shape.color}}/>
-                    } else if (shape.type === 'triangle') {
-                         shapeContent = <div style={{
-                             width: 0,
-                             height: 0,
-                             borderLeft: `${shape.width/2}px solid transparent`,
-                             borderRight: `${shape.width/2}px solid transparent`,
-                             borderBottom: `${shape.height}px solid ${shape.color}`
-                         }}/>
-                    } else { // rectangle or line
-                        shapeContent = <div className="w-full h-full" style={{backgroundColor: shape.color}}/>
-                    }
+        <div ref={containerRef} className="w-full h-full">
+            {isBackside ? (
+                <div className="w-full h-full flex items-center justify-center text-muted-foreground bg-gray-50">
+                    Back Side
+                </div>
+            ) : (
+                <>
+                    {/* Shape Elements */}
+                    {shapeElements.map((shape) => {
+                        let shapeContent;
+                        const style: React.CSSProperties = {
+                           width: '100%',
+                           height: '100%',
+                           backgroundColor: shape.type !== 'triangle' ? shape.color : undefined,
+                           opacity: 1 - (shape.transparency || 0) / 100,
+                        };
+                        
+                        if (shape.type === 'circle') {
+                            shapeContent = <div className="w-full h-full rounded-full" style={style}/>
+                        } else if (shape.type === 'triangle') {
+                            const size = Math.min(
+                                (template.width * shape.width) / 100,
+                                (template.height * shape.height) / 100
+                            );
+                             shapeContent = <div style={{
+                                 width: 0,
+                                 height: 0,
+                                 borderLeft: `${size/2}px solid transparent`,
+                                 borderRight: `${size/2}px solid transparent`,
+                                 borderBottom: `${size}px solid ${shape.color}`,
+                                 opacity: 1 - (shape.transparency || 0) / 100,
+                             }}/>
+                        } else { // rectangle or line
+                            shapeContent = <div style={style}/>
+                        }
 
-                    return (
-                        <div
-                            key={shape.id}
-                            style={style}
-                            className={cn(
-                                "absolute",
-                                selectedElement === shape.id && "border border-blue-500 border-dashed"
-                            )}
-                            onMouseDown={(e) => handleInteractionStart(e, 'dragging', {type: 'shape', element: shape})}
-                        >
-                            {shapeContent}
-                        </div>
-                    );
-                })}
+                        return (
+                           <div key={shape.id} onMouseDown={(e) => onSelectElement(shape.id)}>
+                             {renderInteractiveShell(shape, 'shape', shapeContent)}
+                           </div>
+                        );
+                    })}
 
 
-                {/* User Photo */}
-                {image.src && (
-                <div
-                    ref={imageContainerRef}
-                    className="absolute group"
-                     style={{
-                        top: `${image.y}%`,
-                        left: `${image.x}%`,
-                        width: `${image.width}%`,
-                        height: `${image.height}%`,
-                        transform: `translate(-50%, -50%) rotate(${image.rotation}deg)`,
-                        transformOrigin: 'center center',
-                        opacity: 1 - image.transparency / 100,
-                        cursor: interaction === 'dragging' ? 'grabbing' : 'grab',
-                    }}
-                    onMouseDown={(e) => handleInteractionStart(e, 'dragging', {type: 'image', element: image})}
-                >
-                    <div className={cn(
-                        "relative w-full h-full border",
-                        isImageSelected ? "border-blue-500" : "border-transparent"
-                    )}
-                     style={{
-                        borderWidth: isImageSelected ? '1px' : `${image.borderSize}px`,
-                        borderColor: isImageSelected ? 'rgb(59 130 246)' : image.borderColor,
-                        borderRadius: '2px',
-                        boxSizing: 'border-box'
-                     }}
-                    >
-                        <Image
-                            src={image.src}
-                            alt="User photo"
-                            layout="fill"
-                            objectFit="cover"
-                            className="pointer-events-none"
-                        />
-                    </div>
-                    
-                    {isImageSelected && <>
-                        {/* Resize Handles */}
-                        {resizeHandles.map((handle) => (
-                             <div
-                                key={handle.mode}
-                                className="absolute w-2 h-2 bg-white border border-blue-500 z-10"
-                                style={{ ...handle, cursor: handle.cursor }}
-                                onMouseDown={(e) => handleInteractionStart(e, handle.mode, {type: 'image', element: image})}
+                    {/* User Photo */}
+                    {image.src && (
+                        renderInteractiveShell(image, 'image', (
+                            <Image
+                                src={image.src}
+                                alt="User photo"
+                                layout="fill"
+                                objectFit="cover"
+                                className="pointer-events-none"
+                                style={{
+                                    borderWidth: `${image.borderSize}px`,
+                                    borderColor: image.borderColor,
+                                    borderRadius: '2px',
+                                }}
                             />
-                        ))}
+                        ))
+                    )}
 
-                        {/* Rotate Handle */}
-                        <div className="absolute w-px h-4 bg-blue-500 z-10" style={{top: '-20px', left: '50%', transform: 'translateX(-50%)'}}></div>
-                        <div
-                            className="absolute w-4 h-4 bg-white border border-blue-500 rounded-full z-10"
-                            style={{ top: '-28px', left: '50%', transform: 'translateX(-50%)', cursor: 'alias'}}
-                            onMouseDown={(e) => handleInteractionStart(e, 'rotating', {type: 'image', element: image})}
+                    {/* Placeholder for Photo */}
+                    {!image.src && (
+                        <div 
+                        className="absolute bg-gray-200 flex items-center justify-center text-gray-500 text-xs text-center"
+                        style={{ top: '50px', left: '20px', width: '100px', height: '120px' }}
                         >
+                        Your Photo Here
                         </div>
-                    </>}
+                    )}
 
-                </div>
-                )}
-
-                {/* Placeholder for Photo */}
-                {!image.src && (
-                    <div 
-                    className="absolute bg-gray-200 flex items-center justify-center text-gray-500 text-xs text-center"
-                    style={{ top: '50px', left: '20px', width: '100px', height: '120px' }}
-                    >
-                    Your Photo Here
+                    {/* Static Template Elements */}
+                    <div className="absolute w-full h-full pointer-events-none">
+                        {/* Example of template specific static elements */}
+                        {template.id === 'modern' && <div className="absolute bottom-0 left-0 w-full h-4 bg-primary/80" />}
+                        {template.id === 'classic' && <div className="absolute top-4 right-4 text-xs font-bold text-gray-400">EMPLOYEE ID</div>}
+                        {template.id === 'vertical' && <div className="absolute top-4 left-4 text-primary font-bold">COMPANY</div>}
                     </div>
-                )}
-
-                {/* Static Template Elements */}
-                <div className="absolute w-full h-full pointer-events-none">
-                    {/* Example of template specific static elements */}
-                    {template.id === 'modern' && <div className="absolute bottom-0 left-0 w-full h-4 bg-primary/80" />}
-                    {template.id === 'classic' && <div className="absolute top-4 right-4 text-xs font-bold text-gray-400">EMPLOYEE ID</div>}
-                    {template.id === 'vertical' && <div className="absolute top-4 left-4 text-primary font-bold">COMPANY</div>}
-                </div>
-                
-                {/* Text Elements */}
-                {textElements.map((text) => (
-                    <div
-                        key={text.id}
-                        className={cn("absolute whitespace-nowrap cursor-pointer p-1", selectedElement === text.id && "border border-blue-500 border-dashed")}
-                        style={{
-                        left: `${text.x}%`,
-                        top: `${text.y}%`,
-                        transform: `translate(-50%, -50%) rotate(${text.rotation}deg)`,
-                        transformOrigin: 'center center',
-                        fontSize: `${text.fontSize}px`,
-                        fontFamily: text.fontFamily,
-                        fontWeight: text.isBold ? 'bold' : text.fontWeight,
-                        fontStyle: text.isItalic ? 'italic' : 'normal',
-                        textDecoration: text.isUnderline ? 'underline' : 'none',
-                        color: text.color,
-                        opacity: 1 - (text.transparency || 0) / 100,
-                        textAlign: text.align,
-                        }}
-                        onClick={() => onSelectElement(text.id)}
-                    >
-                        {text.content}
-                    </div>
-                ))}
-            </>
-        )}
+                    
+                    {/* Text Elements */}
+                    {textElements.map((text) => (
+                        <div
+                            key={text.id}
+                            className={cn("absolute whitespace-nowrap cursor-pointer p-1", selectedElement === text.id && "border border-blue-500 border-dashed")}
+                            style={{
+                            left: `${text.x}%`,
+                            top: `${text.y}%`,
+                            transform: `translate(-50%, -50%) rotate(${text.rotation || 0}deg)`,
+                            transformOrigin: 'center center',
+                            fontSize: `${text.fontSize}px`,
+                            fontFamily: text.fontFamily,
+                            fontWeight: text.isBold ? 'bold' : text.fontWeight,
+                            fontStyle: text.isItalic ? 'italic' : 'normal',
+                            textDecoration: text.isUnderline ? 'underline' : 'none',
+                            color: text.color,
+                            opacity: 1 - (text.transparency || 0) / 100,
+                            textAlign: text.align,
+                            }}
+                            onClick={() => onSelectElement(text.id)}
+                        >
+                            {text.content}
+                        </div>
+                    ))}
+                </>
+            )}
+        </div>
         <SlotPunchHole type={slotPunch} cardWidth={template.width} cardHeight={template.height} />
       </div>
     );

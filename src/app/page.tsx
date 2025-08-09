@@ -40,7 +40,7 @@ export default function Home() {
   });
   const [textElements, setTextElements] = useState<TextElement[]>([
     {
-      id: "name",
+      id: "text-name",
       content: "Jane Doe",
       x: 50,
       y: 70,
@@ -56,7 +56,7 @@ export default function Home() {
       align: 'center',
     },
     {
-      id: "title",
+      id: "text-title",
       content: "Software Engineer",
       x: 50,
       y: 80,
@@ -245,6 +245,7 @@ export default function Home() {
                     image={image}
                     setImage={setImage}
                     textElements={textElements}
+                    setTextElements={setTextElements}
                     shapeElements={shapeElements}
                     setShapeElements={setShapeElements}
                     slotPunch={'none'}

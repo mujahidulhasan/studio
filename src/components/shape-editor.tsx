@@ -27,11 +27,13 @@ export default function ShapeEditor({ shapeElements, setShapeElements }: ShapeEd
     const newElement: ShapeElement = {
       id: `${type}-${Date.now()}`,
       type: type,
-      x: 25,
-      y: 25,
+      x: 50,
+      y: 50,
       width: type === 'line' ? 50 : 25,
       height: type === 'line' ? 1 : 25,
       color: "#3B82F6",
+      rotation: 0,
+      transparency: 0,
     };
     setShapeElements([...shapeElements, newElement]);
   };

@@ -3,6 +3,7 @@ import React from "react";
 import type { Dispatch, SetStateAction } from "react";
 import CustomizeImagePanel from "@/components/customize-image-panel";
 import CustomizeTextPanel from "@/components/customize-text-panel";
+import CustomizeShapePanel from "@/components/customize-shape-panel";
 import type { ImageElement, TextElement, ShapeElement } from "@/types";
 import { Button } from "./ui/button";
 import { X } from "lucide-react";
@@ -32,8 +33,16 @@ export default function CustomizePanel({ selectedElement, image, setImage, textE
         ? textElements.find(el => el.id === selectedElement)
         : null;
 
+    const selectedShapeElement = selectedElement && selectedElement.startsWith('shape-')
+        ? shapeElements.find(el => el.id === selectedElement)
+        : null;
+
     const handleUpdateText = (updatedElement: TextElement) => {
         setTextElements(prev => prev.map(el => el.id === updatedElement.id ? updatedElement : el));
+    }
+
+    const handleUpdateShape = (updatedElement: ShapeElement) => {
+        setShapeElements(prev => prev.map(el => el.id === updatedElement.id ? updatedElement : el));
     }
     
     return (
@@ -54,7 +63,12 @@ export default function CustomizePanel({ selectedElement, image, setImage, textE
                         onUpdate={handleUpdateText}
                     />
                 )}
-                {/* Add shape customizer here later if needed */}
+                {selectedShapeElement && (
+                    <CustomizeShapePanel
+                        element={selectedShapeElement}
+                        onUpdate={handleUpdateShape}
+                    />
+                )}
             </div>
         </div>
     );
