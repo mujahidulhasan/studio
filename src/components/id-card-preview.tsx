@@ -16,8 +16,8 @@ interface IdCardPreviewProps {
   shapeElements: ShapeElement[];
   slotPunch: SlotPunch;
   isBackside: boolean;
-  isSelected: boolean;
-  onImageSelect: () => void;
+  selectedElement: string | null;
+  onSelectElement: (id: string | null) => void;
 }
 
 const SlotPunchHole = ({ type, cardWidth, cardHeight }: { type: SlotPunch, cardWidth: number, cardHeight: number }) => {
@@ -62,17 +62,18 @@ type InteractionMode =
   | 'resizing-r';
 
 const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
-  ({ template, image, setImage, textElements, shapeElements, slotPunch, isBackside, isSelected, onImageSelect }, ref) => {
+  ({ template, image, setImage, textElements, shapeElements, slotPunch, isBackside, selectedElement, onSelectElement }, ref) => {
     const [interaction, setInteraction] = useState<InteractionMode>('none');
     const [startPoint, setStartPoint] = useState({ x: 0, y: 0 });
     const [originalImage, setOriginalImage] = useState<ImageElement | null>(null);
     const imageContainerRef = useRef<HTMLDivElement>(null);
 
+    const isImageSelected = selectedElement === 'image';
 
     const handleInteractionStart = (e: React.MouseEvent<HTMLDivElement>, mode: InteractionMode) => {
         e.preventDefault();
         e.stopPropagation();
-        onImageSelect();
+        onSelectElement('image');
         setInteraction(mode);
         setOriginalImage(image);
 
@@ -238,11 +239,11 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                 >
                     <div className={cn(
                         "relative w-full h-full border",
-                        isSelected ? "border-blue-500" : "border-transparent"
+                        isImageSelected ? "border-blue-500" : "border-transparent"
                     )}
                      style={{
-                        borderWidth: isSelected ? '1px' : `${image.borderSize}px`,
-                        borderColor: isSelected ? 'rgb(59 130 246)' : image.borderColor,
+                        borderWidth: isImageSelected ? '1px' : `${image.borderSize}px`,
+                        borderColor: isImageSelected ? 'rgb(59 130 246)' : image.borderColor,
                         borderRadius: '2px',
                         boxSizing: 'border-box'
                      }}
@@ -256,7 +257,7 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                         />
                     </div>
                     
-                    {isSelected && <>
+                    {isImageSelected && <>
                         {/* Resize Handles */}
                         {resizeHandles.map((style) => (
                              <div
@@ -298,24 +299,29 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                     {template.id === 'vertical' && <div className="absolute top-4 left-4 text-primary font-bold">COMPANY</div>}
                 </div>
                 
-
                 {/* Text Elements */}
                 {textElements.map((text) => (
-                <div
-                    key={text.id}
-                    className="absolute whitespace-nowrap"
-                    style={{
-                    left: `${text.x}%`,
-                    top: `${text.y}%`,
-                    transform: "translate(-50%, -50%)",
-                    fontSize: `${text.fontSize}px`,
-                    fontFamily: text.fontFamily,
-                    fontWeight: text.fontWeight,
-                    color: text.color,
-                    }}
-                >
-                    {text.content}
-                </div>
+                    <div
+                        key={text.id}
+                        className={cn("absolute whitespace-nowrap cursor-pointer p-1", selectedElement === text.id && "border border-blue-500 border-dashed")}
+                        style={{
+                        left: `${text.x}%`,
+                        top: `${text.y}%`,
+                        transform: `translate(-50%, -50%) rotate(${text.rotation}deg)`,
+                        transformOrigin: 'center center',
+                        fontSize: `${text.fontSize}px`,
+                        fontFamily: text.fontFamily,
+                        fontWeight: text.isBold ? 'bold' : text.fontWeight,
+                        fontStyle: text.isItalic ? 'italic' : 'normal',
+                        textDecoration: text.isUnderline ? 'underline' : 'none',
+                        color: text.color,
+                        opacity: 1 - (text.transparency || 0) / 100,
+                        textAlign: text.align,
+                        }}
+                        onClick={() => onSelectElement(text.id)}
+                    >
+                        {text.content}
+                    </div>
                 ))}
             </>
         )}

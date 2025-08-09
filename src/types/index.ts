@@ -8,6 +8,12 @@ export interface TextElement {
   fontFamily: string;
   fontWeight: number;
   color: string;
+  rotation: number;
+  transparency: number;
+  isBold: boolean;
+  isItalic: boolean;
+  isUnderline: boolean;
+  align: 'left' | 'center' | 'right';
 }
 
 export interface ImageElement {

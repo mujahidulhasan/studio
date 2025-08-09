@@ -2,7 +2,8 @@
 import React from "react";
 import type { Dispatch, SetStateAction } from "react";
 import CustomizeImagePanel from "@/components/customize-image-panel";
-import type { ImageElement } from "@/types";
+import CustomizeTextPanel from "@/components/customize-text-panel";
+import type { ImageElement, TextElement } from "@/types";
 import { Button } from "./ui/button";
 import { X } from "lucide-react";
 
@@ -10,10 +11,12 @@ interface CustomizePanelProps {
     selectedElement: string | null;
     image: ImageElement;
     setImage: Dispatch<SetStateAction<ImageElement>>;
+    textElements: TextElement[];
+    setTextElements: Dispatch<SetStateAction<TextElement[]>>;
     onClose: () => void;
 }
 
-export default function CustomizePanel({ selectedElement, image, setImage, onClose }: CustomizePanelProps) {
+export default function CustomizePanel({ selectedElement, image, setImage, textElements, setTextElements, onClose }: CustomizePanelProps) {
     
     const getPanelTitle = () => {
         if (!selectedElement) return "";
@@ -21,6 +24,14 @@ export default function CustomizePanel({ selectedElement, image, setImage, onClo
         if (selectedElement.startsWith('text')) return "Customize Text";
         if (selectedElement.startsWith('shape')) return "Customize Shape";
         return "Customize";
+    }
+
+    const selectedTextElement = selectedElement && selectedElement.startsWith('text-')
+        ? textElements.find(el => el.id === selectedElement)
+        : null;
+
+    const handleUpdateText = (updatedElement: TextElement) => {
+        setTextElements(prev => prev.map(el => el.id === updatedElement.id ? updatedElement : el));
     }
     
     return (
@@ -34,6 +45,12 @@ export default function CustomizePanel({ selectedElement, image, setImage, onClo
             <div className="flex-1 overflow-y-auto">
                 {selectedElement === 'image' && (
                     <CustomizeImagePanel image={image} setImage={setImage} />
+                )}
+                {selectedTextElement && (
+                    <CustomizeTextPanel
+                        element={selectedTextElement}
+                        onUpdate={handleUpdateText}
+                    />
                 )}
                 {/* Add other customize panels here, e.g., for text, shapes */}
             </div>

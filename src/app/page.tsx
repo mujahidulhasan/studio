@@ -47,6 +47,12 @@ export default function Home() {
       fontFamily: "Open Sans",
       fontWeight: 700,
       color: "#000000",
+      rotation: 0,
+      transparency: 0,
+      isBold: true,
+      isItalic: false,
+      isUnderline: false,
+      align: 'center',
     },
     {
       id: "title",
@@ -57,6 +63,12 @@ export default function Home() {
       fontFamily: "Open Sans",
       fontWeight: 400,
       color: "#333333",
+      rotation: 0,
+      transparency: 0,
+      isBold: false,
+      isItalic: false,
+      isUnderline: false,
+      align: 'center',
     },
   ]);
   const [shapeElements, setShapeElements] = useState<ShapeElement[]>([]);
@@ -82,31 +94,25 @@ export default function Home() {
         setActiveTool(null);
     }
     
-    // Only open customize panel if it's a new selection
-    // and it wasn't manually closed before for the same selection.
     if (elementId && !isSameElement) {
         if (!wasCustomizePanelManuallyClosed.current) {
             setIsCustomizePanelOpen(true);
         }
     } else if (elementId && isSameElement) {
-        // If same element is clicked, and panel was closed, open it.
         if (wasCustomizePanelManuallyClosed.current) {
              setIsCustomizePanelOpen(true);
              wasCustomizePanelManuallyClosed.current = false;
+        } else {
+             setIsCustomizePanelOpen(true);
         }
-    }
-
-    if (elementId && isSameElement) {
-        setIsCustomizePanelOpen(true);
-    } else if (elementId) {
-        setIsCustomizePanelOpen(true);
-        wasCustomizePanelManuallyClosed.current = false;
     }
   }
 
   const closeCustomizePanel = () => {
     setIsCustomizePanelOpen(false);
-    wasCustomizePanelManuallyClosed.current = true;
+    if(selectedElement) {
+      wasCustomizePanelManuallyClosed.current = true;
+    }
   }
 
   const toggleCustomizePanel = () => {
@@ -125,9 +131,12 @@ export default function Home() {
 
   const currentToolConfig = toolConfig.find(t => t.id === activeTool);
 
+  const selectedTextElement = selectedElement && selectedElement.startsWith('text-') 
+    ? textElements.find(t => t.id === selectedElement) || null
+    : null;
+
   return (
     <div className="flex flex-col h-screen bg-background font-body" onClick={(e) => {
-        // If click is outside the preview and the customize panel, deselect
         const target = e.target as HTMLElement;
         if (!target.closest('#id-card-preview') && !target.closest('#customize-panel') && !target.closest('#icon-strip')) {
              handleSelectElement(null);
@@ -143,7 +152,10 @@ export default function Home() {
               onClick={() => {
                 setActiveTool(activeTool === tool.id && !tool.disabled ? null : tool.id);
                 handleSelectElement(null);
-                setIsCustomizePanelOpen(false);
+                if (activeTool !== tool.id) {
+                    setIsCustomizePanelOpen(false);
+                    wasCustomizePanelManuallyClosed.current = false;
+                }
               }}
               disabled={tool.disabled}
               className={cn(
@@ -210,11 +222,13 @@ export default function Home() {
                 "absolute top-0 left-0 h-full bg-card border-r transition-transform duration-300 ease-in-out overflow-y-auto z-10",
                 isCustomizePanelOpen ? "translate-x-0 w-80" : "-translate-x-full w-80"
             )}>
-                {isCustomizePanelOpen && (
+                {isCustomizePanelOpen && selectedElement && (
                      <CustomizePanel
                         selectedElement={selectedElement}
                         image={image}
                         setImage={setImage}
+                        textElements={textElements}
+                        setTextElements={setTextElements}
                         onClose={closeCustomizePanel}
                      />
                 )}
@@ -231,10 +245,8 @@ export default function Home() {
                     shapeElements={shapeElements}
                     slotPunch={'none'}
                     isBackside={isBackside}
-                    isSelected={selectedElement === 'image'}
-                    onImageSelect={() => {
-                        handleSelectElement('image');
-                    }}
+                    selectedElement={selectedElement}
+                    onSelectElement={handleSelectElement}
                 />
                 <div className="flex items-center gap-4">
                    <div className="flex items-center bg-muted rounded-lg p-1">
