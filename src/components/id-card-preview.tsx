@@ -1,9 +1,11 @@
 "use client";
 
-import React, { forwardRef, useState } from "react";
+import React, { forwardRef, useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import type { Template, ImageElement, TextElement, ShapeElement, SlotPunch } from "@/types";
+import { Move, Repeat, maximize, Minimize, Maximize } from "lucide-react";
+
 
 interface IdCardPreviewProps {
   template: Template;
@@ -43,51 +45,101 @@ const SlotPunchHole = ({ type, cardWidth, cardHeight }: { type: SlotPunch, cardW
     return <div style={style}></div>
 }
 
+type InteractionMode = 'none' | 'dragging' | 'resizing' | 'rotating';
 
 const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
   ({ template, image, setImage, textElements, shapeElements, slotPunch, isBackside }, ref) => {
-    const [isDragging, setIsDragging] = useState(false);
-    const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+    const [interaction, setInteraction] = useState<InteractionMode>('none');
+    const [startPoint, setStartPoint] = useState({ x: 0, y: 0 });
+    const imageContainerRef = useRef<HTMLDivElement>(null);
 
-    const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-      // Prevent browser's default drag behavior
-      e.preventDefault();
-      
-      const cardRect = (ref as React.RefObject<HTMLDivElement>)?.current?.getBoundingClientRect();
-      if (!cardRect) return;
 
-      setIsDragging(true);
+    const handleInteractionStart = (e: React.MouseEvent<HTMLDivElement>, mode: InteractionMode) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setInteraction(mode);
 
-      // Calculate the starting mouse position relative to the card
-      const startX = ((e.clientX - cardRect.left) / cardRect.width) * 100;
-      const startY = ((e.clientY - cardRect.top) / cardRect.height) * 100;
+        const cardRect = (ref as React.RefObject<HTMLDivElement>)?.current?.getBoundingClientRect();
+        if (!cardRect) return;
 
-      // The offset between the mouse click and the image's top-left corner
-      const offsetX = startX - image.x;
-      const offsetY = startY - image.y;
+        const startX = e.clientX - cardRect.left;
+        const startY = e.clientY - cardRect.top;
 
-      setDragStart({ x: offsetX, y: offsetY });
+        if (mode === 'dragging') {
+             // The offset between the mouse click and the image's top-left corner (in pixels)
+            const imageXInPixels = (image.x / 100) * cardRect.width;
+            const imageYInPixels = (image.y / 100) * cardRect.height;
+            setStartPoint({ x: startX - imageXInPixels, y: startY - imageYInPixels });
+        } else {
+            setStartPoint({ x: startX, y: startY });
+        }
+    }
+
+    const handleInteractionMove = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (interaction === 'none') return;
+        e.preventDefault();
+        e.stopPropagation();
+
+        const cardRect = (ref as React.RefObject<HTMLDivElement>)?.current?.getBoundingClientRect();
+        if (!cardRect) return;
+
+        const currentX = e.clientX - cardRect.left;
+        const currentY = e.clientY - cardRect.top;
+
+        const imageXInPixels = (image.x / 100) * cardRect.width;
+        const imageYInPixels = (image.y / 100) * cardRect.height;
+        
+        switch (interaction) {
+            case 'dragging': {
+                setImage(prev => ({
+                    ...prev,
+                    x: ((currentX - startPoint.x) / cardRect.width) * 100,
+                    y: ((currentY - startPoint.y) / cardRect.height) * 100,
+                }));
+                break;
+            }
+            case 'resizing': {
+                const centerX = imageXInPixels;
+                const centerY = imageYInPixels;
+                
+                const startDist = Math.sqrt(Math.pow(startPoint.x - centerX, 2) + Math.pow(startPoint.y - centerY, 2));
+                const currentDist = Math.sqrt(Math.pow(currentX - centerX, 2) + Math.pow(currentY - centerY, 2));
+                
+                const scaleDelta = currentDist / startDist;
+
+                setImage(prev => {
+                    const newScale = prev.scale * scaleDelta;
+                    return {...prev, scale: Math.max(10, Math.min(newScale, 300))}; // Clamp scale
+                });
+
+                // Update start point for continuous scaling
+                setStartPoint({ x: currentX, y: currentY });
+                break;
+            }
+            case 'rotating': {
+                const centerX = imageXInPixels;
+                const centerY = imageYInPixels;
+                
+                const startAngle = Math.atan2(startPoint.y - centerY, startPoint.x - centerX) * (180 / Math.PI);
+                const currentAngle = Math.atan2(currentY - centerY, currentX - centerX) * (180 / Math.PI);
+
+                const angleDelta = currentAngle - startAngle;
+
+                setImage(prev => {
+                    let newRotation = (prev.rotation + angleDelta) % 360;
+                    if (newRotation < 0) newRotation += 360;
+                    return {...prev, rotation: newRotation};
+                });
+                
+                // Update start point for continuous rotation
+                setStartPoint({ x: currentX, y: currentY });
+                break;
+            }
+        }
     };
 
-    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-      if (!isDragging) return;
-
-      const cardRect = (ref as React.RefObject<HTMLDivElement>)?.current?.getBoundingClientRect();
-      if (!cardRect) return;
-
-      // Calculate current mouse position as a percentage of the card's dimensions
-      const currentX = ((e.clientX - cardRect.left) / cardRect.width) * 100;
-      const currentY = ((e.clientY - cardRect.top) / cardRect.height) * 100;
-
-      setImage(prev => ({
-        ...prev,
-        x: currentX - dragStart.x,
-        y: currentY - dragStart.y,
-      }));
-    };
-
-    const handleMouseUp = () => {
-      setIsDragging(false);
+    const handleInteractionEnd = () => {
+        setInteraction('none');
     };
     
     return (
@@ -99,9 +151,9 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
           width: `${template.width}px`,
           height: `${template.height}px`,
         }}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
+        onMouseMove={handleInteractionMove}
+        onMouseUp={handleInteractionEnd}
+        onMouseLeave={handleInteractionEnd}
       >
         {isBackside ? (
             <div className="w-full h-full flex items-center justify-center text-muted-foreground bg-gray-50">
@@ -127,24 +179,52 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                 {/* User Photo */}
                 {image.src && (
                 <div
-                    className={cn("absolute", isDragging ? "cursor-grabbing" : "cursor-grab")}
+                    ref={imageContainerRef}
+                    className="absolute group"
                      style={{
                         top: `${image.y}%`,
                         left: `${image.x}%`,
                         width: '150px',
                         height: '150px',
-                        transform: `translate(-50%, -50%) scale(${image.scale / 100}) rotate(${image.rotation}deg)`,
+                        transform: `translate(-50%, -50%)`,
                         transformOrigin: 'center center',
                     }}
-                    onMouseDown={handleMouseDown}
                 >
-                    <Image
-                        src={image.src}
-                        alt="User photo"
-                        layout="fill"
-                        objectFit="contain"
-                        className="pointer-events-none" // prevent image's own drag events
-                    />
+                    <div className={cn(
+                        "relative w-full h-full",
+                         interaction === 'dragging' ? "cursor-grabbing" : "cursor-grab"
+                    )}
+                     style={{
+                        transform: `scale(${image.scale / 100}) rotate(${image.rotation}deg)`,
+                     }}
+                     onMouseDown={(e) => handleInteractionStart(e, 'dragging')}
+                    >
+                        <Image
+                            src={image.src}
+                            alt="User photo"
+                            layout="fill"
+                            objectFit="contain"
+                            className="pointer-events-none rounded-sm"
+                        />
+                         <div className="absolute inset-0 border-2 border-primary/50 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                    </div>
+
+                     {/* Resize Handle */}
+                    <div
+                        className="absolute -right-2 -bottom-2 w-5 h-5 bg-white border-2 border-primary rounded-full cursor-nwse-resize opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                        onMouseDown={(e) => handleInteractionStart(e, 'resizing')}
+                    >
+                      <Maximize className="w-3 h-3 text-primary" />
+                    </div>
+
+
+                    {/* Rotate Handle */}
+                    <div
+                        className="absolute -top-2 -right-2 w-5 h-5 bg-white border-2 border-primary rounded-full cursor-alias opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                        onMouseDown={(e) => handleInteractionStart(e, 'rotating')}
+                    >
+                      <Repeat className="w-3 h-3 text-primary" />
+                    </div>
                 </div>
                 )}
 
