@@ -79,33 +79,21 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                 {/* User Photo */}
                 {image.src && (
                 <div
-                    className="absolute overflow-hidden"
-                    style={{
-                    // These values should ideally be part of the template definition
-                    top: '50px',
-                    left: '20px',
-                    width: '100px',
-                    height: '120px',
-                    clipPath: 'inset(0 0 0 0)',
+                    className="absolute"
+                     style={{
+                        top: `${image.y}%`,
+                        left: `${image.x}%`,
+                        width: '150px',
+                        height: '150px',
+                        transform: `translate(-50%, -50%) scale(${image.scale / 100}) rotate(${image.rotation}deg)`,
+                        transformOrigin: 'center center',
                     }}
                 >
                     <Image
-                    src={image.src}
-                    alt="User photo"
-                    width={100}
-                    height={120}
-                    className="absolute"
-                    style={{
-                        transform: `scale(${image.scale / 100})`,
-                        left: `${image.x - 50}%`,
-                        top: `${image.y - 50}%`,
-                        transformOrigin: 'center center',
-                        objectFit: 'cover',
-                        width: 'auto',
-                        height: 'auto',
-                        minWidth: '100%',
-                        minHeight: '100%'
-                    }}
+                        src={image.src}
+                        alt="User photo"
+                        layout="fill"
+                        objectFit="contain"
                     />
                 </div>
                 )}

@@ -28,6 +28,7 @@ export default function Home() {
     x: 50,
     y: 50,
     scale: 100,
+    rotation: 0,
   });
   const [textElements, setTextElements] = useState<TextElement[]>([
     {

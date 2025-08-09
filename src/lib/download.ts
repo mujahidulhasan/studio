@@ -45,26 +45,16 @@ export async function downloadAsSvg(
 
     let imageSvg = "";
     if (imageBase64) {
-        // These values are hardcoded in preview, so we do the same here for consistency
-        const photoWidth = 100;
-        const photoHeight = 120;
-        const photoX = 20;
-        const photoY = 50;
-
-        const scale = image.scale / 100;
-        const imgWidth = photoWidth * scale;
-        const imgHeight = photoHeight * scale;
-        const imgX = photoX + (photoWidth - imgWidth) * (image.x / 100);
-        const imgY = photoY + (photoHeight - imgHeight) * (image.y / 100);
-
+        // These values are based on the new interactive image preview
+        const imgWidth = 150; 
+        const imgHeight = 150;
+        const imgX = (template.width * image.x) / 100;
+        const imgY = (template.height * image.y) / 100;
 
         imageSvg = `
-          <defs>
-            <clipPath id="photoClip">
-              <rect x="${photoX}" y="${photoY}" width="${photoWidth}" height="${photoHeight}" />
-            </clipPath>
-          </defs>
-          <image href="${imageBase64}" x="${imgX}" y="${imgY}" width="${imgWidth}" height="${imgHeight}" clip-path="url(#photoClip)" />
+          <g transform="translate(${imgX} ${imgY}) rotate(${image.rotation}) scale(${image.scale / 100})">
+            <image href="${imageBase64}" x="-${imgWidth / 2}" y="-${imgHeight / 2}" width="${imgWidth}" height="${imgHeight}" />
+          </g>
         `;
     }
 

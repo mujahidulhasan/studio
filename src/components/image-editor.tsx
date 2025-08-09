@@ -12,6 +12,8 @@ import { Separator } from "@/components/ui/separator";
 import { UploadCloud, UserSquare, MoreHorizontal, HelpCircle } from "lucide-react";
 import { imageTypes } from "@/lib/image-types";
 import type { ImageElement } from "@/types";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
 
 interface ImageEditorProps {
   image: ImageElement;
@@ -62,6 +64,44 @@ export default function ImageEditor({ image, setImage }: ImageEditorProps) {
           onClick={handleUploadClick}
         />
       </div>
+
+      {image.src && (
+        <div className="space-y-4 pt-4">
+            <Separator />
+            <div className="space-y-2">
+                <Label>X Position: {image.x}%</Label>
+                <Slider
+                  value={[image.x]}
+                  onValueChange={([value]) => setImage(prev => ({ ...prev, x: value }))}
+                  min={0} max={100} step={1}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Y Position: {image.y}%</Label>
+                <Slider
+                  value={[image.y]}
+                  onValueChange={([value]) => setImage(prev => ({ ...prev, y: value }))}
+                  min={0} max={100} step={1}
+                />
+              </div>
+            <div className="space-y-2">
+            <Label>Scale: {image.scale}%</Label>
+            <Slider
+                value={[image.scale]}
+                onValueChange={([value]) => setImage(prev => ({...prev, scale: value}))}
+                min={10} max={300} step={1}
+            />
+            </div>
+            <div className="space-y-2">
+            <Label>Rotation: {image.rotation}°</Label>
+            <Slider
+                value={[image.rotation]}
+                onValueChange={([value]) => setImage(prev => ({...prev, rotation: value}))}
+                min={0} max={360} step={1}
+            />
+            </div>
+        </div>
+      )}
 
       <Separator />
 

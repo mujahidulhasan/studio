@@ -14,6 +14,7 @@ export interface ImageElement {
   x: number; // percentage for positioning within its frame
   y: number; // percentage
   scale: number; // percentage
+  rotation: number; // degrees
 }
 
 export interface ShapeElement {
