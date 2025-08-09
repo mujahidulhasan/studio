@@ -23,7 +23,7 @@ export default function TextEditor({ textElements, setTextElements }: TextEditor
       x: 50,
       y: 50,
       fontSize: 16,
-      fontFamily: "Inter",
+      fontFamily: "Open Sans",
       fontWeight: 400,
       color: "#000000",
     };
@@ -70,7 +70,7 @@ export default function TextEditor({ textElements, setTextElements }: TextEditor
                     <SelectValue placeholder="Select font" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Inter">Inter</SelectItem>
+                    <SelectItem value="Open Sans">Open Sans</SelectItem>
                     <SelectItem value="Arial">Arial</SelectItem>
                     <SelectItem value="Verdana">Verdana</SelectItem>
                     <SelectItem value="Georgia">Georgia</SelectItem>
@@ -101,7 +101,6 @@ export default function TextEditor({ textElements, setTextElements }: TextEditor
                         <SelectContent>
                             <SelectItem value="300">Light</SelectItem>
                             <SelectItem value="400">Regular</SelectItem>
-                            <SelectItem value="500">Medium</SelectItem>
                             <SelectItem value="600">Semi-Bold</SelectItem>
                             <SelectItem value="700">Bold</SelectItem>
                         </SelectContent>

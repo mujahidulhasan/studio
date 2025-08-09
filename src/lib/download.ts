@@ -72,7 +72,7 @@ export async function downloadAsSvg(
     <svg width="${template.width}" height="${template.height}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
       <style>
         /* Embedding font, might not work on all viewers but good for browsers */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap');
       </style>
       <rect width="100%" height="100%" fill="white"/>
       

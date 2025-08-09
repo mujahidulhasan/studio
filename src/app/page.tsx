@@ -36,7 +36,7 @@ export default function Home() {
       x: 50,
       y: 70,
       fontSize: 20,
-      fontFamily: "Inter",
+      fontFamily: "Open Sans",
       fontWeight: 700,
       color: "#000000",
     },
@@ -46,7 +46,7 @@ export default function Home() {
       x: 50,
       y: 80,
       fontSize: 14,
-      fontFamily: "Inter",
+      fontFamily: "Open Sans",
       fontWeight: 400,
       color: "#333333",
     },
@@ -70,7 +70,7 @@ export default function Home() {
       <Header />
       <div className="flex flex-1 overflow-hidden">
         {/* Icon Strip */}
-        <div className="w-16 h-full bg-muted/30 flex flex-col items-center py-4 space-y-1 border-r z-20">
+        <div className="w-16 h-full bg-card flex flex-col items-center py-4 space-y-1 border-r z-20">
           {toolConfig.map((tool) => (
             <button
               key={tool.id}
@@ -134,7 +134,7 @@ export default function Home() {
                         <Button onClick={() => setIsBackside(false)} size="sm" className={cn(!isBackside ? 'bg-background shadow' : 'bg-transparent text-muted-foreground')}>Front Side</Button>
                         <Button onClick={() => setIsBackside(true)} size="sm" className={cn(isBackside ? 'bg-background shadow' : 'bg-transparent text-muted-foreground')}>Back Side</Button>
                    </div>
-                    <Button onClick={handleDownload} size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90">
+                    <Button onClick={handleDownload} size="lg">
                         <Download className="mr-2 h-5 w-5" />
                         Download ID
                     </Button>
