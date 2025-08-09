@@ -55,22 +55,22 @@ export default function TemplateSelector({ selectedTemplate, onSelectTemplate }:
             <Button 
                 onClick={() => handleOrientationChange('horizontal')}
                 variant={!isVertical ? 'secondary' : 'ghost'}
-                className="flex-1"
+                className="flex-1 flex flex-col items-center h-auto py-2"
             >
-                <svg width="16" height="10" viewBox="0 0 16 10" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
+                <svg width="16" height="10" viewBox="0 0 16 10" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-1.5 w-6">
                     <rect width="16" height="10" rx="2" fill="currentColor"/>
                 </svg>
-                Horizontal
+                <span className="text-xs">Horizontal</span>
             </Button>
             <Button
                 onClick={() => handleOrientationChange('vertical')}
                 variant={isVertical ? 'secondary' : 'ghost'}
-                className="flex-1"
+                className="flex-1 flex flex-col items-center h-auto py-2"
             >
-                <svg width="10" height="16" viewBox="0 0 10 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
+                <svg width="10" height="16" viewBox="0 0 10 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-1.5 h-6">
                     <rect width="10" height="16" rx="2" fill="currentColor"/>
                 </svg>
-                Vertical
+                <span className="text-xs">Vertical</span>
             </Button>
         </div>
       </div>
