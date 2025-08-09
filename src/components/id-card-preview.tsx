@@ -4,7 +4,7 @@ import React, { forwardRef, useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import type { Template, ImageElement, TextElement, ShapeElement, SlotPunch } from "@/types";
-import { Move, Repeat, maximize, Minimize, Maximize } from "lucide-react";
+import { Repeat } from "lucide-react";
 
 
 interface IdCardPreviewProps {
@@ -144,6 +144,17 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
         setInteraction('none');
     };
     
+    const resizeHandles = [
+        { top: '-4px', left: '-4px', cursor: 'nwse-resize' },
+        { top: '-4px', left: 'calc(50% - 4px)', cursor: 'ns-resize' },
+        { top: '-4px', right: '-4px', cursor: 'nesw-resize' },
+        { top: 'calc(50% - 4px)', left: '-4px', cursor: 'ew-resize' },
+        { top: 'calc(50% - 4px)', right: '-4px', cursor: 'ew-resize' },
+        { bottom: '-4px', left: '-4px', cursor: 'nesw-resize' },
+        { bottom: '-4px', left: 'calc(50% - 4px)', cursor: 'ns-resize' },
+        { bottom: '-4px', right: '-4px', cursor: 'nwse-resize' },
+    ];
+    
     return (
       <div
         ref={ref}
@@ -188,20 +199,20 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                         left: `${image.x}%`,
                         width: `${image.width}%`,
                         height: `${image.height}%`,
-                        transform: `translate(-50%, -50%)`,
+                        transform: `translate(-50%, -50%) rotate(${image.rotation}deg)`,
                         transformOrigin: 'center center',
                         opacity: 1 - image.transparency / 100
                     }}
                 >
                     <div className={cn(
-                        "relative w-full h-full",
+                        "relative w-full h-full border border-blue-500",
                          interaction === 'dragging' ? "cursor-grabbing" : "cursor-grab"
                     )}
                      style={{
-                        transform: `scale(${image.scale / 100}) rotate(${image.rotation}deg)`,
+                        transform: `scale(${image.scale / 100})`,
                         border: `${image.borderSize}px solid ${image.borderColor}`,
                         borderRadius: '2px',
-                        boxSizing: 'border-box'
+                        boxSizing: 'content-box'
                      }}
                      onMouseDown={(e) => handleInteractionStart(e, 'dragging')}
                     >
@@ -212,25 +223,27 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                             objectFit="cover"
                             className="pointer-events-none"
                         />
-                         <div className="absolute inset-0 border-2 border-primary/50 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                     </div>
-
-                     {/* Resize Handle */}
-                    <div
-                        className="absolute -right-2 -bottom-2 w-5 h-5 bg-white border-2 border-primary rounded-full cursor-nwse-resize opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
-                        onMouseDown={(e) => handleInteractionStart(e, 'resizing')}
-                    >
-                      <Maximize className="w-3 h-3 text-primary" />
-                    </div>
-
+                    
+                    {/* Resize Handles */}
+                    {resizeHandles.map((style, i) => (
+                         <div
+                            key={i}
+                            className="absolute w-2 h-2 bg-white border border-blue-500"
+                            style={{ ...style, cursor: style.cursor, transform: 'rotate(0)'}}
+                            onMouseDown={(e) => handleInteractionStart(e, 'resizing')}
+                        />
+                    ))}
 
                     {/* Rotate Handle */}
+                    <div className="absolute w-px h-4 bg-blue-500" style={{top: '-20px', left: '50%'}}></div>
                     <div
-                        className="absolute -top-2 -right-2 w-5 h-5 bg-white border-2 border-primary rounded-full cursor-alias opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                        className="absolute w-3 h-3 bg-white border border-blue-500 rounded-full cursor-alias"
+                        style={{ top: '-26px', left: 'calc(50% - 6px)'}}
                         onMouseDown={(e) => handleInteractionStart(e, 'rotating')}
                     >
-                      <Repeat className="w-3 h-3 text-primary" />
                     </div>
+
                 </div>
                 )}
 
@@ -282,3 +295,5 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
 IdCardPreview.displayName = "IdCardPreview";
 
 export default IdCardPreview;
+
+    
