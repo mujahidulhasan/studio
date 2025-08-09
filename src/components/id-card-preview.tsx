@@ -110,8 +110,9 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                 const scaleDelta = currentDist / startDist;
 
                 setImage(prev => {
-                    const newScale = prev.scale * scaleDelta;
-                    return {...prev, scale: Math.max(10, Math.min(newScale, 300))}; // Clamp scale
+                    const newWidth = prev.width * scaleDelta;
+                    const newHeight = prev.height * scaleDelta;
+                    return {...prev, width: newWidth, height: newHeight};
                 });
 
                 // Update start point for continuous scaling
@@ -201,20 +202,19 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                         height: `${image.height}%`,
                         transform: `translate(-50%, -50%) rotate(${image.rotation}deg)`,
                         transformOrigin: 'center center',
-                        opacity: 1 - image.transparency / 100
+                        opacity: 1 - image.transparency / 100,
+                        cursor: interaction === 'dragging' ? 'grabbing' : 'grab',
                     }}
+                    onMouseDown={(e) => handleInteractionStart(e, 'dragging')}
                 >
                     <div className={cn(
-                        "relative w-full h-full border border-blue-500",
-                         interaction === 'dragging' ? "cursor-grabbing" : "cursor-grab"
+                        "relative w-full h-full border border-transparent group-hover:border-blue-500"
                     )}
                      style={{
-                        transform: `scale(${image.scale / 100})`,
                         border: `${image.borderSize}px solid ${image.borderColor}`,
                         borderRadius: '2px',
-                        boxSizing: 'content-box'
+                        boxSizing: 'border-box'
                      }}
-                     onMouseDown={(e) => handleInteractionStart(e, 'dragging')}
                     >
                         <Image
                             src={image.src}
@@ -229,17 +229,17 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                     {resizeHandles.map((style, i) => (
                          <div
                             key={i}
-                            className="absolute w-2 h-2 bg-white border border-blue-500"
-                            style={{ ...style, cursor: style.cursor, transform: 'rotate(0)'}}
+                            className="absolute w-2 h-2 bg-white border border-blue-500 z-10"
+                            style={{ ...style, cursor: style.cursor }}
                             onMouseDown={(e) => handleInteractionStart(e, 'resizing')}
                         />
                     ))}
 
                     {/* Rotate Handle */}
-                    <div className="absolute w-px h-4 bg-blue-500" style={{top: '-20px', left: '50%'}}></div>
+                     <div className="absolute w-px h-4 bg-blue-500 z-10" style={{top: '-20px', left: '50%', transform: 'translateX(-50%)'}}></div>
                     <div
-                        className="absolute w-3 h-3 bg-white border border-blue-500 rounded-full cursor-alias"
-                        style={{ top: '-26px', left: 'calc(50% - 6px)'}}
+                        className="absolute w-4 h-4 bg-white border border-blue-500 rounded-full z-10"
+                        style={{ top: '-28px', left: '50%', transform: 'translateX(-50%)', cursor: 'alias'}}
                         onMouseDown={(e) => handleInteractionStart(e, 'rotating')}
                     >
                     </div>
@@ -295,5 +295,3 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
 IdCardPreview.displayName = "IdCardPreview";
 
 export default IdCardPreview;
-
-    
