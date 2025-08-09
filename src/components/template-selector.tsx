@@ -1,14 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { Card, CardContent } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label";
 import type { Template } from "@/types";
 import { Button } from "./ui/button";
-import { CheckCircle } from "lucide-react";
 
 export const templates: Template[] = [
   {
@@ -40,28 +35,6 @@ export const templates: Template[] = [
 const horizontalTemplate = templates[0];
 const verticalTemplate = templates[2];
 
-interface OptionCardProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-    label: string;
-    icon?: React.ReactNode;
-    selected: boolean;
-}
-
-const OptionCard = ({ label, icon, selected, ...props }: OptionCardProps) => (
-    <Button
-        variant="outline"
-        className={cn(
-            "h-auto w-full justify-start p-3 flex-col items-center gap-2 text-center",
-            "border-2 transition-all",
-            selected ? "border-primary ring-2 ring-primary bg-primary/10" : "border-border hover:border-primary/50"
-        )}
-        {...props}
-    >
-        {selected && <CheckCircle className="absolute top-2 right-2 h-4 w-4 text-primary" />}
-        {icon}
-        <span className="text-sm font-medium">{label}</span>
-    </Button>
-)
-
 interface TemplateSelectorProps {
   selectedTemplate: Template;
   onSelectTemplate: (template: Template) => void;
@@ -78,19 +51,23 @@ export default function TemplateSelector({ selectedTemplate, onSelectTemplate }:
     <div className="space-y-6">
       <div className="space-y-2">
         <Label>Orientation</Label>
-        <div className="grid grid-cols-2 gap-4">
-            <OptionCard 
-                label="Horizontal"
-                selected={!isVertical}
+        <div className="flex rounded-md border border-input">
+            <Button 
                 onClick={() => handleOrientationChange('horizontal')}
-                icon={<div className="w-16 h-10 bg-muted rounded-sm"/>}
-            />
-            <OptionCard 
-                label="Vertical"
-                selected={isVertical}
+                variant={!isVertical ? 'secondary' : 'ghost'}
+                className="flex-1 rounded-r-none border-r"
+            >
+                <div className="w-8 h-5 bg-foreground/20 rounded-sm mr-2"/>
+                Horizontal
+            </Button>
+            <Button
                 onClick={() => handleOrientationChange('vertical')}
-                icon={<div className="w-10 h-16 bg-muted rounded-sm"/>}
-            />
+                variant={isVertical ? 'secondary' : 'ghost'}
+                className="flex-1 rounded-l-none"
+            >
+                <div className="w-5 h-8 bg-foreground/20 rounded-sm mr-2"/>
+                Vertical
+            </Button>
         </div>
       </div>
     </div>
