@@ -1,13 +1,16 @@
 
 "use client";
 
-import React, { useRef, type Dispatch, type SetStateAction } from "react";
+import React, { useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { RefreshCw, Crop, Undo } from "lucide-react";
+import { RefreshCw, Wand2, Loader2 } from "lucide-react";
 import type { ImageElement } from "@/types";
+import { checkImageSuitability } from "@/ai/flows/check-image-suitability";
+import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 
 interface CustomizeImagePanelProps {
   image: ImageElement;
@@ -34,6 +37,8 @@ const NumberInputWithSteppers = ({ value, onChange, min, max, step = 1 }: { valu
 
 export default function CustomizeImagePanel({ image, setImage }: CustomizeImagePanelProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isChecking, setIsChecking] = useState(false);
+  const { toast } = useToast();
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -53,17 +58,53 @@ export default function CustomizeImagePanel({ image, setImage }: CustomizeImageP
     fileInputRef.current?.click();
   };
 
+  const handleCheckSuitability = async () => {
+    if (!image.src) {
+        toast({
+            variant: "destructive",
+            title: "No Image",
+            description: "Please upload an image first.",
+        });
+        return;
+    }
+    setIsChecking(true);
+    try {
+        const result = await checkImageSuitability({ photoDataUri: image.src });
+        toast({
+            title: result.isSuitable ? "Image is suitable" : "Image may not be suitable",
+            description: (
+                <Alert variant={result.isSuitable ? "default" : "destructive"}>
+                    <AlertTitle>{result.isSuitable ? "Success" : "Warning"}</AlertTitle>
+                    <AlertDescription>{result.suitabilityReport}</AlertDescription>
+                </Alert>
+            ),
+            duration: 5000,
+        });
+    } catch (error) {
+        console.error("Error checking image suitability:", error);
+        toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Could not check image suitability.",
+        });
+    } finally {
+        setIsChecking(false);
+    }
+  }
+
   return (
     <div className="space-y-4">
        <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
 
       <div className="flex items-center gap-2">
-        <Button onClick={handleUploadClick} variant="outline" className="flex-1 border-green-500 text-green-500 hover:bg-green-50 hover:text-green-600">
+        <Button onClick={handleUploadClick} variant="outline" className="flex-1">
             <RefreshCw className="mr-2 h-4 w-4" />
             Browse New
         </Button>
-        <Button variant="outline" size="icon" disabled><Crop className="h-4 w-4"/></Button>
-        <Button variant="outline" size="icon" disabled><Undo className="h-4 w-4"/></Button>
+        <Button onClick={handleCheckSuitability} disabled={isChecking} variant="outline" className="flex-1 border-primary text-primary hover:bg-primary/10 hover:text-primary">
+            {isChecking ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
+            Check Suitability
+        </Button>
       </div>
 
       <div className="space-y-2">
