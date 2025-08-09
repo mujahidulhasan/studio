@@ -1,9 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Label } from "@/components/ui/label";
 import type { Template } from "@/types";
-import { Button } from "./ui/button";
 
 export const templates: Template[] = [
   {
@@ -50,12 +48,12 @@ export default function TemplateSelector({ selectedTemplate, onSelectTemplate }:
   return (
     <div className="space-y-4">
        <div className="font-bold text-base text-black">Orientation</div>
-        <div className="flex items-center gap-2 rounded-full bg-gray-200 p-2 w-fit">
+        <div className="flex items-center gap-2 w-fit">
             <div
                 onClick={() => handleOrientationChange('horizontal')}
                 className={cn(
                     "flex w-[80px] cursor-pointer flex-col items-center rounded-lg p-2 transition-colors",
-                    !isVertical ? "bg-white text-[#4bb058]" : "bg-gray-200 text-gray-700"
+                    !isVertical ? "bg-white text-[#4bb058]" : "bg-transparent text-gray-700 hover:bg-white/50"
                 )}
             >
                 <div className={cn(
@@ -68,7 +66,7 @@ export default function TemplateSelector({ selectedTemplate, onSelectTemplate }:
                 onClick={() => handleOrientationChange('vertical')}
                 className={cn(
                   "flex w-[80px] cursor-pointer flex-col items-center rounded-lg p-2 transition-colors",
-                  isVertical ? "bg-white text-[#4bb058]" : "bg-gray-200 text-gray-700"
+                  isVertical ? "bg-white text-[#4bb058]" : "bg-transparent text-gray-700 hover:bg-white/50"
                 )}
             >
                  <div className={cn(
