@@ -53,7 +53,7 @@ export default function Home() {
   ]);
   const [shapeElements, setShapeElements] = useState<ShapeElement[]>([]);
   const idCardRef = useRef<HTMLDivElement>(null);
-  const [activePanel, setActivePanel] = useState<string | null>('template');
+  const [activePanel, setActivePanel] = useState<string | null>(null);
   const [isBackside, setIsBackside] = useState(false);
 
 
@@ -119,7 +119,7 @@ export default function Home() {
             </div>
 
             {/* Workspace */}
-            <main className="w-full h-full flex flex-col items-center justify-center gap-6 p-4 md:p-8">
+            <main className="w-full h-full flex flex-col items-center justify-center gap-6 p-4 md:p-8 bg-muted/40">
                 <IdCardPreview
                     ref={idCardRef}
                     template={template}
