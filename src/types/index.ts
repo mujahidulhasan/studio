@@ -37,7 +37,9 @@ export interface ShapeElement {
   y: number; // percentage
   width: number; // percentage
   height: number; // percentage
-  color: string;
+  fillColor: string;
+  strokeColor: string;
+  strokeWidth: number;
   rotation: number;
   transparency: number;
 }

@@ -34,16 +34,38 @@ export default function CustomizeShapePanel({ element, onUpdate }: CustomizeShap
     
     return (
         <div className="space-y-4">
+            {element.type !== 'line' && (
+                <div className="space-y-2">
+                    <Label>Fill Color</Label>
+                    <div className="flex items-center gap-2 border rounded-md p-1">
+                         <Input
+                            type="color"
+                            value={element.fillColor}
+                            onChange={(e) => onUpdate({...element, fillColor: e.target.value})}
+                            className="p-0 h-8 w-8 border-none"
+                         />
+                         <span>{element.fillColor}</span>
+                    </div>
+                </div>
+            )}
+
             <div className="space-y-2">
-                <Label>Color</Label>
+                <div className="flex justify-between items-center">
+                    <Label>{element.type === 'line' ? 'Line Thickness' : 'Line Thickness'}</Label>
+                    <NumberInputWithSteppers value={element.strokeWidth} onChange={(val) => onUpdate({...element, strokeWidth: val})} min={0} max={50} />
+                </div>
+            </div>
+
+             <div className="space-y-2">
+                <Label>Line Color</Label>
                 <div className="flex items-center gap-2 border rounded-md p-1">
                      <Input
                         type="color"
-                        value={element.color}
-                        onChange={(e) => onUpdate({...element, color: e.target.value})}
+                        value={element.strokeColor}
+                        onChange={(e) => onUpdate({...element, strokeColor: e.target.value})}
                         className="p-0 h-8 w-8 border-none"
                      />
-                     <span>{element.color}</span>
+                     <span>{element.strokeColor}</span>
                 </div>
             </div>
 

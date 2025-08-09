@@ -31,7 +31,9 @@ export default function ShapeEditor({ shapeElements, setShapeElements }: ShapeEd
       y: 50,
       width: type === 'line' ? 50 : 25,
       height: type === 'line' ? 1 : 25,
-      color: "#3B82F6",
+      fillColor: "#3B82F6",
+      strokeColor: "#000000",
+      strokeWidth: type === 'line' ? 2 : 0,
       rotation: 0,
       transparency: 0,
     };

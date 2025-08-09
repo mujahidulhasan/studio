@@ -286,14 +286,16 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                         const style: React.CSSProperties = {
                            width: '100%',
                            height: '100%',
-                           backgroundColor: shape.type !== 'triangle' ? shape.color : undefined,
+                           backgroundColor: shape.type !== 'triangle' ? shape.fillColor : undefined,
+                           border: `${shape.strokeWidth}px solid ${shape.strokeColor}`,
+                           boxSizing: 'border-box',
                            opacity: 1 - (shape.transparency || 0) / 100,
                         };
                         
                         if (shape.type === 'circle') {
                             shapeContent = <div className="w-full h-full rounded-full" style={style}/>
                         } else if (shape.type === 'triangle') {
-                            const size = Math.min(
+                             const size = Math.min(
                                 (template.width * shape.width) / 100,
                                 (template.height * shape.height) / 100
                             );
@@ -302,10 +304,16 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                                  height: 0,
                                  borderLeft: `${size/2}px solid transparent`,
                                  borderRight: `${size/2}px solid transparent`,
-                                 borderBottom: `${size}px solid ${shape.color}`,
+                                 borderBottom: `${size}px solid ${shape.fillColor}`,
                                  opacity: 1 - (shape.transparency || 0) / 100,
                              }}/>
-                        } else { // rectangle or line
+                        } else if (shape.type === 'line') {
+                            style.height = `${shape.strokeWidth}px`;
+                            style.backgroundColor = shape.strokeColor;
+                            style.border = 'none';
+                             shapeContent = <div style={style}/>
+                        }
+                        else { 
                             shapeContent = <div style={style}/>
                         }
 
