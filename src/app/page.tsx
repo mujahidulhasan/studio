@@ -24,7 +24,7 @@ const toolConfig = [
 export default function Home() {
   const [template, setTemplate] = useState<Template>(templates[0]);
   const [image, setImage] = useState<ImageElement>({
-    src: null,
+    src: "https://placehold.co/150x150.png",
     x: 50,
     y: 50,
     scale: 100,
@@ -125,6 +125,7 @@ export default function Home() {
                     ref={idCardRef}
                     template={template}
                     image={image}
+                    setImage={setImage}
                     textElements={textElements}
                     shapeElements={shapeElements}
                     slotPunch={'none'}

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { forwardRef } from "react";
+import React, { forwardRef, useState } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import type { Template, ImageElement, TextElement, ShapeElement, SlotPunch } from "@/types";
@@ -8,6 +8,7 @@ import type { Template, ImageElement, TextElement, ShapeElement, SlotPunch } fro
 interface IdCardPreviewProps {
   template: Template;
   image: ImageElement;
+  setImage: React.Dispatch<React.SetStateAction<ImageElement>>;
   textElements: TextElement[];
   shapeElements: ShapeElement[];
   slotPunch: SlotPunch;
@@ -44,7 +45,51 @@ const SlotPunchHole = ({ type, cardWidth, cardHeight }: { type: SlotPunch, cardW
 
 
 const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
-  ({ template, image, textElements, shapeElements, slotPunch, isBackside }, ref) => {
+  ({ template, image, setImage, textElements, shapeElements, slotPunch, isBackside }, ref) => {
+    const [isDragging, setIsDragging] = useState(false);
+    const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+
+    const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+      // Prevent browser's default drag behavior
+      e.preventDefault();
+      
+      const cardRect = (ref as React.RefObject<HTMLDivElement>)?.current?.getBoundingClientRect();
+      if (!cardRect) return;
+
+      setIsDragging(true);
+
+      // Calculate the starting mouse position relative to the card
+      const startX = ((e.clientX - cardRect.left) / cardRect.width) * 100;
+      const startY = ((e.clientY - cardRect.top) / cardRect.height) * 100;
+
+      // The offset between the mouse click and the image's top-left corner
+      const offsetX = startX - image.x;
+      const offsetY = startY - image.y;
+
+      setDragStart({ x: offsetX, y: offsetY });
+    };
+
+    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+      if (!isDragging) return;
+
+      const cardRect = (ref as React.RefObject<HTMLDivElement>)?.current?.getBoundingClientRect();
+      if (!cardRect) return;
+
+      // Calculate current mouse position as a percentage of the card's dimensions
+      const currentX = ((e.clientX - cardRect.left) / cardRect.width) * 100;
+      const currentY = ((e.clientY - cardRect.top) / cardRect.height) * 100;
+
+      setImage(prev => ({
+        ...prev,
+        x: currentX - dragStart.x,
+        y: currentY - dragStart.y,
+      }));
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+    
     return (
       <div
         ref={ref}
@@ -54,6 +99,9 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
           width: `${template.width}px`,
           height: `${template.height}px`,
         }}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
       >
         {isBackside ? (
             <div className="w-full h-full flex items-center justify-center text-muted-foreground bg-gray-50">
@@ -79,7 +127,7 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                 {/* User Photo */}
                 {image.src && (
                 <div
-                    className="absolute"
+                    className={cn("absolute", isDragging ? "cursor-grabbing" : "cursor-grab")}
                      style={{
                         top: `${image.y}%`,
                         left: `${image.x}%`,
@@ -88,12 +136,14 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                         transform: `translate(-50%, -50%) scale(${image.scale / 100}) rotate(${image.rotation}deg)`,
                         transformOrigin: 'center center',
                     }}
+                    onMouseDown={handleMouseDown}
                 >
                     <Image
                         src={image.src}
                         alt="User photo"
                         layout="fill"
                         objectFit="contain"
+                        className="pointer-events-none" // prevent image's own drag events
                     />
                 </div>
                 )}
