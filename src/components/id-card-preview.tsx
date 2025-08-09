@@ -15,6 +15,7 @@ interface IdCardPreviewProps {
   shapeElements: ShapeElement[];
   slotPunch: SlotPunch;
   isBackside: boolean;
+  onImageSelect: () => void;
 }
 
 const SlotPunchHole = ({ type, cardWidth, cardHeight }: { type: SlotPunch, cardWidth: number, cardHeight: number }) => {
@@ -48,7 +49,7 @@ const SlotPunchHole = ({ type, cardWidth, cardHeight }: { type: SlotPunch, cardW
 type InteractionMode = 'none' | 'dragging' | 'resizing' | 'rotating';
 
 const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
-  ({ template, image, setImage, textElements, shapeElements, slotPunch, isBackside }, ref) => {
+  ({ template, image, setImage, textElements, shapeElements, slotPunch, isBackside, onImageSelect }, ref) => {
     const [interaction, setInteraction] = useState<InteractionMode>('none');
     const [startPoint, setStartPoint] = useState({ x: 0, y: 0 });
     const imageContainerRef = useRef<HTMLDivElement>(null);
@@ -57,6 +58,7 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
     const handleInteractionStart = (e: React.MouseEvent<HTMLDivElement>, mode: InteractionMode) => {
         e.preventDefault();
         e.stopPropagation();
+        onImageSelect();
         setInteraction(mode);
 
         const cardRect = (ref as React.RefObject<HTMLDivElement>)?.current?.getBoundingClientRect();
@@ -184,10 +186,11 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                      style={{
                         top: `${image.y}%`,
                         left: `${image.x}%`,
-                        width: '150px',
-                        height: '150px',
+                        width: `${image.width}%`,
+                        height: `${image.height}%`,
                         transform: `translate(-50%, -50%)`,
                         transformOrigin: 'center center',
+                        opacity: 1 - image.transparency / 100
                     }}
                 >
                     <div className={cn(
@@ -196,6 +199,9 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                     )}
                      style={{
                         transform: `scale(${image.scale / 100}) rotate(${image.rotation}deg)`,
+                        border: `${image.borderSize}px solid ${image.borderColor}`,
+                        borderRadius: '2px',
+                        boxSizing: 'border-box'
                      }}
                      onMouseDown={(e) => handleInteractionStart(e, 'dragging')}
                     >
@@ -203,8 +209,8 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                             src={image.src}
                             alt="User photo"
                             layout="fill"
-                            objectFit="contain"
-                            className="pointer-events-none rounded-sm"
+                            objectFit="cover"
+                            className="pointer-events-none"
                         />
                          <div className="absolute inset-0 border-2 border-primary/50 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                     </div>

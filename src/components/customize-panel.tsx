@@ -1,0 +1,42 @@
+
+import React from "react";
+import type { Dispatch, SetStateAction } from "react";
+import CustomizeImagePanel from "@/components/customize-image-panel";
+import type { ImageElement } from "@/types";
+import { Button } from "./ui/button";
+import { X } from "lucide-react";
+
+interface CustomizePanelProps {
+    selectedElement: string | null;
+    image: ImageElement;
+    setImage: Dispatch<SetStateAction<ImageElement>>;
+    onClose: () => void;
+}
+
+export default function CustomizePanel({ selectedElement, image, setImage, onClose }: CustomizePanelProps) {
+    
+    const getPanelTitle = () => {
+        if (!selectedElement) return "";
+        if (selectedElement.startsWith('image')) return "Customize Image";
+        if (selectedElement.startsWith('text')) return "Customize Text";
+        if (selectedElement.startsWith('shape')) return "Customize Shape";
+        return "Customize";
+    }
+    
+    return (
+        <div className="p-4 flex flex-col h-full">
+            <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold">{getPanelTitle()}</h2>
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onClose}>
+                    <X className="w-4 h-4"/>
+                </Button>
+            </div>
+            <div className="flex-1 overflow-y-auto">
+                {selectedElement === 'image' && (
+                    <CustomizeImagePanel image={image} setImage={setImage} />
+                )}
+                {/* Add other customize panels here, e.g., for text, shapes */}
+            </div>
+        </div>
+    );
+}

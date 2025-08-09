@@ -13,8 +13,13 @@ export interface ImageElement {
   src: string | null;
   x: number; // percentage for positioning within its frame
   y: number; // percentage
+  width: number; // percentage
+  height: number; // percentage
   scale: number; // percentage
   rotation: number; // degrees
+  transparency: number; // percentage
+  borderSize: number; // pixels
+  borderColor: string;
 }
 
 export interface ShapeElement {
