@@ -50,7 +50,8 @@ export default function TemplateSelector({ selectedTemplate, onSelectTemplate }:
     <div className="space-y-4">
       <div className="font-bold text-base text-black">Card</div>
       <Separator />
-       <div className="font-bold text-base text-black">Orientation</div>
+      <div className="space-y-3">
+        <div className="font-bold text-base text-black">Orientation</div>
         <div className="flex items-center gap-2">
             <div
                 onClick={() => handleOrientationChange('horizontal')}
@@ -79,6 +80,7 @@ export default function TemplateSelector({ selectedTemplate, onSelectTemplate }:
                 <span className="text-sm font-bold">Vertical</span>
             </div>
         </div>
+      </div>
     </div>
   );
 }
