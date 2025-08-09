@@ -180,11 +180,11 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
     };
     
     const resizeHandles = [
-        { top: '-4px', left: '-4px', cursor: 'nwse-resize', mode: 'resizing-tl' },
-        { top: '-4px', right: '-4px', cursor: 'nesw-resize', mode: 'resizing-tr' },
-        { bottom: '-4px', left: '-4px', cursor: 'nesw-resize', mode: 'resizing-bl' },
-        { bottom: '-4px', right: '-4px', cursor: 'nwse-resize', mode: 'resizing-br' },
-    ] as const;
+        { top: '-4px', left: '-4px', cursor: 'nwse-resize', mode: 'resizing-tl' as InteractionMode },
+        { top: '-4px', right: '-4px', cursor: 'nesw-resize', mode: 'resizing-tr' as InteractionMode },
+        { bottom: '-4px', left: '-4px', cursor: 'nesw-resize', mode: 'resizing-bl' as InteractionMode },
+        { bottom: '-4px', right: '-4px', cursor: 'nwse-resize', mode: 'resizing-br' as InteractionMode },
+    ];
     
     return (
       <div
@@ -206,19 +206,34 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
         ) : (
             <>
                 {/* Shape Elements */}
-                {shapeElements.map((shape) => (
-                <div
-                    key={shape.id}
-                    className="absolute"
-                    style={{
-                    left: `${shape.x}%`,
-                    top: `${shape.y}%`,
-                    width: `${shape.width}%`,
-                    height: `${shape.height}%`,
-                    backgroundColor: shape.color,
-                    }}
-                />
-                ))}
+                {shapeElements.map((shape) => {
+                    const style: React.CSSProperties = {
+                        position: 'absolute',
+                        left: `${shape.x}%`,
+                        top: `${shape.y}%`,
+                        width: `${shape.width}%`,
+                        height: `${shape.height}%`,
+                        backgroundColor: shape.color,
+                        transform: 'translate(-50%, -50%)'
+                    };
+                    if (shape.type === 'circle') {
+                        style.borderRadius = '50%';
+                    } else if (shape.type === 'triangle') {
+                         style.width = 0;
+                         style.height = 0;
+                         style.borderLeft = `${shape.width/2}% solid transparent`;
+                         style.borderRight = `${shape.width/2}% solid transparent`;
+                         style.borderBottom = `${shape.height}% solid ${shape.color}`;
+                         style.backgroundColor = 'transparent';
+                    }
+                    return (
+                        <div
+                            key={shape.id}
+                            style={style}
+                        />
+                    );
+                })}
+
 
                 {/* User Photo */}
                 {image.src && (
@@ -259,12 +274,12 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                     
                     {isImageSelected && <>
                         {/* Resize Handles */}
-                        {resizeHandles.map((style) => (
+                        {resizeHandles.map((handle) => (
                              <div
-                                key={style.mode}
+                                key={handle.mode}
                                 className="absolute w-2 h-2 bg-white border border-blue-500 z-10"
-                                style={{ ...style, cursor: style.cursor }}
-                                onMouseDown={(e) => handleInteractionStart(e, style.mode)}
+                                style={{ ...handle, cursor: handle.cursor }}
+                                onMouseDown={(e) => handleInteractionStart(e, handle.mode)}
                             />
                         ))}
 

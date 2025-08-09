@@ -31,7 +31,7 @@ export interface ImageElement {
 
 export interface ShapeElement {
   id: string;
-  type: 'rectangle';
+  type: 'rectangle' | 'circle' | 'triangle' | 'line';
   x: number; // percentage
   y: number; // percentage
   width: number; // percentage
