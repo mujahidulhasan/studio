@@ -7,8 +7,7 @@ import ImageEditor from "@/components/image-editor";
 import TextEditor from "@/components/text-editor";
 import ShapeEditor from "@/components/shape-editor";
 import type { Template, ImageElement, TextElement, ShapeElement } from "@/types";
-import { LayoutTemplate, ImageIcon, Type, Square } from "lucide-react";
-import { useSidebar } from "@/components/ui/sidebar";
+import { LayoutTemplate, ImageIcon, Type, Square, Shield, Database } from "lucide-react";
 
 interface EditorPanelProps {
   template: Template;
@@ -31,15 +30,14 @@ export default function EditorPanel({
   shapeElements,
   setShapeElements,
 }: EditorPanelProps) {
-  const { state } = useSidebar();
   return (
-    <Tabs defaultValue="template" className="w-full h-full flex flex-col">
-       <TabsList className="grid w-full grid-cols-4 group-data-[collapsible=icon]:grid-cols-1 group-data-[collapsible=icon]:h-full">
+    <Tabs defaultValue="template" className="w-full h-full flex" orientation="vertical">
+       <TabsList className="w-auto h-full p-2 gap-2 bg-transparent">
         <TabsTrigger value="template">
-          <LayoutTemplate /> <span>Template</span>
+          <LayoutTemplate /> <span>Card</span>
         </TabsTrigger>
         <TabsTrigger value="photo">
-          <ImageIcon /> <span>Photo</span>
+          <ImageIcon /> <span>Image</span>
         </TabsTrigger>
         <TabsTrigger value="text">
           <Type /> <span>Text</span>
@@ -47,8 +45,14 @@ export default function EditorPanel({
         <TabsTrigger value="shapes">
           <Square /> <span>Shapes</span>
         </TabsTrigger>
+        <TabsTrigger value="security" disabled>
+          <Shield /> <span>Security</span>
+        </TabsTrigger>
+        <TabsTrigger value="records" disabled>
+          <Database /> <span>Records</span>
+        </TabsTrigger>
       </TabsList>
-      <div className="flex-1 overflow-y-auto p-6 group-data-[collapsible=icon]:hidden">
+      <div className="flex-1 overflow-y-auto p-6 group-data-[collapsible=icon]:hidden bg-background">
         <TabsContent value="template">
           <TemplateSelector selectedTemplate={template} onSelectTemplate={setTemplate} />
         </TabsContent>
@@ -60,6 +64,12 @@ export default function EditorPanel({
         </TabsContent>
         <TabsContent value="shapes">
           <ShapeEditor shapeElements={shapeElements} setShapeElements={setShapeElements} />
+        </TabsContent>
+         <TabsContent value="security">
+            <p>Security features coming soon.</p>
+        </TabsContent>
+        <TabsContent value="records">
+            <p>Record management coming soon.</p>
         </TabsContent>
       </div>
     </Tabs>

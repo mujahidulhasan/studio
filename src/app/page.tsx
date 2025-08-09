@@ -12,7 +12,6 @@ import { downloadAsSvg } from "@/lib/download";
 import {
   SidebarProvider,
   Sidebar,
-  SidebarHeader,
   SidebarContent,
   SidebarTrigger,
   SidebarInset,
@@ -62,8 +61,8 @@ export default function Home() {
       <div className="flex flex-col h-screen bg-background font-body">
         <Header />
         <div className="flex flex-1 overflow-hidden">
-          <Sidebar collapsible="icon">
-            <SidebarContent>
+          <Sidebar collapsible="icon" className="bg-muted/30">
+            <SidebarContent className="p-0">
               <EditorPanel
                 template={template}
                 setTemplate={setTemplate}
