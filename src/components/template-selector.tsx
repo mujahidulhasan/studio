@@ -57,8 +57,8 @@ export default function TemplateSelector({ selectedTemplate, onSelectTemplate }:
                 variant={!isVertical ? 'secondary' : 'ghost'}
                 className="flex-1 flex flex-col items-center h-auto py-2"
             >
-                <svg width="24" height="16" viewBox="0 0 16 10" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-1.5 h-6">
-                    <rect width="16" height="10" rx="2" fill="currentColor"/>
+                <svg width="32" height="20" viewBox="0 0 32 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-1.5 h-8">
+                    <rect x="1" y="1" width="30" height="18" rx="2" stroke="currentColor" strokeWidth="2"/>
                 </svg>
                 <span className="text-xs">Horizontal</span>
             </Button>
@@ -67,8 +67,8 @@ export default function TemplateSelector({ selectedTemplate, onSelectTemplate }:
                 variant={isVertical ? 'secondary' : 'ghost'}
                 className="flex-1 flex flex-col items-center h-auto py-2"
             >
-                <svg width="16" height="24" viewBox="0 0 10 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-1.5 h-6">
-                    <rect width="10" height="16" rx="2" fill="currentColor"/>
+                <svg width="20" height="32" viewBox="0 0 20 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-1.5 h-8">
+                     <rect x="1" y="1" width="18" height="30" rx="2" stroke="currentColor" strokeWidth="2"/>
                 </svg>
                 <span className="text-xs">Vertical</span>
             </Button>
