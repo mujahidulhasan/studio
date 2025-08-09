@@ -51,11 +51,11 @@ export default function TemplateSelector({ selectedTemplate, onSelectTemplate }:
     <div className="space-y-6">
       <div className="space-y-2">
         <Label>Orientation</Label>
-        <div className="flex rounded-md border border-input">
+        <div className="flex rounded-md border border-input bg-background p-1">
             <Button 
                 onClick={() => handleOrientationChange('horizontal')}
                 variant={!isVertical ? 'secondary' : 'ghost'}
-                className="flex-1 rounded-r-none border-r"
+                className="flex-1 rounded-r-none"
             >
                 <div className="w-8 h-5 bg-foreground/20 rounded-sm mr-2"/>
                 Horizontal
