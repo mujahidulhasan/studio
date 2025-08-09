@@ -48,38 +48,35 @@ export default function TemplateSelector({ selectedTemplate, onSelectTemplate }:
 
   return (
     <div className="space-y-4">
-       <div className="space-y-3">
-        <div className="font-bold text-base text-black">Card</div>
-      </div>
       <Separator />
       <div className="space-y-3">
-        <div className="font-bold text-base text-black">Orientation</div>
-        <div className="flex items-center gap-2">
+        <div className="font-medium text-sm text-black">Orientation</div>
+        <div className="flex items-center gap-2 bg-muted p-1 rounded-lg">
             <div
                 onClick={() => handleOrientationChange('horizontal')}
                 className={cn(
-                    "flex w-auto cursor-pointer flex-col items-center rounded-lg p-2 transition-colors",
-                    !isVertical ? "bg-white text-[#4bb058]" : "bg-transparent text-gray-700 hover:bg-white/50"
+                    "flex-1 cursor-pointer flex-col items-center rounded-md p-2 transition-colors flex justify-center text-center",
+                    !isVertical ? "bg-background shadow-sm text-primary" : "text-muted-foreground hover:bg-background/50"
                 )}
             >
                 <div className={cn(
-                    "mb-1.5 h-[30px] w-[38px] rounded-md border-[3px]",
-                     !isVertical ? "border-[#4bb058]" : "border-gray-400"
+                    "mb-1.5 h-[30px] w-[38px] rounded-sm border-2 bg-white",
+                     !isVertical ? "border-primary" : "border-gray-300"
                 )}></div>
-                <span className="text-sm font-bold">Horizontal</span>
+                <span className="text-xs font-semibold">Horizontal</span>
             </div>
             <div
                 onClick={() => handleOrientationChange('vertical')}
                 className={cn(
-                  "flex w-auto cursor-pointer flex-col items-center rounded-lg p-2 transition-colors",
-                  isVertical ? "bg-white text-[#4bb058]" : "bg-transparent text-gray-700 hover:bg-white/50"
+                  "flex-1 cursor-pointer flex-col items-center rounded-md p-2 transition-colors flex justify-center text-center",
+                  isVertical ? "bg-background shadow-sm text-primary" : "text-muted-foreground hover:bg-background/50"
                 )}
             >
                  <div className={cn(
-                    "mb-1.5 h-[38px] w-[24px] rounded-md border-[3px]",
-                    isVertical ? "border-[#4bb058]" : "border-gray-400"
+                    "mb-1.5 h-[38px] w-[24px] rounded-sm border-2 bg-white",
+                    isVertical ? "border-primary" : "border-gray-300"
                 )}></div>
-                <span className="text-sm font-bold">Vertical</span>
+                <span className="text-xs font-semibold">Vertical</span>
             </div>
         </div>
       </div>

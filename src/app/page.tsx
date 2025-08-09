@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 
 
 const toolConfig = [
-    { id: "template", icon: LayoutTemplate, label: "Card" },
+    { id: "template", icon: LayoutTemplate, label: "Card Options" },
     { id: "photo", icon: ImageIcon, label: "Image" },
     { id: "text", icon: Type, label: "Text" },
     { id: "shapes", icon: Square, label: "Shapes" },
