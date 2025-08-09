@@ -7,15 +7,19 @@ import Header from "@/components/header";
 import EditorPanel from "@/components/editor-panel";
 import IdCardPreview from "@/components/id-card-preview";
 import { Button } from "@/components/ui/button";
-import { Download, PanelLeft } from "lucide-react";
+import { Download, PanelLeft, LayoutTemplate, ImageIcon, Type, Square, Shield, Database, X } from "lucide-react";
 import { downloadAsSvg } from "@/lib/download";
-import {
-  SidebarProvider,
-  Sidebar,
-  SidebarContent,
-  SidebarTrigger,
-  SidebarInset,
-} from "@/components/ui/sidebar";
+import { cn } from "@/lib/utils";
+
+
+const toolConfig = [
+    { id: "template", icon: LayoutTemplate, label: "Card" },
+    { id: "photo", icon: ImageIcon, label: "Image" },
+    { id: "text", icon: Type, label: "Text" },
+    { id: "shapes", icon: Square, label: "Shapes" },
+    { id: "security", icon: Shield, label: "Security", disabled: true },
+    { id: "records", icon: Database, label: "Records", disabled: true },
+];
 
 export default function Home() {
   const [template, setTemplate] = useState<Template>(templates[0]);
@@ -49,6 +53,8 @@ export default function Home() {
   ]);
   const [shapeElements, setShapeElements] = useState<ShapeElement[]>([]);
   const idCardRef = useRef<HTMLDivElement>(null);
+  const [activePanel, setActivePanel] = useState<string | null>('template');
+
 
   const handleDownload = useCallback(async () => {
     if (idCardRef.current) {
@@ -56,45 +62,75 @@ export default function Home() {
     }
   }, [template, image, textElements, shapeElements]);
 
+  const currentTool = toolConfig.find(t => t.id === activePanel);
+
   return (
-    <SidebarProvider>
-      <div className="flex flex-col h-screen bg-background font-body">
-        <Header />
-        <div className="flex flex-1 overflow-hidden">
-          <Sidebar collapsible="icon" className="bg-muted/30">
-            <SidebarContent className="p-0">
-              <EditorPanel
-                template={template}
-                setTemplate={setTemplate}
-                image={image}
-                setImage={setImage}
-                textElements={textElements}
-                setTextElements={setTextElements}
-                shapeElements={shapeElements}
-                setShapeElements={setShapeElements}
-              />
-            </SidebarContent>
-          </Sidebar>
-          <SidebarInset>
-            <main className="flex-1 flex flex-col items-center justify-center gap-6 p-4 md:p-8">
-               <div className="absolute top-4 left-4">
-                  <SidebarTrigger />
-               </div>
-              <IdCardPreview
+    <div className="flex flex-col h-screen bg-background font-body">
+      <Header />
+      <div className="flex flex-1 overflow-hidden">
+        {/* Icon Strip */}
+        <div className="w-16 h-full bg-muted/30 flex flex-col items-center py-4 space-y-1 border-r">
+          {toolConfig.map((tool) => (
+            <button
+              key={tool.id}
+              onClick={() => setActivePanel(activePanel === tool.id && !tool.disabled ? null : tool.id)}
+              disabled={tool.disabled}
+              className={cn(
+                "flex flex-col items-center justify-center p-2 rounded-lg w-14 h-14 transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
+                activePanel === tool.id ? "bg-primary/20 text-primary" : "hover:bg-accent/50"
+              )}
+            >
+              <tool.icon className="w-6 h-6" />
+              <span className="text-xs mt-1">{tool.label}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Tool Panel */}
+        <div className={cn(
+            "h-full bg-card border-r transition-all duration-300 ease-in-out overflow-y-auto",
+            activePanel ? "w-80" : "w-0"
+        )}>
+            {activePanel && (
+                 <div className="p-4 flex flex-col h-full">
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-lg font-semibold">{currentTool?.label}</h2>
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setActivePanel(null)}>
+                            <X className="w-4 h-4"/>
+                        </Button>
+                    </div>
+                    <div className="flex-1">
+                        <EditorPanel
+                            activeTab={activePanel}
+                            template={template}
+                            setTemplate={setTemplate}
+                            image={image}
+                            setImage={setImage}
+                            textElements={textElements}
+                            setTextElements={setTextElements}
+                            shapeElements={shapeElements}
+                            setShapeElements={setShapeElements}
+                        />
+                    </div>
+                 </div>
+            )}
+        </div>
+
+        {/* Workspace */}
+        <main className="flex-1 flex flex-col items-center justify-center gap-6 p-4 md:p-8">
+            <IdCardPreview
                 ref={idCardRef}
                 template={template}
                 image={image}
                 textElements={textElements}
                 shapeElements={shapeElements}
-              />
-              <Button onClick={handleDownload} size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90">
+            />
+            <Button onClick={handleDownload} size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90">
                 <Download className="mr-2 h-5 w-5" />
                 Download ID
-              </Button>
-            </main>
-          </SidebarInset>
-        </div>
+            </Button>
+        </main>
       </div>
-    </SidebarProvider>
+    </div>
   );
 }

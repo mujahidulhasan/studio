@@ -1,15 +1,14 @@
 "use client";
 
 import type { Dispatch, SetStateAction } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TemplateSelector from "@/components/template-selector";
 import ImageEditor from "@/components/image-editor";
 import TextEditor from "@/components/text-editor";
 import ShapeEditor from "@/components/shape-editor";
 import type { Template, ImageElement, TextElement, ShapeElement } from "@/types";
-import { LayoutTemplate, ImageIcon, Type, Square, Shield, Database } from "lucide-react";
 
 interface EditorPanelProps {
+  activeTab: string;
   template: Template;
   setTemplate: Dispatch<SetStateAction<Template>>;
   image: ImageElement;
@@ -21,6 +20,7 @@ interface EditorPanelProps {
 }
 
 export default function EditorPanel({
+  activeTab,
   template,
   setTemplate,
   image,
@@ -31,47 +31,13 @@ export default function EditorPanel({
   setShapeElements,
 }: EditorPanelProps) {
   return (
-    <Tabs defaultValue="template" className="w-full h-full flex" orientation="vertical">
-       <TabsList className="w-auto h-full p-2 gap-2 bg-transparent">
-        <TabsTrigger value="template">
-          <LayoutTemplate /> <span>Card</span>
-        </TabsTrigger>
-        <TabsTrigger value="photo">
-          <ImageIcon /> <span>Image</span>
-        </TabsTrigger>
-        <TabsTrigger value="text">
-          <Type /> <span>Text</span>
-        </TabsTrigger>
-        <TabsTrigger value="shapes">
-          <Square /> <span>Shapes</span>
-        </TabsTrigger>
-        <TabsTrigger value="security" disabled>
-          <Shield /> <span>Security</span>
-        </TabsTrigger>
-        <TabsTrigger value="records" disabled>
-          <Database /> <span>Records</span>
-        </TabsTrigger>
-      </TabsList>
-      <div className="flex-1 overflow-y-auto p-6 group-data-[collapsible=icon]:hidden bg-background">
-        <TabsContent value="template">
-          <TemplateSelector selectedTemplate={template} onSelectTemplate={setTemplate} />
-        </TabsContent>
-        <TabsContent value="photo">
-          <ImageEditor image={image} setImage={setImage} />
-        </TabsContent>
-        <TabsContent value="text">
-          <TextEditor textElements={textElements} setTextElements={setTextElements} />
-        </TabsContent>
-        <TabsContent value="shapes">
-          <ShapeEditor shapeElements={shapeElements} setShapeElements={setShapeElements} />
-        </TabsContent>
-         <TabsContent value="security">
-            <p>Security features coming soon.</p>
-        </TabsContent>
-        <TabsContent value="records">
-            <p>Record management coming soon.</p>
-        </TabsContent>
-      </div>
-    </Tabs>
+    <div>
+        {activeTab === 'template' && <TemplateSelector selectedTemplate={template} onSelectTemplate={setTemplate} />}
+        {activeTab === 'photo' && <ImageEditor image={image} setImage={setImage} />}
+        {activeTab === 'text' && <TextEditor textElements={textElements} setTextElements={setTextElements} />}
+        {activeTab === 'shapes' && <ShapeEditor shapeElements={shapeElements} setShapeElements={setShapeElements} />}
+        {activeTab === 'security' && <p>Security features coming soon.</p>}
+        {activeTab === 'records' && <p>Record management coming soon.</p>}
+    </div>
   );
 }
