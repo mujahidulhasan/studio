@@ -1,3 +1,4 @@
+
 export interface TextElement {
   id: string;
   content: string;
@@ -15,7 +16,7 @@ export interface ImageElement {
   y: number; // percentage
   width: number; // percentage
   height: number; // percentage
-  scale: number; // percentage
+  scale: number; 
   rotation: number; // degrees
   transparency: number; // percentage
   borderSize: number; // pixels

@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useRef, useCallback } from "react";
@@ -30,7 +31,7 @@ export default function Home() {
     y: 50,
     width: 30, // Default width as percentage of card width
     height: 40, // Default height as percentage of card height
-    scale: 100,
+    scale: 1,
     rotation: 0,
     transparency: 0,
     borderSize: 0,
@@ -75,7 +76,13 @@ export default function Home() {
   const isCustomizePanelOpen = !!selectedElement;
 
   return (
-    <div className="flex flex-col h-screen bg-background font-body">
+    <div className="flex flex-col h-screen bg-background font-body" onClick={(e) => {
+        // If click is outside the preview and the customize panel, deselect
+        const target = e.target as HTMLElement;
+        if (!target.closest('#id-card-preview') && !target.closest('#customize-panel')) {
+             setSelectedElement(null);
+        }
+    }}>
       <Header />
       <div className="flex flex-1 overflow-hidden">
         {/* Icon Strip */}
@@ -145,7 +152,7 @@ export default function Home() {
             </div>
 
             {/* Customize Panel */}
-            <div className={cn(
+            <div id="customize-panel" className={cn(
                 "absolute top-0 left-0 h-full bg-card border-r transition-transform duration-300 ease-in-out overflow-y-auto z-10",
                 isCustomizePanelOpen ? "translate-x-0 w-80" : "-translate-x-full w-80"
             )}>
@@ -170,6 +177,7 @@ export default function Home() {
                     shapeElements={shapeElements}
                     slotPunch={'none'}
                     isBackside={isBackside}
+                    isSelected={selectedElement === 'image'}
                     onImageSelect={() => {
                         setActiveTool(null);
                         setSelectedElement('image');

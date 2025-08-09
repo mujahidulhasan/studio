@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { forwardRef, useState, useRef, useEffect } from "react";
@@ -15,6 +16,7 @@ interface IdCardPreviewProps {
   shapeElements: ShapeElement[];
   slotPunch: SlotPunch;
   isBackside: boolean;
+  isSelected: boolean;
   onImageSelect: () => void;
 }
 
@@ -46,12 +48,24 @@ const SlotPunchHole = ({ type, cardWidth, cardHeight }: { type: SlotPunch, cardW
     return <div style={style}></div>
 }
 
-type InteractionMode = 'none' | 'dragging' | 'resizing' | 'rotating';
+type InteractionMode =
+  | 'none'
+  | 'dragging'
+  | 'rotating'
+  | 'resizing-br'
+  | 'resizing-bl'
+  | 'resizing-tr'
+  | 'resizing-tl'
+  | 'resizing-t'
+  | 'resizing-b'
+  | 'resizing-l'
+  | 'resizing-r';
 
 const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
-  ({ template, image, setImage, textElements, shapeElements, slotPunch, isBackside, onImageSelect }, ref) => {
+  ({ template, image, setImage, textElements, shapeElements, slotPunch, isBackside, isSelected, onImageSelect }, ref) => {
     const [interaction, setInteraction] = useState<InteractionMode>('none');
     const [startPoint, setStartPoint] = useState({ x: 0, y: 0 });
+    const [originalImage, setOriginalImage] = useState<ImageElement | null>(null);
     const imageContainerRef = useRef<HTMLDivElement>(null);
 
 
@@ -60,6 +74,7 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
         e.stopPropagation();
         onImageSelect();
         setInteraction(mode);
+        setOriginalImage(image);
 
         const cardRect = (ref as React.RefObject<HTMLDivElement>)?.current?.getBoundingClientRect();
         if (!cardRect) return;
@@ -68,7 +83,6 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
         const startY = e.clientY - cardRect.top;
 
         if (mode === 'dragging') {
-             // The offset between the mouse click and the image's top-left corner (in pixels)
             const imageXInPixels = (image.x / 100) * cardRect.width;
             const imageYInPixels = (image.y / 100) * cardRect.height;
             setStartPoint({ x: startX - imageXInPixels, y: startY - imageYInPixels });
@@ -78,7 +92,7 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
     }
 
     const handleInteractionMove = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (interaction === 'none') return;
+        if (interaction === 'none' || !originalImage) return;
         e.preventDefault();
         e.stopPropagation();
 
@@ -87,9 +101,17 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
 
         const currentX = e.clientX - cardRect.left;
         const currentY = e.clientY - cardRect.top;
+        const dx = (currentX - startPoint.x);
+        const dy = (currentY - startPoint.y);
 
-        const imageXInPixels = (image.x / 100) * cardRect.width;
-        const imageYInPixels = (image.y / 100) * cardRect.height;
+        const rad = (originalImage.rotation * Math.PI) / 180;
+        const cos = Math.cos(-rad);
+        const sin = Math.sin(-rad);
+        const rotDx = dx * cos - dy * sin;
+        const rotDy = dx * sin + dy * cos;
+
+        const imageCenterXinPixels = (originalImage.x / 100) * cardRect.width;
+        const imageCenterYinPixels = (originalImage.y / 100) * cardRect.height;
         
         switch (interaction) {
             case 'dragging': {
@@ -100,61 +122,68 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                 }));
                 break;
             }
-            case 'resizing': {
-                const centerX = imageXInPixels;
-                const centerY = imageYInPixels;
-                
-                const startDist = Math.sqrt(Math.pow(startPoint.x - centerX, 2) + Math.pow(startPoint.y - centerY, 2));
-                const currentDist = Math.sqrt(Math.pow(currentX - centerX, 2) + Math.pow(currentY - centerY, 2));
-                
-                const scaleDelta = currentDist / startDist;
-
-                setImage(prev => {
-                    const newWidth = prev.width * scaleDelta;
-                    const newHeight = prev.height * scaleDelta;
-                    return {...prev, width: newWidth, height: newHeight};
-                });
-
-                // Update start point for continuous scaling
-                setStartPoint({ x: currentX, y: currentY });
-                break;
-            }
             case 'rotating': {
-                const centerX = imageXInPixels;
-                const centerY = imageYInPixels;
-                
+                const centerX = (image.x / 100) * cardRect.width;
+                const centerY = (image.y / 100) * cardRect.height;
                 const startAngle = Math.atan2(startPoint.y - centerY, startPoint.x - centerX) * (180 / Math.PI);
                 const currentAngle = Math.atan2(currentY - centerY, currentX - centerX) * (180 / Math.PI);
-
                 const angleDelta = currentAngle - startAngle;
-
-                setImage(prev => {
-                    let newRotation = (prev.rotation + angleDelta) % 360;
-                    if (newRotation < 0) newRotation += 360;
-                    return {...prev, rotation: newRotation};
-                });
-                
-                // Update start point for continuous rotation
-                setStartPoint({ x: currentX, y: currentY });
+                let newRotation = (originalImage.rotation + angleDelta);
+                setImage(prev => ({...prev, rotation: newRotation}));
                 break;
+            }
+            case 'resizing-br': {
+                 setImage(prev => ({
+                    ...prev,
+                    width: (originalImage.width + (rotDx / cardRect.width) * 100),
+                    height: (originalImage.height + (rotDy / cardRect.height) * 100),
+                 }));
+                 break;
+            }
+            case 'resizing-bl': {
+                 setImage(prev => ({
+                    ...prev,
+                    width: (originalImage.width - (rotDx / cardRect.width) * 100),
+                    height: (originalImage.height + (rotDy / cardRect.height) * 100),
+                    x: originalImage.x + (dx/cardRect.width)*50,
+                    y: originalImage.y + (dy/cardRect.height)*50,
+                 }));
+                 break;
+            }
+            case 'resizing-tr': {
+                 setImage(prev => ({
+                    ...prev,
+                    width: (originalImage.width + (rotDx / cardRect.width) * 100),
+                    height: (originalImage.height - (rotDy / cardRect.height) * 100),
+                    x: originalImage.x + (dx/cardRect.width)*50,
+                    y: originalImage.y + (dy/cardRect.height)*50,
+                 }));
+                 break;
+            }
+             case 'resizing-tl': {
+                 setImage(prev => ({
+                    ...prev,
+                    width: (originalImage.width - (rotDx / cardRect.width) * 100),
+                    height: (originalImage.height - (rotDy / cardRect.height) * 100),
+                    x: originalImage.x + (dx/cardRect.width)*50,
+                    y: originalImage.y + (dy/cardRect.height)*50,
+                 }));
+                 break;
             }
         }
     };
 
     const handleInteractionEnd = () => {
         setInteraction('none');
+        setOriginalImage(null);
     };
     
     const resizeHandles = [
-        { top: '-4px', left: '-4px', cursor: 'nwse-resize' },
-        { top: '-4px', left: 'calc(50% - 4px)', cursor: 'ns-resize' },
-        { top: '-4px', right: '-4px', cursor: 'nesw-resize' },
-        { top: 'calc(50% - 4px)', left: '-4px', cursor: 'ew-resize' },
-        { top: 'calc(50% - 4px)', right: '-4px', cursor: 'ew-resize' },
-        { bottom: '-4px', left: '-4px', cursor: 'nesw-resize' },
-        { bottom: '-4px', left: 'calc(50% - 4px)', cursor: 'ns-resize' },
-        { bottom: '-4px', right: '-4px', cursor: 'nwse-resize' },
-    ];
+        { top: '-4px', left: '-4px', cursor: 'nwse-resize', mode: 'resizing-tl' },
+        { top: '-4px', right: '-4px', cursor: 'nesw-resize', mode: 'resizing-tr' },
+        { bottom: '-4px', left: '-4px', cursor: 'nesw-resize', mode: 'resizing-bl' },
+        { bottom: '-4px', right: '-4px', cursor: 'nwse-resize', mode: 'resizing-br' },
+    ] as const;
     
     return (
       <div
@@ -208,10 +237,12 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                     onMouseDown={(e) => handleInteractionStart(e, 'dragging')}
                 >
                     <div className={cn(
-                        "relative w-full h-full border border-transparent group-hover:border-blue-500"
+                        "relative w-full h-full border",
+                        isSelected ? "border-blue-500" : "border-transparent"
                     )}
                      style={{
-                        border: `${image.borderSize}px solid ${image.borderColor}`,
+                        borderWidth: isSelected ? '1px' : `${image.borderSize}px`,
+                        borderColor: isSelected ? 'rgb(59 130 246)' : image.borderColor,
                         borderRadius: '2px',
                         boxSizing: 'border-box'
                      }}
@@ -225,24 +256,26 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                         />
                     </div>
                     
-                    {/* Resize Handles */}
-                    {resizeHandles.map((style, i) => (
-                         <div
-                            key={i}
-                            className="absolute w-2 h-2 bg-white border border-blue-500 z-10"
-                            style={{ ...style, cursor: style.cursor }}
-                            onMouseDown={(e) => handleInteractionStart(e, 'resizing')}
-                        />
-                    ))}
+                    {isSelected && <>
+                        {/* Resize Handles */}
+                        {resizeHandles.map((style) => (
+                             <div
+                                key={style.mode}
+                                className="absolute w-2 h-2 bg-white border border-blue-500 z-10"
+                                style={{ ...style, cursor: style.cursor }}
+                                onMouseDown={(e) => handleInteractionStart(e, style.mode)}
+                            />
+                        ))}
 
-                    {/* Rotate Handle */}
-                     <div className="absolute w-px h-4 bg-blue-500 z-10" style={{top: '-20px', left: '50%', transform: 'translateX(-50%)'}}></div>
-                    <div
-                        className="absolute w-4 h-4 bg-white border border-blue-500 rounded-full z-10"
-                        style={{ top: '-28px', left: '50%', transform: 'translateX(-50%)', cursor: 'alias'}}
-                        onMouseDown={(e) => handleInteractionStart(e, 'rotating')}
-                    >
-                    </div>
+                        {/* Rotate Handle */}
+                        <div className="absolute w-px h-4 bg-blue-500 z-10" style={{top: '-20px', left: '50%', transform: 'translateX(-50%)'}}></div>
+                        <div
+                            className="absolute w-4 h-4 bg-white border border-blue-500 rounded-full z-10"
+                            style={{ top: '-28px', left: '50%', transform: 'translateX(-50%)', cursor: 'alias'}}
+                            onMouseDown={(e) => handleInteractionStart(e, 'rotating')}
+                        >
+                        </div>
+                    </>}
 
                 </div>
                 )}
