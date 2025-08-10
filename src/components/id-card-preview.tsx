@@ -319,7 +319,7 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                         }
 
                         return (
-                           <div key={shape.id} onMouseDown={(e) => onSelectElement(shape.id)}>
+                           <div key={shape.id} onMouseDown={(e) => { e.stopPropagation(); onSelectElement(shape.id); }}>
                              {renderInteractiveShell(shape, 'shape', shapeContent)}
                            </div>
                         );
