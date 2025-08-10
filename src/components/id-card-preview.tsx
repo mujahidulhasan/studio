@@ -86,7 +86,10 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
     }
 
     const handleInteractionStart = (e: React.MouseEvent<HTMLDivElement>, mode: InteractionMode, target: InteractionTarget) => {
-        if (!target || target.element.isLocked) return;
+        if (!target || target.element.isLocked) {
+             if (target) onSelectElement(target.element.id);
+             return;
+        }
         e.preventDefault();
         e.stopPropagation();
         
@@ -250,15 +253,13 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
             >
                 <div className={cn(
                     "relative w-full h-full",
-                    isSelected ? "outline outline-1 outline-blue-500" : "",
-                    element.isLocked ? "outline outline-dashed outline-1 outline-red-500" : ""
+                    isSelected ? "outline outline-1 outline-blue-500" : ""
                 )}
                  style={{
                     boxSizing: 'border-box'
                  }}
                 >
                     {children}
-                    {element.isLocked && <div className="absolute inset-0 bg-black/20 flex items-center justify-center"><Lock className="text-white h-6 w-6"/></div>}
                 </div>
                 
                 {isSelected && !element.isLocked && <>
@@ -300,16 +301,6 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
         onMouseLeave={handleInteractionEnd}
       >
         <div ref={containerRef} id="id-card-preview-container" className="w-full h-full">
-            {showGrid && (
-                <div className="absolute w-full h-full pointer-events-none" style={{
-                    backgroundImage: `
-                        linear-gradient(to right, #e5e7eb 1px, transparent 1px),
-                        linear-gradient(to bottom, #e5e7eb 1px, transparent 1px)
-                    `,
-                    backgroundSize: '20px 20px',
-                    opacity: 0.5
-                }}/>
-            )}
             {isBackside ? (
                 <div className="w-full h-full flex items-center justify-center text-muted-foreground bg-gray-50">
                     Back Side
@@ -408,7 +399,7 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                             className={cn(
                                 "absolute whitespace-nowrap p-1 group",
                                 selectedElement === text.id && "outline outline-1 outline-blue-500 outline-dashed",
-                                text.isLocked ? "cursor-not-allowed" : "cursor-grab"
+                                "cursor-grab"
                             )}
                             style={{
                             left: `${text.x}%`,
@@ -423,14 +414,25 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                             color: text.color,
                             opacity: 1 - (text.transparency || 0) / 100,
                             textAlign: text.align,
+                             cursor: text.isLocked ? 'not-allowed' : 'grab',
                             }}
                             onMouseDown={(e) => handleInteractionStart(e, 'dragging', {type: 'text', element: text})}
                         >
                             {text.content}
-                             {text.isLocked && <div className="absolute inset-0 bg-transparent flex items-center justify-center"><Lock className="text-red-500 h-4 w-4 opacity-70"/></div>}
                         </div>
                     ))}
                 </>
+            )}
+
+            {showGrid && (
+                <div className="absolute w-full h-full pointer-events-none z-10" style={{
+                    backgroundImage: `
+                        linear-gradient(to right, #e5e7eb 2px, transparent 2px),
+                        linear-gradient(to bottom, #e5e7eb 2px, transparent 2px)
+                    `,
+                    backgroundSize: '20px 20px',
+                    opacity: 0.5
+                }}/>
             )}
         </div>
         <SlotPunchHole type={slotPunch} cardWidth={template.width} cardHeight={template.height} />

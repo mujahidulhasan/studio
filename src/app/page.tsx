@@ -103,11 +103,11 @@ export default function Home() {
   }
 
   useEffect(() => {
+    // Open customize panel automatically when a new element is selected,
+    // but only if the panel isn't already open because the user closed it manually.
     if (selectedElement) {
         setActiveTool(null);
         setIsCustomizePanelOpen(true);
-    } else {
-        setIsCustomizePanelOpen(false);
     }
   }, [selectedElement]);
 
@@ -126,12 +126,12 @@ export default function Home() {
   }, [template, image, textElements, shapeElements]);
 
   const handleSelectElement = (elementId: string | null) => {
+    if (elementId === selectedElement) return;
+
     if (elementId) {
         const element = getElementById(elementId);
-        if (element && !element.isLocked) {
+        if (element) {
           setSelectedElement(elementId);
-        } else {
-          setSelectedElement(null);
         }
     } else {
         setSelectedElement(null);
@@ -215,13 +215,10 @@ export default function Home() {
     } else if (selectedElement.startsWith('shape-')) {
         setShapeElements(prev => prev.map(el => el.id === selectedElement ? toggleLock(el) : el));
     }
-     if (!element.isLocked) {
-       setSelectedElement(null);
-    }
+    // Keep element selected after locking/unlocking
   }
 
   const closeCustomizePanel = () => {
-    setSelectedElement(null);
     setIsCustomizePanelOpen(false);
   }
 
@@ -246,6 +243,21 @@ export default function Home() {
   return (
     <div className="flex flex-col h-screen bg-background font-body" onClick={handleDeselectAll}>
       <Header />
+       <Toolbar
+          onUndo={history.undo}
+          onRedo={history.redo}
+          canUndo={history.canUndo}
+          canRedo={history.canRedo}
+          onToggleGrid={() => setShowGrid(!showGrid)}
+          isGridVisible={showGrid}
+          onDownload={handleDownload}
+          selectedElementId={selectedElement}
+          onDelete={handleDeleteSelected}
+          onDuplicate={handleDuplicateSelected}
+          onLayerChange={handleLayerChange}
+          onLock={handleLockSelected}
+          isElementLocked={isElementLocked}
+        />
       <div className="flex flex-1 overflow-hidden">
         {/* Icon Strip */}
         <div id="icon-strip" className="w-16 h-full bg-card flex flex-col items-center py-4 space-y-1 border-r z-20">
@@ -269,7 +281,7 @@ export default function Home() {
            <button
               key="customize"
                onClick={() => {
-                if (selectedElement && !isElementLocked) {
+                if (selectedElement) {
                     setIsCustomizePanelOpen(!isCustomizePanelOpen);
                 }
               }}
@@ -335,22 +347,8 @@ export default function Home() {
             </div>
 
             {/* Workspace */}
-            <main className="w-full h-full flex flex-col items-center justify-start gap-6 bg-muted/40">
-                <Toolbar
-                  onUndo={history.undo}
-                  onRedo={history.redo}
-                  canUndo={history.canUndo}
-                  canRedo={history.canRedo}
-                  onToggleGrid={() => setShowGrid(!showGrid)}
-                  isGridVisible={showGrid}
-                  onDownload={handleDownload}
-                  selectedElementId={selectedElement}
-                  onDelete={handleDeleteSelected}
-                  onDuplicate={handleDuplicateSelected}
-                  onLayerChange={handleLayerChange}
-                  onLock={handleLockSelected}
-                  isElementLocked={isElementLocked}
-                />
+            <main className="w-full h-full flex flex-col items-center justify-start gap-6 bg-muted/40 pt-8">
+                
                 <div className="flex-1 flex flex-col justify-center items-center pb-8">
                     <IdCardPreview
                         ref={idCardRef}
@@ -380,5 +378,3 @@ export default function Home() {
     </div>
   );
 }
-
-    

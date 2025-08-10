@@ -82,16 +82,15 @@ export default function Toolbar({
                     <ToolbarButton onClick={onRedo} disabled={!canRedo} tooltip="Redo (Ctrl+Y)">
                         <Redo2 className="w-5 h-5" />
                     </ToolbarButton>
-                </div>
-                
-                <div className="flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
+                     <Separator orientation="vertical" className="h-6 mx-2" />
                     <ToolbarButton onClick={onToggleGrid} tooltip={isGridVisible ? "Hide Grid" : "Show Grid"} isActive={isGridVisible}>
                         {isGridVisible ? <X className="w-5 h-5" /> : <Grid3x3 className="w-5 h-5" />}
                     </ToolbarButton>
-                    
+                </div>
+                
+                <div className="flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
                     {selectedElementId && (
                         <>
-                           <Separator orientation="vertical" className="h-6 mx-2" />
                            <ToolbarButton onClick={() => onLayerChange('forward')} tooltip="Bring Forward" disabled={isElementLocked}>
                                 <BringToFront className="w-5 h-5" />
                             </ToolbarButton>
@@ -111,7 +110,7 @@ export default function Toolbar({
                     )}
                 </div>
 
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-2">
                     <ToolbarButton onClick={onDownload} tooltip="Download">
                         <Download className="w-5 h-5" />
                     </ToolbarButton>
@@ -129,5 +128,3 @@ export default function Toolbar({
     </div>
   );
 }
-
-    
