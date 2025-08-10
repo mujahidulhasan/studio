@@ -22,10 +22,10 @@ const NumberInputWithSteppers = ({ value, onChange, min, max, step = 1 }: { valu
     }
     return (
         <div className="flex items-center gap-1">
-            <Input type="number" value={value} onChange={(e) => handleChange(parseInt(e.target.value, 10))} className="w-16 h-8 text-center" />
+            <Input type="number" value={value} onChange={(e) => handleChange(parseInt(e.target.value, 10))} className="w-14 h-8 text-center" />
             <div className="flex flex-col">
-                <button onClick={() => handleChange(value + step)} className="h-4 w-4 flex items-center justify-center text-gray-500 hover:text-black border rounded-sm">+</button>
-                <button onClick={() => handleChange(value - step)} className="h-4 w-4 flex items-center justify-center text-gray-500 hover:text-black border rounded-sm">-</button>
+                <button onClick={() => handleChange(value + step)} className="h-4 w-6 flex items-center justify-center text-gray-500 hover:text-black border rounded-sm">+</button>
+                <button onClick={() => handleChange(value - step)} className="h-4 w-6 flex items-center justify-center text-gray-500 hover:text-black border rounded-sm">-</button>
             </div>
         </div>
     )
@@ -40,11 +40,6 @@ export default function CustomizeShapePanel({ element, onUpdate }: CustomizeShap
                     <Label>Line Thickness</Label>
                     <NumberInputWithSteppers value={element.strokeWidth} onChange={(val) => onUpdate({...element, strokeWidth: val})} min={0} max={50} />
                 </div>
-                <Slider
-                    value={[element.strokeWidth]}
-                    onValueChange={([value]) => onUpdate({...element, strokeWidth: value})}
-                    min={0} max={50} step={1}
-                />
             </div>
 
              <div className="space-y-2">
@@ -72,7 +67,7 @@ export default function CustomizeShapePanel({ element, onUpdate }: CustomizeShap
                     <div className="flex justify-between items-center">
                         <Label>Fill Color</Label>
                         <div className="flex items-center gap-2 border rounded-md p-1 pl-2">
-                            <Input
+                             <Input
                                 type="text"
                                 value={element.fillColor}
                                 onChange={(e) => onUpdate({...element, fillColor: e.target.value})}

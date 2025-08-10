@@ -85,15 +85,17 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
     }
 
     const handleInteractionStart = (e: React.MouseEvent<HTMLDivElement>, mode: InteractionMode, target: InteractionTarget) => {
-        if (!target || target.element.isLocked) {
-             if (target) onSelectElement(target.element.id);
-             return;
-        }
-        e.preventDefault();
-        e.stopPropagation();
+        if (!target) return;
         
         onSelectElement(target.element.id);
 
+        if (target.element.isLocked) {
+             return;
+        }
+
+        e.preventDefault();
+        e.stopPropagation();
+        
         setInteraction(mode);
         
         const cardRect = containerRef.current?.getBoundingClientRect();
@@ -245,14 +247,14 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                     height: `${element.height}%`,
                     transform: `translate(-50%, -50%) rotate(${element.rotation}deg)`,
                     transformOrigin: 'center center',
-                    cursor: element.isLocked ? 'not-allowed' : interaction === 'dragging' ? 'grabbing' : 'grab',
+                    cursor: element.isLocked ? 'default' : interaction === 'dragging' ? 'grabbing' : 'grab',
                     opacity: 1 - ((element as any).transparency || 0) / 100,
                 }}
                 onMouseDown={(e) => handleInteractionStart(e, 'dragging', {type, element} as InteractionTarget)}
             >
                 <div className={cn(
                     "relative w-full h-full",
-                    isSelected && !element.isLocked ? "outline outline-1 outline-blue-500" : ""
+                    isSelected ? "outline outline-1 outline-blue-500" : ""
                 )}
                  style={{
                     boxSizing: 'border-box'
@@ -397,7 +399,7 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                             data-element-id={text.id}
                             className={cn(
                                 "absolute whitespace-nowrap p-1 group",
-                                selectedElement === text.id && !text.isLocked && "outline outline-1 outline-blue-500 outline-dashed",
+                                selectedElement === text.id && "outline outline-1 outline-blue-500",
                                 "cursor-grab"
                             )}
                             style={{
@@ -413,7 +415,7 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                             color: text.color,
                             opacity: 1 - (text.transparency || 0) / 100,
                             textAlign: text.align,
-                             cursor: text.isLocked ? 'not-allowed' : 'grab',
+                             cursor: text.isLocked ? 'default' : 'grab',
                             }}
                             onMouseDown={(e) => handleInteractionStart(e, 'dragging', {type: 'text', element: text})}
                         >
@@ -423,16 +425,14 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                 </>
             )}
 
-            {showGrid && (
-                <div className="absolute w-full h-full pointer-events-none z-10" style={{
-                    backgroundImage: `
-                        linear-gradient(to right, #000 1px, transparent 1px),
-                        linear-gradient(to bottom, #000 1px, transparent 1px)
-                    `,
-                    backgroundSize: '20px 20px',
-                    opacity: 0.2
-                }}/>
-            )}
+             <div className="absolute w-full h-full pointer-events-none z-10" style={{
+                backgroundImage: showGrid ? `
+                    linear-gradient(to right, black 1px, transparent 1px),
+                    linear-gradient(to bottom, black 1px, transparent 1px)
+                ` : 'none',
+                backgroundSize: '20px 20px',
+                opacity: 0.1
+            }}/>
         </div>
         <SlotPunchHole type={slotPunch} cardWidth={template.width} cardHeight={template.height} />
       </div>
