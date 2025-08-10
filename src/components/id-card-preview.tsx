@@ -88,7 +88,9 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
         if (!target) return;
         e.preventDefault();
         e.stopPropagation();
+        
         onSelectElement(target.element.id);
+
         setInteraction(mode);
         
         const cardRect = containerRef.current?.getBoundingClientRect();
@@ -341,7 +343,7 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                         }
 
                         return (
-                           <div key={shape.id} onMouseDown={(e) => { e.stopPropagation(); }}>
+                           <div key={shape.id}>
                              {renderInteractiveShell(shape, 'shape', shapeContent)}
                            </div>
                         );
@@ -388,7 +390,7 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                     {textElements.map((text) => (
                         <div
                             key={text.id}
-                            className={cn("absolute whitespace-nowrap cursor-pointer p-1", selectedElement === text.id && "outline outline-1 outline-blue-500 outline-dashed")}
+                            className={cn("absolute whitespace-nowrap p-1", selectedElement === text.id && "outline outline-1 outline-blue-500 outline-dashed")}
                             style={{
                             left: `${text.x}%`,
                             top: `${text.y}%`,

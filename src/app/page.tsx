@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import type { Template, ImageElement, TextElement, ShapeElement } from "@/types";
 import { templates } from "@/components/template-selector";
 import Header from "@/components/header";
@@ -78,7 +78,26 @@ export default function Home() {
   const [selectedElement, setSelectedElement] = useState<string | null>(null);
   const [isCustomizePanelOpen, setIsCustomizePanelOpen] = useState(false);
   const [isBackside, setIsBackside] = useState(false);
-  const wasCustomizePanelManuallyClosed = useRef(false);
+
+
+  useEffect(() => {
+    // Logic to control panel visibility
+    // If an element is selected, the customize panel should be open.
+    // If a tool is active, the tool panel should be open.
+    // They are mutually exclusive.
+    if (selectedElement) {
+        setActiveTool(null);
+        setIsCustomizePanelOpen(true);
+    } else {
+        setIsCustomizePanelOpen(false);
+    }
+    
+    if (activeTool) {
+        setSelectedElement(null);
+        setIsCustomizePanelOpen(false);
+    }
+
+  }, [selectedElement, activeTool]);
 
 
   const handleDownload = useCallback(async () => {
@@ -88,59 +107,25 @@ export default function Home() {
   }, [template, image, textElements, shapeElements]);
 
   const handleSelectElement = (elementId: string | null) => {
-    const isSameElement = selectedElement === elementId;
-    setSelectedElement(elementId);
-    
     if (elementId) {
-        setActiveTool(null);
-    }
-    
-    if (elementId && !isSameElement) {
-        if (!wasCustomizePanelManuallyClosed.current) {
-            setIsCustomizePanelOpen(true);
-        }
-    } else if (elementId && isSameElement) {
-        if (wasCustomizePanelManuallyClosed.current) {
-             setIsCustomizePanelOpen(true);
-             wasCustomizePanelManuallyClosed.current = false;
-        } else {
-             setIsCustomizePanelOpen(true);
-        }
+        setSelectedElement(elementId);
+    } else {
+        setSelectedElement(null);
     }
   }
 
   const closeCustomizePanel = () => {
-    setIsCustomizePanelOpen(false);
-    if(selectedElement) {
-      wasCustomizePanelManuallyClosed.current = true;
-    }
-  }
-
-  const toggleCustomizePanel = () => {
-    if (selectedElement) {
-        const willBeOpen = !isCustomizePanelOpen;
-        setIsCustomizePanelOpen(willBeOpen);
-        if (!willBeOpen) {
-            wasCustomizePanelManuallyClosed.current = true;
-        } else {
-            wasCustomizePanelManuallyClosed.current = false;
-        }
-    } else {
-        setIsCustomizePanelOpen(false);
-    }
+    setSelectedElement(null);
   }
 
   const handleDeselectAll = (e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
-    if (target.closest('#id-card-preview') || target.closest('#customize-panel') || target.closest('#icon-strip')) {
-        // If the click is on an element, the element's own handler will manage selection.
-        // If the click is on the preview background, we check that below.
+    if (target.closest('#id-card-preview-container') || target.closest('#customize-panel') || target.closest('#icon-strip') || target.closest('[data-radix-popper-content-wrapper]')) {
         if (target.id === 'id-card-preview-container') {
              handleSelectElement(null);
         }
         return;
     }
-    // If click is outside of interactive areas, deselect.
     handleSelectElement(null);
   }
 
@@ -161,11 +146,6 @@ export default function Home() {
               key={tool.id}
               onClick={() => {
                 setActiveTool(activeTool === tool.id && !tool.disabled ? null : tool.id);
-                handleSelectElement(null);
-                if (activeTool !== tool.id) {
-                    setIsCustomizePanelOpen(false);
-                    wasCustomizePanelManuallyClosed.current = false;
-                }
               }}
               disabled={tool.disabled}
               className={cn(
@@ -180,15 +160,14 @@ export default function Home() {
            <button
               key="customize"
                onClick={() => {
-                 toggleCustomizePanel()
-                 if(selectedElement) {
-                    setActiveTool(null)
-                 }
+                if (selectedElement) {
+                    setIsCustomizePanelOpen(!isCustomizePanelOpen);
+                }
               }}
               disabled={!selectedElement}
               className={cn(
                 "flex flex-col items-center justify-center p-2 rounded-lg w-14 h-14 transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
-                isCustomizePanelOpen ? "bg-green-600 text-white" : "hover:bg-accent/50"
+                isCustomizePanelOpen && selectedElement ? "bg-green-600 text-white" : "hover:bg-accent/50"
               )}
             >
               <Wand2 className="w-6 h-6" />
@@ -230,7 +209,7 @@ export default function Home() {
             {/* Customize Panel */}
             <div id="customize-panel" className={cn(
                 "absolute top-0 left-0 h-full bg-card border-r transition-transform duration-300 ease-in-out overflow-y-auto z-10",
-                isCustomizePanelOpen ? "translate-x-0 w-80" : "-translate-x-full w-80"
+                isCustomizePanelOpen && selectedElement ? "translate-x-0 w-80" : "-translate-x-full w-80"
             )}>
                 {isCustomizePanelOpen && selectedElement && (
                      <CustomizePanel
