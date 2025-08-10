@@ -252,7 +252,7 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
             >
                 <div className={cn(
                     "relative w-full h-full",
-                    isSelected ? "outline outline-1 outline-blue-500" : ""
+                    isSelected && !element.isLocked ? "outline outline-1 outline-blue-500" : ""
                 )}
                  style={{
                     boxSizing: 'border-box'
@@ -347,9 +347,9 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                         }
 
                         return (
-                           <div key={shape.id} data-element-id={shape.id} onMouseDown={(e) => { e.stopPropagation(); onSelectElement(shape.id); }}>
+                           <React.Fragment key={shape.id}>
                              {renderInteractiveShell(shape, 'shape', shapeContent)}
-                           </div>
+                           </React.Fragment>
                         );
                     })}
 
@@ -397,7 +397,7 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                             data-element-id={text.id}
                             className={cn(
                                 "absolute whitespace-nowrap p-1 group",
-                                selectedElement === text.id && "outline outline-1 outline-blue-500 outline-dashed",
+                                selectedElement === text.id && !text.isLocked && "outline outline-1 outline-blue-500 outline-dashed",
                                 "cursor-grab"
                             )}
                             style={{
