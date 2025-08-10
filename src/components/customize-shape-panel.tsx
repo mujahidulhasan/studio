@@ -15,17 +15,17 @@ interface CustomizeShapePanelProps {
 
 const NumberInputWithSteppers = ({ value, onChange, min, max, step = 1 }: { value: number, onChange: (val: number) => void, min?: number, max?: number, step?: number }) => {
     const handleChange = (newValue: number) => {
-        let finalValue = newValue;
+        let finalValue = isNaN(newValue) ? 0 : newValue;
         if (min !== undefined) finalValue = Math.max(min, finalValue);
         if (max !== undefined) finalValue = Math.min(max, finalValue);
         onChange(finalValue);
     }
     return (
-        <div className="relative">
-            <Input type="number" value={value} onChange={(e) => handleChange(parseInt(e.target.value, 10) || 0)} className="w-24 text-center pr-6" />
-            <div className="absolute right-1 top-1/2 -translate-y-1/2 flex flex-col">
-                <button onClick={() => handleChange(value + step)} className="h-3 w-3 flex items-center justify-center text-gray-500 hover:text-black text-xs">+</button>
-                <button onClick={() => handleChange(value - step)} className="h-3 w-3 flex items-center justify-center text-gray-500 hover:text-black text-xs">-</button>
+        <div className="flex items-center gap-1">
+            <Input type="number" value={value} onChange={(e) => handleChange(parseInt(e.target.value, 10))} className="w-16 h-8 text-center" />
+            <div className="flex flex-col">
+                <button onClick={() => handleChange(value + step)} className="h-4 w-4 flex items-center justify-center text-gray-500 hover:text-black border rounded-sm">+</button>
+                <button onClick={() => handleChange(value - step)} className="h-4 w-4 flex items-center justify-center text-gray-500 hover:text-black border rounded-sm">-</button>
             </div>
         </div>
     )
@@ -48,35 +48,48 @@ export default function CustomizeShapePanel({ element, onUpdate }: CustomizeShap
             </div>
 
              <div className="space-y-2">
-                <Label>Line Color</Label>
-                <div className="flex items-center justify-between gap-2 border rounded-md p-1 pl-2">
-                     <span>{element.strokeColor.toUpperCase()}</span>
-                     <Input
-                        type="color"
-                        value={element.strokeColor}
-                        onChange={(e) => onUpdate({...element, strokeColor: e.target.value})}
-                        className="p-0 h-8 w-8 border-none"
-                     />
+                <div className="flex justify-between items-center">
+                    <Label>Line Color</Label>
+                    <div className="flex items-center gap-2 border rounded-md p-1 pl-2">
+                        <Input
+                            type="text"
+                            value={element.strokeColor}
+                            onChange={(e) => onUpdate({...element, strokeColor: e.target.value})}
+                            className="w-24 h-8"
+                        />
+                        <Input
+                            type="color"
+                            value={element.strokeColor}
+                            onChange={(e) => onUpdate({...element, strokeColor: e.target.value})}
+                            className="p-0 h-8 w-8 border-none"
+                        />
+                    </div>
                 </div>
             </div>
             
             {element.type !== 'line' && (
                 <div className="space-y-2">
-                    <Label>Fill Color</Label>
-                    <div className="flex items-center justify-between gap-2 border rounded-md p-1 pl-2">
-                         <span>{element.fillColor.toUpperCase()}</span>
-                         <Input
-                            type="color"
-                            value={element.fillColor}
-                            onChange={(e) => onUpdate({...element, fillColor: e.target.value})}
-                            className="p-0 h-8 w-8 border-none"
-                         />
+                    <div className="flex justify-between items-center">
+                        <Label>Fill Color</Label>
+                        <div className="flex items-center gap-2 border rounded-md p-1 pl-2">
+                            <Input
+                                type="text"
+                                value={element.fillColor}
+                                onChange={(e) => onUpdate({...element, fillColor: e.target.value})}
+                                className="w-24 h-8"
+                            />
+                            <Input
+                                type="color"
+                                value={element.fillColor}
+                                onChange={(e) => onUpdate({...element, fillColor: e.target.value})}
+                                className="p-0 h-8 w-8 border-none"
+                            />
+                        </div>
                     </div>
                 </div>
             )}
             
             <Separator/>
-
 
             <div className="space-y-2">
                 <div className="flex justify-between items-center">
@@ -90,8 +103,6 @@ export default function CustomizeShapePanel({ element, onUpdate }: CustomizeShap
                 />
             </div>
             
-            <Separator/>
-
             <div className="space-y-2">
                 <div className="flex justify-between items-center">
                     <Label>Rotation</Label>
@@ -107,21 +118,21 @@ export default function CustomizeShapePanel({ element, onUpdate }: CustomizeShap
             <Separator/>
 
             <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2 flex items-center gap-2">
+                <div className="space-y-2 flex justify-between items-center">
                     <Label className="w-4">W</Label>
                     <NumberInputWithSteppers value={Math.round(element.width)} onChange={v => onUpdate({...element, width: v})} />
                 </div>
-                 <div className="space-y-2 flex items-center gap-2">
+                 <div className="space-y-2 flex justify-between items-center">
                     <Label className="w-4">H</Label>
                     <NumberInputWithSteppers value={Math.round(element.height)} onChange={v => onUpdate({...element, height: v})} />
                 </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2 flex items-center gap-2">
+                <div className="space-y-2 flex justify-between items-center">
                     <Label className="w-4">X</Label>
                     <NumberInputWithSteppers value={Math.round(element.x)} onChange={v => onUpdate({...element, x: v})} />
                 </div>
-                 <div className="space-y-2 flex items-center gap-2">
+                 <div className="space-y-2 flex justify-between items-center">
                     <Label className="w-4">Y</Label>
                     <NumberInputWithSteppers value={Math.round(element.y)} onChange={v => onUpdate({...element, y: v})} />
                 </div>

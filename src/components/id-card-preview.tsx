@@ -310,8 +310,8 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                         const style: React.CSSProperties = {
                            width: '100%',
                            height: '100%',
-                           backgroundColor: shape.type !== 'triangle' ? shape.fillColor : undefined,
-                           border: `${shape.strokeWidth}px solid ${shape.strokeColor}`,
+                           backgroundColor: shape.type !== 'triangle' && shape.type !== 'line' ? shape.fillColor : undefined,
+                           border: shape.type !== 'line' ? `${shape.strokeWidth}px solid ${shape.strokeColor}` : undefined,
                            boxSizing: 'border-box',
                         };
                         
@@ -328,7 +328,9 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                                  borderLeft: `${size/2}px solid transparent`,
                                  borderRight: `${size/2}px solid transparent`,
                                  borderBottom: `${size}px solid ${shape.fillColor}`,
-                                 borderTop: `${shape.strokeWidth}px solid ${shape.strokeColor}`,
+                                 borderTopWidth: `${shape.strokeWidth}px`,
+                                 borderTopStyle: 'solid',
+                                 borderTopColor: `${shape.strokeColor}`,
                                  borderLeftColor: 'transparent',
                                  borderRightColor: 'transparent',
                              }}/>
@@ -343,7 +345,7 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                         }
 
                         return (
-                           <div key={shape.id}>
+                           <div key={shape.id} onMouseDown={(e) => { e.stopPropagation(); onSelectElement(shape.id); }}>
                              {renderInteractiveShell(shape, 'shape', shapeContent)}
                            </div>
                         );
