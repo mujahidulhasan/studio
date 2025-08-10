@@ -37,9 +37,14 @@ export default function CustomizeShapePanel({ element, onUpdate }: CustomizeShap
         <div className="space-y-4">
             <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                    <Label>{element.type === 'line' ? 'Line Thickness' : 'Line Thickness'}</Label>
+                    <Label>Line Thickness</Label>
                     <NumberInputWithSteppers value={element.strokeWidth} onChange={(val) => onUpdate({...element, strokeWidth: val})} min={0} max={50} />
                 </div>
+                <Slider
+                    value={[element.strokeWidth]}
+                    onValueChange={([value]) => onUpdate({...element, strokeWidth: value})}
+                    min={0} max={50} step={1}
+                />
             </div>
 
              <div className="space-y-2">
