@@ -12,6 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Download, PanelLeft, LayoutTemplate, Image as ImageIcon, Type, Shapes, Shield, Badge, Wand2, X } from "lucide-react";
 import { downloadAsSvg } from "@/lib/download";
 import { cn } from "@/lib/utils";
+import Toolbar from "@/components/toolbar";
+import { useHistoryState } from "@/hooks/use-history-state";
 
 
 const toolConfig = [
@@ -24,8 +26,8 @@ const toolConfig = [
 ];
 
 export default function Home() {
-  const [template, setTemplate] = useState<Template>(templates[0]);
-  const [image, setImage] = useState<ImageElement>({
+  const [template, setTemplate, templateHistory] = useHistoryState<Template>(templates[0]);
+  const [image, setImage, imageHistory] = useHistoryState<ImageElement>({
     id: "image",
     src: "https://placehold.co/150x150.png",
     x: 50,
@@ -38,7 +40,7 @@ export default function Home() {
     borderSize: 0,
     borderColor: "#000000"
   });
-  const [textElements, setTextElements] = useState<TextElement[]>([
+  const [textElements, setTextElements, textHistory] = useHistoryState<TextElement[]>([
     {
       id: "text-name",
       content: "Jane Doe",
@@ -72,19 +74,33 @@ export default function Home() {
       align: 'center',
     },
   ]);
-  const [shapeElements, setShapeElements] = useState<ShapeElement[]>([]);
+  const [shapeElements, setShapeElements, shapeHistory] = useHistoryState<ShapeElement[]>([]);
   const idCardRef = useRef<HTMLDivElement>(null);
   const [activeTool, setActiveTool] = useState<string | null>('template');
   const [selectedElement, setSelectedElement] = useState<string | null>(null);
   const [isCustomizePanelOpen, setIsCustomizePanelOpen] = useState(false);
   const [isBackside, setIsBackside] = useState(false);
+  const [showGrid, setShowGrid] = useState(false);
 
+  const history = {
+      undo: () => {
+          templateHistory.undo();
+          imageHistory.undo();
+          textHistory.undo();
+          shapeHistory.undo();
+      },
+      redo: () => {
+          templateHistory.redo();
+          imageHistory.redo();
+          textHistory.redo();
+          shapeHistory.redo();
+      },
+      canUndo: templateHistory.canUndo || imageHistory.canUndo || textHistory.canUndo || shapeHistory.canUndo,
+      canRedo: templateHistory.canRedo || imageHistory.canRedo || textHistory.canRedo || shapeHistory.canRedo
+  }
 
   useEffect(() => {
     // Logic to control panel visibility
-    // If an element is selected, the customize panel should be open.
-    // If a tool is active, the tool panel should be open.
-    // They are mutually exclusive.
     if (selectedElement) {
         setActiveTool(null);
         setIsCustomizePanelOpen(true);
@@ -120,7 +136,7 @@ export default function Home() {
 
   const handleDeselectAll = (e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
-    if (target.closest('#id-card-preview-container') || target.closest('#customize-panel') || target.closest('#icon-strip') || target.closest('[data-radix-popper-content-wrapper]')) {
+    if (target.closest('#id-card-preview-container') || target.closest('#customize-panel') || target.closest('#icon-strip') || target.closest('[data-radix-popper-content-wrapper]') || target.closest('#toolbar')) {
         if (target.id === 'id-card-preview-container') {
              handleSelectElement(null);
         }
@@ -167,7 +183,7 @@ export default function Home() {
               disabled={!selectedElement}
               className={cn(
                 "flex flex-col items-center justify-center p-2 rounded-lg w-14 h-14 transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
-                isCustomizePanelOpen && selectedElement ? "bg-green-600 text-white" : "hover:bg-accent/50"
+                isCustomizePanelOpen && selectedElement ? "bg-green-600/20 text-green-600" : "hover:bg-accent/50"
               )}
             >
               <Wand2 className="w-6 h-6" />
@@ -175,7 +191,7 @@ export default function Home() {
             </button>
         </div>
         
-        <div className="relative flex-1">
+        <div className="relative flex-1 flex flex-col">
             {/* Tool Panel */}
             <div className={cn(
                 "absolute top-0 left-0 h-full bg-card border-r transition-transform duration-300 ease-in-out overflow-y-auto z-10",
@@ -226,30 +242,38 @@ export default function Home() {
             </div>
 
             {/* Workspace */}
-            <main className="w-full h-full flex flex-col items-center justify-center gap-6 p-4 md:p-8 bg-muted/40">
-                <IdCardPreview
-                    ref={idCardRef}
-                    template={template}
-                    image={image}
-                    setImage={setImage}
-                    textElements={textElements}
-                    setTextElements={setTextElements}
-                    shapeElements={shapeElements}
-                    setShapeElements={setShapeElements}
-                    slotPunch={'none'}
-                    isBackside={isBackside}
-                    selectedElement={selectedElement}
-                    onSelectElement={handleSelectElement}
+            <main className="w-full h-full flex flex-col items-center justify-start gap-6 bg-muted/40">
+                <Toolbar
+                  onUndo={history.undo}
+                  onRedo={history.redo}
+                  canUndo={history.canUndo}
+                  canRedo={history.canRedo}
+                  onToggleGrid={() => setShowGrid(!showGrid)}
+                  isGridVisible={showGrid}
+                  onDownload={handleDownload}
                 />
-                <div className="flex items-center gap-4">
-                   <div className="flex items-center bg-muted rounded-lg p-1">
-                        <Button onClick={() => setIsBackside(false)} size="sm" className={cn(!isBackside ? 'bg-background shadow' : 'bg-transparent text-muted-foreground')}>Front Side</Button>
-                        <Button onClick={() => setIsBackside(true)} size="sm" className={cn(isBackside ? 'bg-background shadow' : 'bg-transparent text-muted-foreground')}>Back Side</Button>
-                   </div>
-                    <Button onClick={handleDownload} size="lg">
-                        <Download className="mr-2 h-5 w-5" />
-                        Download ID
-                    </Button>
+                <div className="flex-1 flex flex-col justify-center items-center pb-8">
+                    <IdCardPreview
+                        ref={idCardRef}
+                        template={template}
+                        image={image}
+                        setImage={setImage}
+                        textElements={textElements}
+                        setTextElements={setTextElements}
+                        shapeElements={shapeElements}
+                        setShapeElements={setShapeElements}
+                        slotPunch={'none'}
+                        isBackside={isBackside}
+                        selectedElement={selectedElement}
+                        onSelectElement={handleSelectElement}
+                        showGrid={showGrid}
+                    />
+                    <div className="flex items-center gap-4 mt-6">
+                       <div className="flex items-center bg-muted rounded-lg p-1">
+                            <Button onClick={() => setIsBackside(false)} size="sm" className={cn(!isBackside ? 'bg-background shadow' : 'bg-transparent text-muted-foreground')}>Front</Button>
+                            <Button onClick={() => setIsBackside(true)} size="sm" className={cn(isBackside ? 'bg-background shadow' : 'bg-transparent text-muted-foreground')}>Back</Button>
+                       </div>
+                    </div>
                 </div>
             </main>
         </div>

@@ -20,6 +20,7 @@ interface IdCardPreviewProps {
   isBackside: boolean;
   selectedElement: string | null;
   onSelectElement: (id: string | null) => void;
+  showGrid?: boolean;
 }
 
 const SlotPunchHole = ({ type, cardWidth, cardHeight }: { type: SlotPunch, cardWidth: number, cardHeight: number }) => {
@@ -70,7 +71,7 @@ type InteractionTarget =
     | null;
 
 const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
-  ({ template, image, setImage, textElements, setTextElements, shapeElements, setShapeElements, slotPunch, isBackside, selectedElement, onSelectElement }, ref) => {
+  ({ template, image, setImage, textElements, setTextElements, shapeElements, setShapeElements, slotPunch, isBackside, selectedElement, onSelectElement, showGrid }, ref) => {
     const [interaction, setInteraction] = useState<InteractionMode>('none');
     const [startPoint, setStartPoint] = useState({ x: 0, y: 0 });
     const [originalTarget, setOriginalTarget] = useState<InteractionTarget>(null);
@@ -298,6 +299,16 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
         onMouseLeave={handleInteractionEnd}
       >
         <div ref={containerRef} id="id-card-preview-container" className="w-full h-full">
+            {showGrid && (
+                <div className="absolute w-full h-full pointer-events-none" style={{
+                    backgroundImage: `
+                        linear-gradient(to right, #e5e7eb 1px, transparent 1px),
+                        linear-gradient(to bottom, #e5e7eb 1px, transparent 1px)
+                    `,
+                    backgroundSize: '20px 20px',
+                    opacity: 0.5
+                }}/>
+            )}
             {isBackside ? (
                 <div className="w-full h-full flex items-center justify-center text-muted-foreground bg-gray-50">
                     Back Side
