@@ -14,6 +14,7 @@ export interface TextElement {
   isItalic: boolean;
   isUnderline: boolean;
   align: 'left' | 'center' | 'right';
+  isLocked?: boolean;
 }
 
 export interface ImageElement {
@@ -28,6 +29,7 @@ export interface ImageElement {
   transparency: number; // percentage
   borderSize: number; // pixels
   borderColor: string;
+  isLocked?: boolean;
 }
 
 export interface ShapeElement {
@@ -42,6 +44,7 @@ export interface ShapeElement {
   strokeWidth: number;
   rotation: number;
   transparency: number;
+  isLocked?: boolean;
 }
 
 export interface Template {

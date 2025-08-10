@@ -38,7 +38,8 @@ export default function Home() {
     rotation: 0,
     transparency: 0,
     borderSize: 0,
-    borderColor: "#000000"
+    borderColor: "#000000",
+    isLocked: false,
   });
   const [textElements, setTextElements, textHistory] = useHistoryState<TextElement[]>([
     {
@@ -56,6 +57,7 @@ export default function Home() {
       isItalic: false,
       isUnderline: false,
       align: 'center',
+      isLocked: false,
     },
     {
       id: "text-title",
@@ -72,6 +74,7 @@ export default function Home() {
       isItalic: false,
       isUnderline: false,
       align: 'center',
+      isLocked: false,
     },
   ]);
   const [shapeElements, setShapeElements, shapeHistory] = useHistoryState<ShapeElement[]>([]);
@@ -100,20 +103,20 @@ export default function Home() {
   }
 
   useEffect(() => {
-    // Logic to control panel visibility
     if (selectedElement) {
         setActiveTool(null);
         setIsCustomizePanelOpen(true);
     } else {
         setIsCustomizePanelOpen(false);
     }
-    
+  }, [selectedElement]);
+
+  useEffect(() => {
     if (activeTool) {
         setSelectedElement(null);
         setIsCustomizePanelOpen(false);
     }
-
-  }, [selectedElement, activeTool]);
+  }, [activeTool]);
 
 
   const handleDownload = useCallback(async () => {
@@ -124,20 +127,110 @@ export default function Home() {
 
   const handleSelectElement = (elementId: string | null) => {
     if (elementId) {
-        setSelectedElement(elementId);
+        const element = getElementById(elementId);
+        if (element && !element.isLocked) {
+          setSelectedElement(elementId);
+        } else {
+          setSelectedElement(null);
+        }
     } else {
         setSelectedElement(null);
     }
   }
 
+  const getElementById = (id: string) => {
+    if (id === 'image') return image;
+    if (id.startsWith('text-')) return textElements.find(el => el.id === id);
+    if (id.startsWith('shape-')) return shapeElements.find(el => el.id === id);
+    return null;
+  }
+
+  const handleDeleteSelected = () => {
+    if (!selectedElement) return;
+
+    if (selectedElement.startsWith('text-')) {
+        setTextElements(prev => prev.filter(el => el.id !== selectedElement));
+    } else if (selectedElement.startsWith('shape-')) {
+        setShapeElements(prev => prev.filter(el => el.id !== selectedElement));
+    } else if (selectedElement === 'image') {
+        // We can't delete the main image, but we can clear it
+        setImage(prev => ({...prev, src: null}));
+    }
+    setSelectedElement(null);
+  }
+
+  const handleDuplicateSelected = () => {
+    if (!selectedElement) return;
+    const newId = `${selectedElement.split('-')[0]}-${Date.now()}`;
+
+    if (selectedElement.startsWith('text-')) {
+        const el = textElements.find(e => e.id === selectedElement);
+        if (el) setTextElements(prev => [...prev, {...el, id: newId, y: el.y + 5}]);
+    } else if (selectedElement.startsWith('shape-')) {
+        const el = shapeElements.find(e => e.id === selectedElement);
+        if (el) setShapeElements(prev => [...prev, {...el, id: newId, y: el.y + 5}]);
+    } else if (selectedElement === 'image') {
+       // Cannot duplicate the primary image element
+    }
+  }
+
+  const handleLayerChange = (direction: 'forward' | 'backward') => {
+      if (!selectedElement) return;
+
+      const move = (arr: any[], index: number, offset: number) => {
+          const newIndex = index + offset;
+          if (newIndex < 0 || newIndex >= arr.length) return arr;
+          const newArr = [...arr];
+          const [item] = newArr.splice(index, 1);
+          newArr.splice(newIndex, 0, item);
+          return newArr;
+      }
+
+      if (selectedElement.startsWith('text-')) {
+          const index = textElements.findIndex(e => e.id === selectedElement);
+          if (index > -1) {
+              const offset = direction === 'forward' ? 1 : -1;
+              setTextElements(move(textElements, index, offset));
+          }
+      } else if (selectedElement.startsWith('shape-')) {
+          const index = shapeElements.findIndex(e => e.id === selectedElement);
+          if (index > -1) {
+              const offset = direction === 'forward' ? 1 : -1;
+              setShapeElements(move(shapeElements, index, offset));
+          }
+      }
+  }
+
+  const handleLockSelected = () => {
+    if (!selectedElement) return;
+    const element = getElementById(selectedElement);
+    if (!element) return;
+
+    const toggleLock = (el: any) => ({ ...el, isLocked: !el.isLocked });
+
+    if (selectedElement === 'image') {
+        setImage(toggleLock);
+    } else if (selectedElement.startsWith('text-')) {
+        setTextElements(prev => prev.map(el => el.id === selectedElement ? toggleLock(el) : el));
+    } else if (selectedElement.startsWith('shape-')) {
+        setShapeElements(prev => prev.map(el => el.id === selectedElement ? toggleLock(el) : el));
+    }
+     if (!element.isLocked) {
+       setSelectedElement(null);
+    }
+  }
+
   const closeCustomizePanel = () => {
     setSelectedElement(null);
+    setIsCustomizePanelOpen(false);
   }
 
   const handleDeselectAll = (e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
     if (target.closest('#id-card-preview-container') || target.closest('#customize-panel') || target.closest('#icon-strip') || target.closest('[data-radix-popper-content-wrapper]') || target.closest('#toolbar')) {
-        if (target.id === 'id-card-preview-container') {
+        const cardPreview = (target.closest('#id-card-preview-container') || target.id === 'id-card-preview-container');
+        const clickedOnElement = target.closest('[data-element-id]');
+        if (cardPreview && !clickedOnElement) {
              handleSelectElement(null);
         }
         return;
@@ -151,6 +244,9 @@ export default function Home() {
     ? textElements.find(t => t.id === selectedElement) || null
     : null;
 
+  const isElementLocked = selectedElement ? getElementById(selectedElement)?.isLocked : false;
+
+
   return (
     <div className="flex flex-col h-screen bg-background font-body" onClick={handleDeselectAll}>
       <Header />
@@ -162,6 +258,7 @@ export default function Home() {
               key={tool.id}
               onClick={() => {
                 setActiveTool(activeTool === tool.id && !tool.disabled ? null : tool.id);
+                setSelectedElement(null);
               }}
               disabled={tool.disabled}
               className={cn(
@@ -176,11 +273,11 @@ export default function Home() {
            <button
               key="customize"
                onClick={() => {
-                if (selectedElement) {
+                if (selectedElement && !isElementLocked) {
                     setIsCustomizePanelOpen(!isCustomizePanelOpen);
                 }
               }}
-              disabled={!selectedElement}
+              disabled={!selectedElement || isElementLocked}
               className={cn(
                 "flex flex-col items-center justify-center p-2 rounded-lg w-14 h-14 transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
                 isCustomizePanelOpen && selectedElement ? "bg-green-600/20 text-green-600" : "hover:bg-accent/50"
@@ -251,6 +348,12 @@ export default function Home() {
                   onToggleGrid={() => setShowGrid(!showGrid)}
                   isGridVisible={showGrid}
                   onDownload={handleDownload}
+                  selectedElementId={selectedElement}
+                  onDelete={handleDeleteSelected}
+                  onDuplicate={handleDuplicateSelected}
+                  onLayerChange={handleLayerChange}
+                  onLock={handleLockSelected}
+                  isElementLocked={isElementLocked}
                 />
                 <div className="flex-1 flex flex-col justify-center items-center pb-8">
                     <IdCardPreview

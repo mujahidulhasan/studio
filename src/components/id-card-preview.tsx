@@ -5,7 +5,7 @@ import React, { forwardRef, useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import type { Template, ImageElement, TextElement, ShapeElement, SlotPunch } from "@/types";
-import { Repeat } from "lucide-react";
+import { Lock } from "lucide-react";
 
 
 interface IdCardPreviewProps {
@@ -86,7 +86,7 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
     }
 
     const handleInteractionStart = (e: React.MouseEvent<HTMLDivElement>, mode: InteractionMode, target: InteractionTarget) => {
-        if (!target) return;
+        if (!target || target.element.isLocked) return;
         e.preventDefault();
         e.stopPropagation();
         
@@ -166,8 +166,6 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                 break;
             }
             case 'rotating': {
-                const elementWidth = 'width' in originalElement ? (originalElement.width / 100) * cardRect.width : 0;
-                const elementHeight = 'height' in originalElement ? (originalElement.height / 100) * cardRect.height : 0;
                 const centerX = ((originalElement.x / 100) * cardRect.width);
                 const centerY = ((originalElement.y / 100) * cardRect.height);
 
@@ -236,6 +234,7 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
 
         return (
              <div
+                data-element-id={element.id}
                 className="absolute group"
                  style={{
                     top: `${element.y}%`,
@@ -244,23 +243,25 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                     height: `${element.height}%`,
                     transform: `translate(-50%, -50%) rotate(${element.rotation}deg)`,
                     transformOrigin: 'center center',
-                    cursor: interaction === 'dragging' ? 'grabbing' : 'grab',
+                    cursor: element.isLocked ? 'not-allowed' : interaction === 'dragging' ? 'grabbing' : 'grab',
                     opacity: 1 - ((element as any).transparency || 0) / 100,
                 }}
                 onMouseDown={(e) => handleInteractionStart(e, 'dragging', {type, element} as InteractionTarget)}
             >
                 <div className={cn(
                     "relative w-full h-full",
-                    isSelected ? "outline outline-1 outline-blue-500" : ""
+                    isSelected ? "outline outline-1 outline-blue-500" : "",
+                    element.isLocked ? "outline outline-dashed outline-1 outline-red-500" : ""
                 )}
                  style={{
                     boxSizing: 'border-box'
                  }}
                 >
                     {children}
+                    {element.isLocked && <div className="absolute inset-0 bg-black/20 flex items-center justify-center"><Lock className="text-white h-6 w-6"/></div>}
                 </div>
                 
-                {isSelected && <>
+                {isSelected && !element.isLocked && <>
                     {/* Resize Handles */}
                     {resizeHandles.map((handle) => (
                          <div
@@ -403,7 +404,12 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                     {textElements.map((text) => (
                         <div
                             key={text.id}
-                            className={cn("absolute whitespace-nowrap p-1", selectedElement === text.id && "outline outline-1 outline-blue-500 outline-dashed")}
+                            data-element-id={text.id}
+                            className={cn(
+                                "absolute whitespace-nowrap p-1 group",
+                                selectedElement === text.id && "outline outline-1 outline-blue-500 outline-dashed",
+                                text.isLocked ? "cursor-not-allowed" : "cursor-grab"
+                            )}
                             style={{
                             left: `${text.x}%`,
                             top: `${text.y}%`,
@@ -421,6 +427,7 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                             onMouseDown={(e) => handleInteractionStart(e, 'dragging', {type: 'text', element: text})}
                         >
                             {text.content}
+                             {text.isLocked && <div className="absolute inset-0 bg-transparent flex items-center justify-center"><Lock className="text-red-500 h-4 w-4 opacity-70"/></div>}
                         </div>
                     ))}
                 </>

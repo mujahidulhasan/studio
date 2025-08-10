@@ -3,8 +3,9 @@
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Undo2, Redo2, Grid3x3, Download, Share2, Save, X } from "lucide-react";
+import { Undo2, Redo2, Grid3x3, Download, Share2, Save, X, BringToFront, SendToBack, Copy, Trash2, Lock, Unlock } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 
 interface ToolbarProps {
     onUndo: () => void;
@@ -14,6 +15,12 @@ interface ToolbarProps {
     onToggleGrid: () => void;
     isGridVisible: boolean;
     onDownload: () => void;
+    selectedElementId: string | null;
+    onDelete: () => void;
+    onDuplicate: () => void;
+    onLayerChange: (direction: 'forward' | 'backward') => void;
+    onLock: () => void;
+    isElementLocked?: boolean;
 }
 
 const ToolbarButton = ({
@@ -49,29 +56,69 @@ const ToolbarButton = ({
   </TooltipProvider>
 );
 
-export default function Toolbar({ onUndo, onRedo, canUndo, canRedo, onToggleGrid, isGridVisible, onDownload }: ToolbarProps) {
+export default function Toolbar({ 
+    onUndo, 
+    onRedo, 
+    canUndo, 
+    canRedo, 
+    onToggleGrid, 
+    isGridVisible, 
+    onDownload,
+    selectedElementId,
+    onDelete,
+    onDuplicate,
+    onLayerChange,
+    onLock,
+    isElementLocked
+}: ToolbarProps) {
   return (
     <div id="toolbar" className="w-full bg-card border-b">
         <div className="container mx-auto px-4">
             <div className="flex items-center justify-center h-12">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1">
                     <ToolbarButton onClick={onUndo} disabled={!canUndo} tooltip="Undo (Ctrl+Z)">
                         <Undo2 className="w-5 h-5" />
                     </ToolbarButton>
                     <ToolbarButton onClick={onRedo} disabled={!canRedo} tooltip="Redo (Ctrl+Y)">
                         <Redo2 className="w-5 h-5" />
                     </ToolbarButton>
-                    <Separator orientation="vertical" className="h-6" />
+                    
+                    <Separator orientation="vertical" className="h-6 mx-2" />
+                    
                     <ToolbarButton onClick={onToggleGrid} tooltip={isGridVisible ? "Hide Grid" : "Show Grid"} isActive={isGridVisible}>
                         {isGridVisible ? <X className="w-5 h-5" /> : <Grid3x3 className="w-5 h-5" />}
                     </ToolbarButton>
+                    
+                    {selectedElementId && (
+                        <>
+                           <Separator orientation="vertical" className="h-6 mx-2" />
+                           <ToolbarButton onClick={() => onLayerChange('forward')} tooltip="Bring Forward" disabled={isElementLocked}>
+                                <BringToFront className="w-5 h-5" />
+                            </ToolbarButton>
+                           <ToolbarButton onClick={() => onLayerChange('backward')} tooltip="Send Backward" disabled={isElementLocked}>
+                                <SendToBack className="w-5 h-5" />
+                            </ToolbarButton>
+                           <ToolbarButton onClick={onDuplicate} tooltip="Duplicate" disabled={isElementLocked}>
+                                <Copy className="w-5 h-5" />
+                            </ToolbarButton>
+                            <ToolbarButton onClick={onLock} tooltip={isElementLocked ? "Unlock Element" : "Lock Element"}>
+                                {isElementLocked ? <Unlock className="w-5 h-5 text-red-500"/> : <Lock className="w-5 h-5" />}
+                            </ToolbarButton>
+                           <ToolbarButton onClick={onDelete} tooltip="Delete Element" disabled={isElementLocked}>
+                                <Trash2 className="w-5 h-5" />
+                            </ToolbarButton>
+                        </>
+                    )}
+                    
+                    <div className="flex-grow" />
+
                     <ToolbarButton onClick={onDownload} tooltip="Download">
                         <Download className="w-5 h-5" />
                     </ToolbarButton>
                     <ToolbarButton onClick={() => {}} tooltip="Share">
                         <Share2 className="w-5 h-5" />
                     </ToolbarButton>
-                     <Separator orientation="vertical" className="h-6" />
+                     <Separator orientation="vertical" className="h-6 mx-2" />
                     <Button variant="outline" size="sm" className="h-9">
                         <Save className="w-4 h-4 mr-2" />
                         Save
