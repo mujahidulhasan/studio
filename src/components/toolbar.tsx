@@ -30,7 +30,7 @@ const ToolbarButton = ({
   children,
   isActive,
 }: {
-  onClick: () => void;
+  onClick?: () => void;
   disabled?: boolean;
   tooltip: string;
   children: React.ReactNode;
@@ -74,7 +74,7 @@ export default function Toolbar({
   return (
     <div id="toolbar" className="w-full bg-card border-b">
         <div className="container mx-auto px-4">
-            <div className="flex items-center justify-center h-12">
+            <div className="flex items-center justify-between h-14">
                 <div className="flex items-center gap-1">
                     <ToolbarButton onClick={onUndo} disabled={!canUndo} tooltip="Undo (Ctrl+Z)">
                         <Undo2 className="w-5 h-5" />
@@ -82,9 +82,9 @@ export default function Toolbar({
                     <ToolbarButton onClick={onRedo} disabled={!canRedo} tooltip="Redo (Ctrl+Y)">
                         <Redo2 className="w-5 h-5" />
                     </ToolbarButton>
-                    
-                    <Separator orientation="vertical" className="h-6 mx-2" />
-                    
+                </div>
+                
+                <div className="flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
                     <ToolbarButton onClick={onToggleGrid} tooltip={isGridVisible ? "Hide Grid" : "Show Grid"} isActive={isGridVisible}>
                         {isGridVisible ? <X className="w-5 h-5" /> : <Grid3x3 className="w-5 h-5" />}
                     </ToolbarButton>
@@ -109,9 +109,9 @@ export default function Toolbar({
                             </ToolbarButton>
                         </>
                     )}
-                    
-                    <div className="flex-grow" />
+                </div>
 
+                <div className="flex items-center gap-1">
                     <ToolbarButton onClick={onDownload} tooltip="Download">
                         <Download className="w-5 h-5" />
                     </ToolbarButton>
@@ -129,3 +129,5 @@ export default function Toolbar({
     </div>
   );
 }
+
+    

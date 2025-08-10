@@ -17,7 +17,7 @@ import { useHistoryState } from "@/hooks/use-history-state";
 
 
 const toolConfig = [
-    { id: "template", icon: LayoutTemplate, label: "Card Options" },
+    { id: "template", icon: LayoutTemplate, label: "Templates" },
     { id: "text", icon: Type, label: "Text" },
     { id: "photo", icon: ImageIcon, label: "Images" },
     { id: "shapes", icon: Shapes, label: "Shapes" },
@@ -240,10 +240,6 @@ export default function Home() {
 
   const currentToolConfig = toolConfig.find(t => t.id === activeTool);
 
-  const selectedTextElement = selectedElement && selectedElement.startsWith('text-') 
-    ? textElements.find(t => t.id === selectedElement) || null
-    : null;
-
   const isElementLocked = selectedElement ? getElementById(selectedElement)?.isLocked : false;
 
 
@@ -267,7 +263,7 @@ export default function Home() {
               )}
             >
               <tool.icon className="w-6 h-6" />
-              <span className="text-xs mt-1">{tool.label}</span>
+              <span className="text-xs mt-1 text-center">{tool.label}</span>
             </button>
           ))}
            <button
@@ -384,3 +380,5 @@ export default function Home() {
     </div>
   );
 }
+
+    
