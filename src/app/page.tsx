@@ -130,6 +130,20 @@ export default function Home() {
     }
   }
 
+  const handleDeselectAll = (e: React.MouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement;
+    if (target.closest('#id-card-preview') || target.closest('#customize-panel') || target.closest('#icon-strip')) {
+        // If the click is on an element, the element's own handler will manage selection.
+        // If the click is on the preview background, we check that below.
+        if (target.id === 'id-card-preview-container') {
+             handleSelectElement(null);
+        }
+        return;
+    }
+    // If click is outside of interactive areas, deselect.
+    handleSelectElement(null);
+  }
+
   const currentToolConfig = toolConfig.find(t => t.id === activeTool);
 
   const selectedTextElement = selectedElement && selectedElement.startsWith('text-') 
@@ -137,12 +151,7 @@ export default function Home() {
     : null;
 
   return (
-    <div className="flex flex-col h-screen bg-background font-body" onClick={(e) => {
-        const target = e.target as HTMLElement;
-        if (!target.closest('#id-card-preview') && !target.closest('#customize-panel') && !target.closest('#icon-strip')) {
-             handleSelectElement(null);
-        }
-    }}>
+    <div className="flex flex-col h-screen bg-background font-body" onClick={handleDeselectAll}>
       <Header />
       <div className="flex flex-1 overflow-hidden">
         {/* Icon Strip */}

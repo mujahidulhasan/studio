@@ -65,6 +65,7 @@ type InteractionMode =
 
 type InteractionTarget = 
     | { type: 'image', element: ImageElement }
+    | { type: 'text', element: TextElement }
     | { type: 'shape', element: ShapeElement }
     | null;
 
@@ -75,10 +76,12 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
     const [originalTarget, setOriginalTarget] = useState<InteractionTarget>(null);
     const containerRef = useRef<HTMLDivElement>(null);
 
-    const isImageSelected = selectedElement === 'image';
-    
     const getShapeUpdater = (id: string) => (updater: (s: ShapeElement) => ShapeElement) => {
         setShapeElements(prev => prev.map(s => s.id === id ? updater(s) : s));
+    }
+    
+    const getTextUpdater = (id: string) => (updater: (s: TextElement) => TextElement) => {
+        setTextElements(prev => prev.map(s => s.id === id ? updater(s) : s));
     }
 
     const handleInteractionStart = (e: React.MouseEvent<HTMLDivElement>, mode: InteractionMode, target: InteractionTarget) => {
@@ -87,17 +90,30 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
         e.stopPropagation();
         onSelectElement(target.element.id);
         setInteraction(mode);
-        setOriginalTarget(target);
-
+        
         const cardRect = containerRef.current?.getBoundingClientRect();
         if (!cardRect) return;
 
         const startX = e.clientX - cardRect.left;
         const startY = e.clientY - cardRect.top;
+        
+        let elementToUpdate;
+        if(target.type === 'image') {
+            elementToUpdate = image;
+        } else if (target.type === 'text') {
+            elementToUpdate = textElements.find(t => t.id === target.element.id);
+        } else {
+            elementToUpdate = shapeElements.find(s => s.id === target.element.id);
+        }
+
+        if(!elementToUpdate) return;
+        
+        setOriginalTarget({type: target.type, element: elementToUpdate});
+
 
         if (mode === 'dragging') {
-            const elementXInPixels = (target.element.x / 100) * cardRect.width;
-            const elementYInPixels = (target.element.y / 100) * cardRect.height;
+            const elementXInPixels = (elementToUpdate.x / 100) * cardRect.width;
+            const elementYInPixels = (elementToUpdate.y / 100) * cardRect.height;
             setStartPoint({ x: startX - elementXInPixels, y: startY - elementYInPixels });
         } else {
             setStartPoint({ x: startX, y: startY });
@@ -114,8 +130,10 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
 
         const currentX = e.clientX - cardRect.left;
         const currentY = e.clientY - cardRect.top;
-        const dx = (currentX - startPoint.x);
-        const dy = (currentY - startPoint.y);
+        
+        const originalElement = originalTarget.element;
+        let dx = (currentX - startPoint.x);
+        let dy = (currentY - startPoint.y);
 
         const updateElement = (updater: (prev: any) => any) => {
             if (originalTarget.type === 'image') {
@@ -123,10 +141,12 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
             } else if (originalTarget.type === 'shape') {
                 const shapeUpdater = getShapeUpdater(originalTarget.element.id);
                 shapeUpdater(updater as (s: ShapeElement) => ShapeElement);
+            } else if (originalTarget.type === 'text') {
+                const textUpdater = getTextUpdater(originalTarget.element.id);
+                textUpdater(updater as (s: TextElement) => TextElement);
             }
         };
         
-        const originalElement = originalTarget.element;
         const rad = (originalElement.rotation * Math.PI) / 180;
         const cos = Math.cos(-rad);
         const sin = Math.sin(-rad);
@@ -143,12 +163,15 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                 break;
             }
             case 'rotating': {
-                const centerX = (originalElement.x / 100) * cardRect.width;
-                const centerY = (originalElement.y / 100) * cardRect.height;
+                const elementWidth = 'width' in originalElement ? (originalElement.width / 100) * cardRect.width : 0;
+                const elementHeight = 'height' in originalElement ? (originalElement.height / 100) * cardRect.height : 0;
+                const centerX = ((originalElement.x / 100) * cardRect.width);
+                const centerY = ((originalElement.y / 100) * cardRect.height);
+
                 const startAngle = Math.atan2(startPoint.y - centerY, startPoint.x - centerX) * (180 / Math.PI);
                 const currentAngle = Math.atan2(currentY - centerY, currentX - centerX) * (180 / Math.PI);
                 const angleDelta = currentAngle - startAngle;
-                let newRotation = (originalElement.rotation + angleDelta);
+                let newRotation = (originalTarget.element.rotation + angleDelta);
                 updateElement(prev => ({...prev, rotation: newRotation}));
                 break;
             }
@@ -165,8 +188,8 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                     ...prev,
                     width: (originalElement.width - (rotDx / cardRect.width) * 100),
                     height: (originalElement.height + (rotDy / cardRect.height) * 100),
-                    x: originalElement.x + (dx/cardRect.width)*50,
-                    y: originalElement.y + (dy/cardRect.height)*50,
+                    x: prev.x + (dx * cos - dy * -sin)/cardRect.width * 50,
+                    y: prev.y + (dx * -sin + dy * cos)/cardRect.height * 50,
                  }));
                  break;
             }
@@ -175,8 +198,8 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                     ...prev,
                     width: (originalElement.width + (rotDx / cardRect.width) * 100),
                     height: (originalElement.height - (rotDy / cardRect.height) * 100),
-                    x: originalElement.x + (dx/cardRect.width)*50,
-                    y: originalElement.y + (dy/cardRect.height)*50,
+                    x: prev.x + (dx * cos - dy * -sin)/cardRect.width * 50,
+                    y: prev.y + (dx * -sin + dy * cos)/cardRect.height * 50,
                  }));
                  break;
             }
@@ -185,8 +208,8 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                     ...prev,
                     width: (originalElement.width - (rotDx / cardRect.width) * 100),
                     height: (originalElement.height - (rotDy / cardRect.height) * 100),
-                    x: originalElement.x + (dx/cardRect.width)*50,
-                    y: originalElement.y + (dy/cardRect.height)*50,
+                    x: prev.x + (dx * cos - dy * -sin)/cardRect.width * 50,
+                    y: prev.y + (dx * -sin + dy * cos)/cardRect.height * 50,
                  }));
                  break;
             }
@@ -225,10 +248,9 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
             >
                 <div className={cn(
                     "relative w-full h-full",
-                    isSelected ? "border border-blue-500" : "border-transparent"
+                    isSelected ? "outline outline-1 outline-blue-500" : ""
                 )}
                  style={{
-                    borderWidth: '1px',
                     boxSizing: 'border-box'
                  }}
                 >
@@ -273,7 +295,7 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
         onMouseUp={handleInteractionEnd}
         onMouseLeave={handleInteractionEnd}
       >
-        <div ref={containerRef} className="w-full h-full">
+        <div ref={containerRef} id="id-card-preview-container" className="w-full h-full">
             {isBackside ? (
                 <div className="w-full h-full flex items-center justify-center text-muted-foreground bg-gray-50">
                     Back Side
@@ -319,7 +341,7 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                         }
 
                         return (
-                           <div key={shape.id} onMouseDown={(e) => { e.stopPropagation(); onSelectElement(shape.id); }}>
+                           <div key={shape.id} onMouseDown={(e) => { e.stopPropagation(); }}>
                              {renderInteractiveShell(shape, 'shape', shapeContent)}
                            </div>
                         );
@@ -366,7 +388,7 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                     {textElements.map((text) => (
                         <div
                             key={text.id}
-                            className={cn("absolute whitespace-nowrap cursor-pointer p-1", selectedElement === text.id && "border border-blue-500 border-dashed")}
+                            className={cn("absolute whitespace-nowrap cursor-pointer p-1", selectedElement === text.id && "outline outline-1 outline-blue-500 outline-dashed")}
                             style={{
                             left: `${text.x}%`,
                             top: `${text.y}%`,
@@ -381,7 +403,7 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                             opacity: 1 - (text.transparency || 0) / 100,
                             textAlign: text.align,
                             }}
-                            onClick={() => onSelectElement(text.id)}
+                            onMouseDown={(e) => handleInteractionStart(e, 'dragging', {type: 'text', element: text})}
                         >
                             {text.content}
                         </div>
