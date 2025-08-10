@@ -5,7 +5,6 @@ import React, { forwardRef, useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import type { Template, ImageElement, TextElement, ShapeElement, SlotPunch } from "@/types";
-import { Lock } from "lucide-react";
 
 
 interface IdCardPreviewProps {
@@ -348,7 +347,7 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
                         }
 
                         return (
-                           <div key={shape.id} onMouseDown={(e) => { e.stopPropagation(); onSelectElement(shape.id); }}>
+                           <div key={shape.id} data-element-id={shape.id} onMouseDown={(e) => { e.stopPropagation(); onSelectElement(shape.id); }}>
                              {renderInteractiveShell(shape, 'shape', shapeContent)}
                            </div>
                         );
@@ -427,11 +426,11 @@ const IdCardPreview = forwardRef<HTMLDivElement, IdCardPreviewProps>(
             {showGrid && (
                 <div className="absolute w-full h-full pointer-events-none z-10" style={{
                     backgroundImage: `
-                        linear-gradient(to right, #e5e7eb 2px, transparent 2px),
-                        linear-gradient(to bottom, #e5e7eb 2px, transparent 2px)
+                        linear-gradient(to right, #000 1px, transparent 1px),
+                        linear-gradient(to bottom, #000 1px, transparent 1px)
                     `,
                     backgroundSize: '20px 20px',
-                    opacity: 0.5
+                    opacity: 0.2
                 }}/>
             )}
         </div>

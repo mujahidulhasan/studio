@@ -44,7 +44,7 @@ const ToolbarButton = ({
           size="icon"
           onClick={onClick}
           disabled={disabled}
-          className="h-9 w-9"
+          className="h-8 w-8"
         >
           {children}
         </Button>
@@ -74,17 +74,17 @@ export default function Toolbar({
   return (
     <div id="toolbar" className="w-full bg-card border-b">
         <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between h-14">
+            <div className="flex items-center justify-between h-12">
                 <div className="flex items-center gap-1">
                     <ToolbarButton onClick={onUndo} disabled={!canUndo} tooltip="Undo (Ctrl+Z)">
-                        <Undo2 className="w-5 h-5" />
+                        <Undo2 className="w-4 h-4" />
                     </ToolbarButton>
                     <ToolbarButton onClick={onRedo} disabled={!canRedo} tooltip="Redo (Ctrl+Y)">
-                        <Redo2 className="w-5 h-5" />
+                        <Redo2 className="w-4 h-4" />
                     </ToolbarButton>
-                     <Separator orientation="vertical" className="h-6 mx-2" />
+                     <Separator orientation="vertical" className="h-6 mx-1" />
                     <ToolbarButton onClick={onToggleGrid} tooltip={isGridVisible ? "Hide Grid" : "Show Grid"} isActive={isGridVisible}>
-                        {isGridVisible ? <X className="w-5 h-5" /> : <Grid3x3 className="w-5 h-5" />}
+                        {isGridVisible ? <X className="w-4 h-4" /> : <Grid3x3 className="w-4 h-4" />}
                     </ToolbarButton>
                 </div>
                 
@@ -92,19 +92,20 @@ export default function Toolbar({
                     {selectedElementId && (
                         <>
                            <ToolbarButton onClick={() => onLayerChange('forward')} tooltip="Bring Forward" disabled={isElementLocked}>
-                                <BringToFront className="w-5 h-5" />
+                                <BringToFront className="w-4 h-4" />
                             </ToolbarButton>
                            <ToolbarButton onClick={() => onLayerChange('backward')} tooltip="Send Backward" disabled={isElementLocked}>
-                                <SendToBack className="w-5 h-5" />
+                                <SendToBack className="w-4 h-4" />
                             </ToolbarButton>
+                             <Separator orientation="vertical" className="h-6 mx-1" />
                            <ToolbarButton onClick={onDuplicate} tooltip="Duplicate" disabled={isElementLocked}>
-                                <Copy className="w-5 h-5" />
+                                <Copy className="w-4 h-4" />
                             </ToolbarButton>
                             <ToolbarButton onClick={onLock} tooltip={isElementLocked ? "Unlock Element" : "Lock Element"}>
-                                {isElementLocked ? <Unlock className="w-5 h-5 text-red-500"/> : <Lock className="w-5 h-5" />}
+                                {isElementLocked ? <Unlock className="w-4 h-4 text-red-500"/> : <Lock className="w-4 h-4" />}
                             </ToolbarButton>
                            <ToolbarButton onClick={onDelete} tooltip="Delete Element" disabled={isElementLocked}>
-                                <Trash2 className="w-5 h-5" />
+                                <Trash2 className="w-4 h-4" />
                             </ToolbarButton>
                         </>
                     )}
@@ -112,13 +113,13 @@ export default function Toolbar({
 
                 <div className="flex items-center gap-2">
                     <ToolbarButton onClick={onDownload} tooltip="Download">
-                        <Download className="w-5 h-5" />
+                        <Download className="w-4 h-4" />
                     </ToolbarButton>
                     <ToolbarButton onClick={() => {}} tooltip="Share">
-                        <Share2 className="w-5 h-5" />
+                        <Share2 className="w-4 h-4" />
                     </ToolbarButton>
-                     <Separator orientation="vertical" className="h-6 mx-2" />
-                    <Button variant="outline" size="sm" className="h-9">
+                     <Separator orientation="vertical" className="h-6 mx-1" />
+                    <Button variant="outline" size="sm" className="h-8">
                         <Save className="w-4 h-4 mr-2" />
                         Save
                     </Button>

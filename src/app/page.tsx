@@ -82,6 +82,7 @@ export default function Home() {
   const [activeTool, setActiveTool] = useState<string | null>('template');
   const [selectedElement, setSelectedElement] = useState<string | null>(null);
   const [isCustomizePanelOpen, setIsCustomizePanelOpen] = useState(false);
+  const [userClosedCustomizePanel, setUserClosedCustomizePanel] = useState(false);
   const [isBackside, setIsBackside] = useState(false);
   const [showGrid, setShowGrid] = useState(false);
 
@@ -104,12 +105,12 @@ export default function Home() {
 
   useEffect(() => {
     // Open customize panel automatically when a new element is selected,
-    // but only if the panel isn't already open because the user closed it manually.
-    if (selectedElement) {
+    // but only if the user hasn't manually closed it for this element.
+    if (selectedElement && !userClosedCustomizePanel) {
         setActiveTool(null);
         setIsCustomizePanelOpen(true);
     }
-  }, [selectedElement]);
+  }, [selectedElement, userClosedCustomizePanel]);
 
   useEffect(() => {
     if (activeTool) {
@@ -127,7 +128,9 @@ export default function Home() {
 
   const handleSelectElement = (elementId: string | null) => {
     if (elementId === selectedElement) return;
-
+    
+    setUserClosedCustomizePanel(false); // Reset when new element is selected
+    
     if (elementId) {
         const element = getElementById(elementId);
         if (element) {
@@ -215,11 +218,11 @@ export default function Home() {
     } else if (selectedElement.startsWith('shape-')) {
         setShapeElements(prev => prev.map(el => el.id === selectedElement ? toggleLock(el) : el));
     }
-    // Keep element selected after locking/unlocking
   }
 
   const closeCustomizePanel = () => {
     setIsCustomizePanelOpen(false);
+    setUserClosedCustomizePanel(true);
   }
 
   const handleDeselectAll = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -260,7 +263,7 @@ export default function Home() {
         />
       <div className="flex flex-1 overflow-hidden">
         {/* Icon Strip */}
-        <div id="icon-strip" className="w-16 h-full bg-card flex flex-col items-center py-4 space-y-1 border-r z-20">
+        <div id="icon-strip" className="w-20 h-full bg-card flex flex-col items-center py-4 space-y-1 border-r z-20">
           {toolConfig.map((tool) => (
             <button
               key={tool.id}
@@ -270,8 +273,8 @@ export default function Home() {
               }}
               disabled={tool.disabled}
               className={cn(
-                "flex flex-col items-center justify-center p-2 rounded-lg w-14 h-14 transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
-                activeTool === tool.id ? "bg-primary/20 text-primary" : "hover:bg-accent/50"
+                "flex flex-col items-center justify-center p-2 rounded-lg w-16 h-16 transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
+                activeTool === tool.id ? "bg-primary text-primary-foreground" : "hover:bg-accent/50"
               )}
             >
               <tool.icon className="w-6 h-6" />
@@ -283,12 +286,17 @@ export default function Home() {
                onClick={() => {
                 if (selectedElement) {
                     setIsCustomizePanelOpen(!isCustomizePanelOpen);
+                     if (isCustomizePanelOpen) {
+                        setUserClosedCustomizePanel(true);
+                    } else {
+                        setUserClosedCustomizePanel(false);
+                    }
                 }
               }}
               disabled={!selectedElement || isElementLocked}
               className={cn(
-                "flex flex-col items-center justify-center p-2 rounded-lg w-14 h-14 transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
-                isCustomizePanelOpen && selectedElement ? "bg-green-600/20 text-green-600" : "hover:bg-accent/50"
+                "flex flex-col items-center justify-center p-2 rounded-lg w-16 h-16 transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
+                isCustomizePanelOpen && selectedElement ? "bg-primary text-primary-foreground" : "hover:bg-accent/50"
               )}
             >
               <Wand2 className="w-6 h-6" />
@@ -310,6 +318,7 @@ export default function Home() {
                                 <X className="w-4 h-4"/>
                             </Button>
                         </div>
+                         <div className="border-t -mx-4 mb-4"></div>
                         <div className="flex-1">
                             <EditorPanel
                                 activeTab={activeTool}

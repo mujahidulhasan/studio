@@ -12,10 +12,10 @@ import {
 
 const IdCreatorLogo = () => (
   <div className="flex items-center gap-2">
-    <div className="bg-[#4CAF50] text-white font-bold text-xl p-2 rounded-md leading-none">
+    <div className="bg-primary text-primary-foreground font-bold text-lg p-1.5 rounded-md leading-none">
       ID
     </div>
-    <span className="font-semibold text-xl tracking-wider text-gray-700">CREATOR</span>
+    <span className="font-semibold text-lg tracking-wider text-gray-700">CREATOR</span>
   </div>
 );
 
@@ -24,12 +24,12 @@ export default function Header() {
   return (
     <header className="bg-white border-b shadow-sm">
         <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between h-16">
+            <div className="flex items-center justify-between h-14">
               <div className="flex items-center gap-8">
                 <IdCreatorLogo />
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="text-sm font-medium text-gray-600">
+                    <Button variant="ghost" className="text-sm font-medium text-gray-600 h-8">
                       Help <ChevronDown className="w-4 h-4 ml-1"/>
                     </Button>
                   </DropdownMenuTrigger>
@@ -39,18 +39,18 @@ export default function Header() {
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
-              <Button variant="ghost" className="text-sm font-medium text-gray-600">
+              <Button variant="ghost" className="text-sm font-medium text-gray-600 h-8">
                 <LogIn className="w-4 h-4 mr-2"/> Login
               </Button>
             </div>
         </div>
-        <div className="bg-gray-100 border-t border-b">
+        <div className="bg-gray-100/80 border-t">
             <div className="container mx-auto px-4">
-                <nav className="flex items-center gap-4">
-                    <a href="#" className="py-3 px-2 text-sm font-medium text-gray-500 hover:text-gray-900">Get Started</a>
-                    <a href="#" className="py-3 px-2 text-sm font-medium text-green-600 border-b-2 border-green-600">Card Designer</a>
-                    <a href="#" className="py-3 px-2 text-sm font-medium text-gray-500 hover:text-gray-900">My Designs</a>
-                    <a href="#" className="py-3 px-2 text-sm font-medium text-gray-500 hover:text-gray-900">My Members</a>
+                <nav className="flex items-center gap-2">
+                    <a href="#" className="py-2 px-2 text-sm font-medium text-gray-500 hover:text-gray-900">Get Started</a>
+                    <a href="#" className="py-2 px-2 text-sm font-medium text-primary border-b-2 border-primary">Card Designer</a>
+                    <a href="#" className="py-2 px-2 text-sm font-medium text-gray-500 hover:text-gray-900">My Designs</a>
+                    <a href="#" className="py-2 px-2 text-sm font-medium text-gray-500 hover:text-gray-900">My Members</a>
                 </nav>
             </div>
         </div>
