@@ -51,30 +51,32 @@ const ToolbarButton = ({
 
 export default function Toolbar({ onUndo, onRedo, canUndo, canRedo, onToggleGrid, isGridVisible, onDownload }: ToolbarProps) {
   return (
-    <div id="toolbar" className="w-full bg-white border-b">
+    <div id="toolbar" className="w-full bg-card border-b">
         <div className="container mx-auto px-4">
-            <div className="flex items-center h-14 gap-2">
-                <ToolbarButton onClick={onUndo} disabled={!canUndo} tooltip="Undo (Ctrl+Z)">
-                    <Undo2 className="w-5 h-5" />
-                </ToolbarButton>
-                <ToolbarButton onClick={onRedo} disabled={!canRedo} tooltip="Redo (Ctrl+Y)">
-                    <Redo2 className="w-5 h-5" />
-                </ToolbarButton>
-                <Separator orientation="vertical" className="h-6" />
-                <ToolbarButton onClick={onToggleGrid} tooltip={isGridVisible ? "Hide Grid" : "Show Grid"} isActive={isGridVisible}>
-                    {isGridVisible ? <X className="w-5 h-5" /> : <Grid3x3 className="w-5 h-5" />}
-                </ToolbarButton>
-                <ToolbarButton onClick={onDownload} tooltip="Download">
-                    <Download className="w-5 h-5" />
-                </ToolbarButton>
-                <ToolbarButton onClick={() => {}} tooltip="Share">
-                    <Share2 className="w-5 h-5" />
-                </ToolbarButton>
-                <div className="flex-grow" />
-                <Button className="bg-green-600 hover:bg-green-700 text-white">
-                    <Save className="w-4 h-4 mr-2" />
-                    Save
-                </Button>
+            <div className="flex items-center justify-center h-12">
+                <div className="flex items-center gap-2">
+                    <ToolbarButton onClick={onUndo} disabled={!canUndo} tooltip="Undo (Ctrl+Z)">
+                        <Undo2 className="w-5 h-5" />
+                    </ToolbarButton>
+                    <ToolbarButton onClick={onRedo} disabled={!canRedo} tooltip="Redo (Ctrl+Y)">
+                        <Redo2 className="w-5 h-5" />
+                    </ToolbarButton>
+                    <Separator orientation="vertical" className="h-6" />
+                    <ToolbarButton onClick={onToggleGrid} tooltip={isGridVisible ? "Hide Grid" : "Show Grid"} isActive={isGridVisible}>
+                        {isGridVisible ? <X className="w-5 h-5" /> : <Grid3x3 className="w-5 h-5" />}
+                    </ToolbarButton>
+                    <ToolbarButton onClick={onDownload} tooltip="Download">
+                        <Download className="w-5 h-5" />
+                    </ToolbarButton>
+                    <ToolbarButton onClick={() => {}} tooltip="Share">
+                        <Share2 className="w-5 h-5" />
+                    </ToolbarButton>
+                     <Separator orientation="vertical" className="h-6" />
+                    <Button variant="outline" size="sm" className="h-9">
+                        <Save className="w-4 h-4 mr-2" />
+                        Save
+                    </Button>
+                </div>
             </div>
         </div>
     </div>
