@@ -14,6 +14,7 @@ import { downloadAsSvg } from "@/lib/download";
 import { cn } from "@/lib/utils";
 import Toolbar from "@/components/toolbar";
 import { useHistoryState } from "@/hooks/use-history-state";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 
 const toolConfig = [
@@ -263,45 +264,49 @@ export default function Home() {
         />
       <div className="flex flex-1 overflow-hidden">
         {/* Icon Strip */}
-        <div id="icon-strip" className="w-20 h-full bg-card flex flex-col items-center py-4 space-y-1 border-r z-20">
-          {toolConfig.map((tool) => (
-            <button
-              key={tool.id}
-              onClick={() => {
-                setActiveTool(activeTool === tool.id && !tool.disabled ? null : tool.id);
-                setSelectedElement(null);
-              }}
-              disabled={tool.disabled}
-              className={cn(
-                "flex flex-col items-center justify-center p-2 rounded-lg w-16 h-16 transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
-                activeTool === tool.id ? "bg-primary text-primary-foreground" : "hover:bg-accent/50"
-              )}
-            >
-              <tool.icon className="w-6 h-6" />
-              <span className="text-xs mt-1 text-center">{tool.label}</span>
-            </button>
-          ))}
-           <button
-              key="customize"
-               onClick={() => {
-                if (selectedElement) {
-                    setIsCustomizePanelOpen(!isCustomizePanelOpen);
-                     if (isCustomizePanelOpen) {
-                        setUserClosedCustomizePanel(true);
-                    } else {
-                        setUserClosedCustomizePanel(false);
+        <div id="icon-strip" className="w-20 bg-card border-r z-20">
+          <ScrollArea className="h-full">
+            <div className="flex flex-col items-center py-4 space-y-1">
+              {toolConfig.map((tool) => (
+                <button
+                  key={tool.id}
+                  onClick={() => {
+                    setActiveTool(activeTool === tool.id && !tool.disabled ? null : tool.id);
+                    setSelectedElement(null);
+                  }}
+                  disabled={tool.disabled}
+                  className={cn(
+                    "flex flex-col items-center justify-center p-2 rounded-lg w-16 h-16 transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
+                    activeTool === tool.id ? "bg-primary text-primary-foreground" : "hover:bg-accent/50"
+                  )}
+                >
+                  <tool.icon className="w-6 h-6" />
+                  <span className="text-xs mt-1 text-center">{tool.label}</span>
+                </button>
+              ))}
+               <button
+                  key="customize"
+                   onClick={() => {
+                    if (selectedElement) {
+                        setIsCustomizePanelOpen(!isCustomizePanelOpen);
+                         if (isCustomizePanelOpen) {
+                            setUserClosedCustomizePanel(true);
+                        } else {
+                            setUserClosedCustomizePanel(false);
+                        }
                     }
-                }
-              }}
-              disabled={!selectedElement || isElementLocked}
-              className={cn(
-                "flex flex-col items-center justify-center p-2 rounded-lg w-16 h-16 transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
-                isCustomizePanelOpen && selectedElement ? "bg-primary text-primary-foreground" : "hover:bg-accent/50"
-              )}
-            >
-              <Wand2 className="w-6 h-6" />
-              <span className="text-xs mt-1">Customize</span>
-            </button>
+                  }}
+                  disabled={!selectedElement || isElementLocked}
+                  className={cn(
+                    "flex flex-col items-center justify-center p-2 rounded-lg w-16 h-16 transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
+                    isCustomizePanelOpen && selectedElement ? "bg-primary text-primary-foreground" : "hover:bg-accent/50"
+                  )}
+                >
+                  <Wand2 className="w-6 h-6" />
+                  <span className="text-xs mt-1">Customize</span>
+                </button>
+              </div>
+          </ScrollArea>
         </div>
         
         <div className="relative flex-1 flex flex-col">
