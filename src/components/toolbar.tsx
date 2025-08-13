@@ -74,7 +74,7 @@ export default function Toolbar({
   return (
     <div id="toolbar" className="w-full bg-card border-b">
         <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between h-11">
+            <div className="flex items-center justify-between h-14">
                 <div className="flex items-center gap-1">
                     <ToolbarButton onClick={onUndo} disabled={!canUndo} tooltip="Undo (Ctrl+Z)">
                         <Undo2 className="w-4 h-4" />
@@ -88,7 +88,7 @@ export default function Toolbar({
                     </ToolbarButton>
                 </div>
                 
-                <div className="flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
+                <div className={cn("flex items-center gap-1 transition-opacity", selectedElementId ? "opacity-100" : "opacity-0 pointer-events-none")}>
                     {selectedElementId && (
                         <>
                            <ToolbarButton onClick={() => onLayerChange('forward')} tooltip="Bring Forward" disabled={isElementLocked}>
@@ -112,16 +112,13 @@ export default function Toolbar({
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <ToolbarButton onClick={onDownload} tooltip="Download">
-                        <Download className="w-4 h-4" />
-                    </ToolbarButton>
-                    <ToolbarButton onClick={() => {}} tooltip="Share">
-                        <Share2 className="w-4 h-4" />
-                    </ToolbarButton>
-                     <Separator orientation="vertical" className="h-6 mx-1" />
-                    <Button variant="outline" size="sm" className="h-8">
-                        <Save className="w-4 h-4 mr-2" />
-                        Save
+                    <Button variant="outline" size="sm" className="h-9">
+                        <Share2 className="w-4 h-4 mr-2" />
+                        Share
+                    </Button>
+                    <Button size="sm" className="h-9 bg-accent hover:bg-accent/80 text-accent-foreground" onClick={onDownload}>
+                        <Download className="w-4 h-4 mr-2" />
+                        Download
                     </Button>
                 </div>
             </div>

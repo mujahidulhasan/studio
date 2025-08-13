@@ -50,9 +50,15 @@ export default function TextEditor({ textElements, setTextElements }: TextEditor
       x: 50,
       y: 50,
       fontSize: 16,
-      fontFamily: "Open Sans",
+      fontFamily: "Inter",
       fontWeight: 400,
       color: "#000000",
+      align: "center",
+      isBold: false,
+      isItalic: false,
+      isUnderline: false,
+      rotation: 0,
+      transparency: 0,
     };
     setTextElements([...textElements, newElement]);
   };

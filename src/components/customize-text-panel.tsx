@@ -40,7 +40,7 @@ const fonts = [
     "Times New Roman",
     "Courier New",
     "Georgia",
-    "Open Sans"
+    "Inter"
 ]
 
 export default function CustomizeTextPanel({ element, onUpdate }: CustomizeTextPanelProps) {
@@ -131,7 +131,7 @@ export default function CustomizeTextPanel({ element, onUpdate }: CustomizeTextP
                 </div>
                 <Slider
                     value={[element.rotation || 0]}
-                    onValueChange={([value]) => onUpdate({...element, rotation: value})}
+                    onValueChange={([value]) => onUpdate({...element, rotation: val})}
                     min={0} max={360} step={1}
                 />
             </div>
