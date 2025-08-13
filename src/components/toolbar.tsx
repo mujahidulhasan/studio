@@ -74,7 +74,7 @@ export default function Toolbar({
   return (
     <div id="toolbar" className="w-full bg-card border-b">
         <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between h-12">
+            <div className="flex items-center justify-between h-11">
                 <div className="flex items-center gap-1">
                     <ToolbarButton onClick={onUndo} disabled={!canUndo} tooltip="Undo (Ctrl+Z)">
                         <Undo2 className="w-4 h-4" />

@@ -24,7 +24,7 @@ export default function Header() {
   return (
     <header className="bg-white border-b shadow-sm">
         <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between h-14">
+            <div className="flex items-center justify-between h-12">
               <div className="flex items-center gap-8">
                 <IdCreatorLogo />
                 <DropdownMenu>
@@ -47,10 +47,10 @@ export default function Header() {
         <div className="bg-gray-100/80 border-t">
             <div className="container mx-auto px-4">
                 <nav className="flex items-center gap-2">
-                    <a href="#" className="py-2 px-2 text-sm font-medium text-gray-500 hover:text-gray-900">Get Started</a>
-                    <a href="#" className="py-2 px-2 text-sm font-medium text-primary border-b-2 border-primary">Card Designer</a>
-                    <a href="#" className="py-2 px-2 text-sm font-medium text-gray-500 hover:text-gray-900">My Designs</a>
-                    <a href="#" className="py-2 px-2 text-sm font-medium text-gray-500 hover:text-gray-900">My Members</a>
+                    <a href="#" className="py-1 px-2 text-sm font-medium text-gray-500 hover:text-gray-900">Get Started</a>
+                    <a href="#" className="py-1 px-2 text-sm font-medium text-primary border-b-2 border-primary">Card Designer</a>
+                    <a href="#" className="py-1 px-2 text-sm font-medium text-gray-500 hover:text-gray-900">My Designs</a>
+                    <a href="#" className="py-1 px-2 text-sm font-medium text-gray-500 hover:text-gray-900">My Members</a>
                 </nav>
             </div>
         </div>
