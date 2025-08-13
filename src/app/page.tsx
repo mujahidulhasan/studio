@@ -245,7 +245,7 @@ export default function Home() {
 
 
   return (
-    <div className="flex flex-col h-screen bg-background" onClick={handleDeselectAll}>
+    <div className="flex flex-col min-h-screen bg-background" onClick={handleDeselectAll}>
       <Header />
        <Toolbar
           onUndo={history.undo}
@@ -262,10 +262,9 @@ export default function Home() {
           onLock={handleLockSelected}
           isElementLocked={isElementLocked}
         />
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1">
         {/* Icon Strip */}
         <div id="icon-strip" className="w-20 bg-card border-r z-20 flex-shrink-0">
-          <ScrollArea className="h-full">
             <div className="flex flex-col items-center py-4 space-y-1">
               {toolConfig.map((tool) => (
                 <button
@@ -306,7 +305,6 @@ export default function Home() {
                   <span className="text-xs mt-1">Customize</span>
                 </button>
               </div>
-            </ScrollArea>
         </div>
         
         <div className="relative flex-1 flex flex-col">
@@ -365,8 +363,8 @@ export default function Home() {
             </div>
 
             {/* Workspace */}
-            <main className="w-full h-full flex flex-col items-center justify-start gap-6 pt-8 overflow-auto">
-                <div className="flex-1 flex flex-col justify-center items-center pb-8 p-4">
+            <main className="w-full flex flex-col items-center justify-start gap-6 pt-8 pb-8">
+                <div className="flex flex-col justify-center items-center p-4">
                     <IdCardPreview
                         ref={idCardRef}
                         template={template}
