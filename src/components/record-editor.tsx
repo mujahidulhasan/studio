@@ -96,7 +96,7 @@ export default function RecordEditor() {
 
   return (
       <form onSubmit={handleSubmit} onReset={handleReset} ref={formRef} className="flex flex-col h-full">
-         <div className="flex-1 p-4 -mx-4 space-y-6">
+         <div className="flex-1 space-y-6">
           {!showSuccess ? (
             <>
               {/* Progress Bar */}
@@ -233,7 +233,8 @@ export default function RecordEditor() {
           )}
           </div>
           
-          <div className="p-4 border-t mt-auto -mx-4 -mb-4 bg-background">
+          <div className="border-t mt-auto -mx-4 -mb-4 bg-background">
+             <div className="p-4">
               {!showSuccess && (
                   <div className="flex justify-between gap-2">
                      <Button type="button" variant="outline" onClick={handleBack} disabled={step === 1}>
@@ -246,9 +247,8 @@ export default function RecordEditor() {
                       )}
                   </div>
               )}
+              </div>
           </div>
     </form>
   );
 }
-
-    

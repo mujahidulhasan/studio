@@ -14,7 +14,6 @@ import { downloadAsSvg } from "@/lib/download";
 import { cn } from "@/lib/utils";
 import Toolbar from "@/components/toolbar";
 import { useHistoryState } from "@/hooks/use-history-state";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 
 const toolConfig = [
@@ -265,48 +264,46 @@ export default function Home() {
       <div className="flex flex-1">
         {/* Icon Strip */}
         <div id="icon-strip" className="w-20 bg-card border-r z-20 flex-shrink-0">
-          <ScrollArea className="h-full">
-            <div className="flex flex-col items-center py-4 space-y-1">
-              {toolConfig.map((tool) => (
-                <button
-                  key={tool.id}
-                  onClick={() => {
-                    setActiveTool(activeTool === tool.id && !tool.disabled ? null : tool.id);
-                    setSelectedElement(null);
-                  }}
-                  disabled={tool.disabled}
-                  className={cn(
-                    "flex flex-col items-center justify-center p-2 rounded-lg w-16 h-16 transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
-                    activeTool === tool.id ? "bg-primary/20 text-primary" : "hover:bg-muted"
-                  )}
-                >
-                  <tool.icon className="w-6 h-6" />
-                  <span className="text-xs mt-1 text-center">{tool.label}</span>
-                </button>
-              ))}
-               <button
-                  key="customize"
-                   onClick={() => {
-                    if (selectedElement) {
-                        setIsCustomizePanelOpen(!isCustomizePanelOpen);
-                         if (isCustomizePanelOpen) {
-                            setUserClosedCustomizePanel(true);
-                        } else {
-                            setUserClosedCustomizePanel(false);
-                        }
-                    }
-                  }}
-                  disabled={!selectedElement || isElementLocked}
-                  className={cn(
-                    "flex flex-col items-center justify-center p-2 rounded-lg w-16 h-16 transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
-                    isCustomizePanelOpen && selectedElement ? "bg-primary/20 text-primary" : "hover:bg-muted"
-                  )}
-                >
-                  <Wand2 className="w-6 h-6" />
-                  <span className="text-xs mt-1">Customize</span>
-                </button>
-              </div>
-            </ScrollArea>
+          <div className="flex flex-col items-center py-4 space-y-1">
+            {toolConfig.map((tool) => (
+              <button
+                key={tool.id}
+                onClick={() => {
+                  setActiveTool(activeTool === tool.id && !tool.disabled ? null : tool.id);
+                  setSelectedElement(null);
+                }}
+                disabled={tool.disabled}
+                className={cn(
+                  "flex flex-col items-center justify-center p-2 rounded-lg w-16 h-16 transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
+                  activeTool === tool.id ? "bg-primary/20 text-primary" : "hover:bg-muted"
+                )}
+              >
+                <tool.icon className="w-6 h-6" />
+                <span className="text-xs mt-1 text-center">{tool.label}</span>
+              </button>
+            ))}
+             <button
+                key="customize"
+                 onClick={() => {
+                  if (selectedElement) {
+                      setIsCustomizePanelOpen(!isCustomizePanelOpen);
+                       if (isCustomizePanelOpen) {
+                          setUserClosedCustomizePanel(true);
+                      } else {
+                          setUserClosedCustomizePanel(false);
+                      }
+                  }
+                }}
+                disabled={!selectedElement || isElementLocked}
+                className={cn(
+                  "flex flex-col items-center justify-center p-2 rounded-lg w-16 h-16 transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
+                  isCustomizePanelOpen && selectedElement ? "bg-primary/20 text-primary" : "hover:bg-muted"
+                )}
+              >
+                <Wand2 className="w-6 h-6" />
+                <span className="text-xs mt-1">Customize</span>
+              </button>
+            </div>
         </div>
         
         <div className="relative flex-1 flex flex-col">
@@ -315,32 +312,30 @@ export default function Home() {
                 "absolute top-0 left-0 h-full bg-card border-r transition-transform duration-300 ease-in-out z-10",
                 activeTool ? "translate-x-0 w-80" : "-translate-x-full w-80"
             )}>
-                 <ScrollArea className="h-full">
-                {activeTool && (
-                     <div className="p-4 flex flex-col h-full">
-                        <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-lg font-semibold">{currentToolConfig?.label}</h2>
-                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setActiveTool(null)}>
-                                <X className="w-4 h-4"/>
-                            </Button>
-                        </div>
-                         <div className="border-t -mx-4 mb-4"></div>
-                        <div className="flex-1">
-                            <EditorPanel
-                                activeTab={activeTool}
-                                template={template}
-                                setTemplate={setTemplate}
-                                image={image}
-                                setImage={setImage}
-                                textElements={textElements}
-                                setTextElements={setTextElements}
-                                shapeElements={shapeElements}
-                                setShapeElements={setShapeElements}
-                            />
-                        </div>
-                     </div>
-                )}
-                </ScrollArea>
+              {activeTool && (
+                   <div className="p-4 flex flex-col h-full">
+                      <div className="flex items-center justify-between mb-4">
+                          <h2 className="text-lg font-semibold">{currentToolConfig?.label}</h2>
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setActiveTool(null)}>
+                              <X className="w-4 h-4"/>
+                          </Button>
+                      </div>
+                       <div className="border-t -mx-4 mb-4"></div>
+                      <div className="flex-1">
+                          <EditorPanel
+                              activeTab={activeTool}
+                              template={template}
+                              setTemplate={setTemplate}
+                              image={image}
+                              setImage={setImage}
+                              textElements={textElements}
+                              setTextElements={setTextElements}
+                              shapeElements={shapeElements}
+                              setShapeElements={setShapeElements}
+                          />
+                      </div>
+                   </div>
+              )}
             </div>
 
             {/* Customize Panel */}
@@ -348,24 +343,22 @@ export default function Home() {
                 "absolute top-0 left-0 h-full bg-card border-r transition-transform duration-300 ease-in-out z-10",
                 isCustomizePanelOpen && selectedElement ? "translate-x-0 w-80" : "-translate-x-full w-80"
             )}>
-                <ScrollArea className="h-full">
-                {isCustomizePanelOpen && selectedElement && (
-                     <CustomizePanel
-                        selectedElement={selectedElement}
-                        image={image}
-                        setImage={setImage}
-                        textElements={textElements}
-                        setTextElements={setTextElements}
-                        shapeElements={shapeElements}
-                        setShapeElements={setShapeElements}
-                        onClose={closeCustomizePanel}
-                     />
-                )}
-                </ScrollArea>
+              {isCustomizePanelOpen && selectedElement && (
+                   <CustomizePanel
+                      selectedElement={selectedElement}
+                      image={image}
+                      setImage={setImage}
+                      textElements={textElements}
+                      setTextElements={setTextElements}
+                      shapeElements={shapeElements}
+                      setShapeElements={setShapeElements}
+                      onClose={closeCustomizePanel}
+                   />
+              )}
             </div>
 
             {/* Workspace */}
-            <main className="w-full flex flex-col items-center justify-start gap-6 pt-8 pb-8 overflow-auto">
+            <main className="w-full flex flex-col items-center justify-start gap-6 pt-8 pb-8">
                 <div className="flex flex-col justify-center items-center p-4">
                     <IdCardPreview
                         ref={idCardRef}
