@@ -32,8 +32,8 @@ const IdCreatorLogo = () => (
 
 const navLinks = [
     { href: "/", label: "Card Designer" },
-    { href: "#", label: "My Designs" },
-    { href: "#", label: "My Members" },
+    { href: "/account", label: "My Designs" },
+    { href: "/account", label: "My Members" },
 ];
 
 export default function Header() {
@@ -96,7 +96,9 @@ export default function Header() {
                                </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem>My Account</DropdownMenuItem>
+                              <DropdownMenuItem asChild>
+                                <Link href="/account">My Account</Link>
+                              </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem onClick={logout}>
                                 <LogOut className="w-4 h-4 mr-2"/>

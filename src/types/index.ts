@@ -85,3 +85,15 @@ export interface Record {
     notes?: string;
     createdAt: any;
 }
+
+export interface Design {
+    id: string;
+    userId: string;
+    name: string;
+    template: Template;
+    image: ImageElement;
+    textElements: TextElement[];
+    shapeElements: ShapeElement[];
+    thumbnailUrl?: string | null;
+    createdAt: any;
+}

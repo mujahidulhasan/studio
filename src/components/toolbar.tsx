@@ -15,6 +15,8 @@ interface ToolbarProps {
     onToggleGrid: () => void;
     isGridVisible: boolean;
     onDownload: () => void;
+    onSave: () => void;
+    isSaveDisabled?: boolean;
     selectedElementId: string | null;
     onDelete: () => void;
     onDuplicate: () => void;
@@ -64,6 +66,8 @@ export default function Toolbar({
     onToggleGrid, 
     isGridVisible, 
     onDownload,
+    onSave,
+    isSaveDisabled,
     selectedElementId,
     onDelete,
     onDuplicate,
@@ -112,6 +116,10 @@ export default function Toolbar({
                 </div>
 
                 <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm" className="h-9" onClick={onSave} disabled={isSaveDisabled}>
+                        <Save className="w-4 h-4 mr-2" />
+                        Save
+                    </Button>
                     <Button variant="outline" size="sm" className="h-9">
                         <Share2 className="w-4 h-4 mr-2" />
                         Share

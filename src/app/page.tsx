@@ -2,19 +2,22 @@
 "use client";
 
 import React, { useState, useRef, useCallback, useEffect } from "react";
-import type { Template, ImageElement, TextElement, ShapeElement } from "@/types";
+import type { Template, ImageElement, TextElement, ShapeElement, Design } from "@/types";
 import { templates } from "@/components/template-selector";
 import Header from "@/components/header";
 import EditorPanel from "@/components/editor-panel";
 import IdCardPreview from "@/components/id-card-preview";
 import CustomizePanel from "@/components/customize-panel";
 import { Button } from "@/components/ui/button";
-import { Download, PanelLeft, LayoutTemplate, Image as ImageIcon, Type, Shapes, Shield, Badge, Wand2, X, Database } from "lucide-react";
+import { Download, PanelLeft, LayoutTemplate, Image as ImageIcon, Type, Shapes, Shield, Badge, Wand2, X, Database, Save } from "lucide-react";
 import { downloadAsSvg } from "@/lib/download";
 import { cn } from "@/lib/utils";
 import Toolbar from "@/components/toolbar";
 import { useHistoryState } from "@/hooks/use-history-state";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useAuth } from "@/context/auth-context";
+import { saveDesign } from "@/services/design-service";
+import { useToast } from "@/hooks/use-toast";
 
 
 const toolConfig = [
@@ -27,6 +30,8 @@ const toolConfig = [
 ];
 
 export default function Home() {
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [template, setTemplate, templateHistory] = useHistoryState<Template>(templates[0]);
   const [image, setImage, imageHistory] = useHistoryState<ImageElement>({
     id: "image",
@@ -126,6 +131,29 @@ export default function Home() {
       await downloadAsSvg(template, image, textElements, shapeElements);
     }
   }, [template, image, textElements, shapeElements]);
+  
+  const handleSaveDesign = async () => {
+    if (!user) {
+        toast({ variant: 'destructive', title: 'Not logged in', description: 'Please log in to save your design.' });
+        return;
+    }
+
+    const designData: Omit<Design, 'id' | 'userId' | 'createdAt' | 'thumbnailUrl'> = {
+        name: `Design - ${new Date().toLocaleDateString()}`,
+        template,
+        image,
+        textElements,
+        shapeElements,
+    }
+
+    try {
+        await saveDesign(user.uid, designData, null); // We are not generating thumbnail for now
+        toast({ title: 'Design Saved', description: 'Your design has been saved to your account.' });
+    } catch(e) {
+        console.error("Failed to save design:", e);
+        toast({ variant: 'destructive', title: 'Error', description: 'Could not save your design.' });
+    }
+  }
 
   const handleSelectElement = (elementId: string | null) => {
     if (elementId === selectedElement) return;
@@ -255,6 +283,8 @@ export default function Home() {
           onToggleGrid={() => setShowGrid(!showGrid)}
           isGridVisible={showGrid}
           onDownload={handleDownload}
+          onSave={handleSaveDesign}
+          isSaveDisabled={!user}
           selectedElementId={selectedElement}
           onDelete={handleDeleteSelected}
           onDuplicate={handleDuplicateSelected}
@@ -347,16 +377,18 @@ export default function Home() {
                 isCustomizePanelOpen && selectedElement ? "translate-x-0 w-80" : "-translate-x-full w-80"
             )}>
               {isCustomizePanelOpen && selectedElement && (
-                   <CustomizePanel
-                      selectedElement={selectedElement}
-                      image={image}
-                      setImage={setImage}
-                      textElements={textElements}
-                      setTextElements={setTextElements}
-                      shapeElements={shapeElements}
-                      setShapeElements={setShapeElements}
-                      onClose={closeCustomizePanel}
-                   />
+                   <div className="p-4 flex flex-col h-full">
+                        <CustomizePanel
+                          selectedElement={selectedElement}
+                          image={image}
+                          setImage={setImage}
+                          textElements={textElements}
+                          setTextElements={setTextElements}
+                          shapeElements={shapeElements}
+                          setShapeElements={setShapeElements}
+                          onClose={closeCustomizePanel}
+                        />
+                   </div>
               )}
             </div>
 

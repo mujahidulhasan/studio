@@ -46,7 +46,7 @@ export default function CustomizePanel({ selectedElement, image, setImage, textE
     }
     
     return (
-        <div className="p-4 flex flex-col h-full">
+        <>
             <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold">{getPanelTitle()}</h2>
                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onClose}>
@@ -70,6 +70,6 @@ export default function CustomizePanel({ selectedElement, image, setImage, textE
                     />
                 )}
             </div>
-        </div>
+        </>
     );
 }

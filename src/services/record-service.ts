@@ -2,7 +2,7 @@
 'use server';
 
 import { db, storage } from "@/lib/firebase";
-import { collection, addDoc, serverTimestamp, query, where, getDocs, or } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, query, where, getDocs, or, doc, deleteDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { v4 as uuidv4 } from 'uuid';
 import type { Record } from "@/types";
@@ -100,4 +100,20 @@ export const searchRecords = async (userId: string, searchTerm: string): Promise
         // Re-throw other errors
         throw error;
     }
+};
+
+export const getRecordsForUser = async (userId: string): Promise<Record[]> => {
+    const recordsRef = collection(db, "records");
+    const q = query(recordsRef, where("userId", "==", userId));
+    const querySnapshot = await getDocs(q);
+    const records: Record[] = [];
+    querySnapshot.forEach((doc) => {
+        records.push({ id: doc.id, ...doc.data() } as Record);
+    });
+    return records;
+};
+
+export const deleteRecord = async (recordId: string): Promise<void> => {
+    const recordRef = doc(db, "records", recordId);
+    await deleteDoc(recordRef);
 };
