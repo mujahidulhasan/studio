@@ -53,7 +53,7 @@ export default function CustomizePanel({ selectedElement, image, setImage, textE
                     <X className="w-4 h-4"/>
                 </Button>
             </div>
-            <div className="flex-1 overflow-y-auto">
+            <div>
                 {selectedElement === 'image' && (
                     <CustomizeImagePanel image={image} setImage={setImage} />
                 )}
