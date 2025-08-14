@@ -1,74 +1,40 @@
 
+'use server';
+
 import { db, storage } from "@/lib/firebase";
 import { collection, addDoc, serverTimestamp, query, where, getDocs, or } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { v4 as uuidv4 } from 'uuid';
 import type { Record } from "@/types";
 
-export const createRecord = async (userId: string, data: any, avatarFile: File | null): Promise<string> => {
+type AvatarFile = {
+    buffer: ArrayBuffer;
+    type: string;
+    name: string;
+} | null;
+
+export const createRecord = async (userId: string, data: any, avatarFile: AvatarFile): Promise<string> => {
     let avatarUrl = '';
 
-    // 1. Generate a new document reference to get an ID
-    const newRecordRef = await addDoc(collection(db, `records`), {
-        ...data,
-        userId: userId,
-        createdAt: serverTimestamp(),
-        avatarUrl: '', // temporary placeholder
-    });
-    
-    const newRecordId = newRecordRef.id;
-
-    // 2. Upload avatar if it exists
+    // 1. Upload avatar if it exists
     if (avatarFile) {
-        const storagePath = `avatars/${userId}/${newRecordId}/${avatarFile.name}`;
+        const fileExtension = avatarFile.name.split('.').pop();
+        const fileName = `${uuidv4()}.${fileExtension}`;
+        const storagePath = `avatars/${userId}/${fileName}`;
         const storageRef = ref(storage, storagePath);
-        const snapshot = await uploadBytes(storageRef, avatarFile);
-        avatarUrl = await getDownloadURL(snapshot.ref);
+        
+        // Upload the file buffer
+        await uploadBytes(storageRef, avatarFile.buffer, { contentType: avatarFile.type });
+        avatarUrl = await getDownloadURL(storageRef);
     }
     
-    // 3. Update the document with the final avatar URL
-    // We don't actually need to update since the record is already created with the URL.
-    // If we had created the doc *after* upload, we would set it here.
-    // For simplicity, we are creating the document first. A more robust solution might
-    // upload first, then create the document with the returned URL.
-
-    // For this implementation, we will just return the ID as the task is complete.
-    // The avatarUrl is in the record, but we aren't updating it post-creation in this flow.
-    // A better flow: upload file -> get URL -> create firestore doc with URL.
-    // But for simplicity: create doc -> get ID -> upload file with ID -> update doc with URL.
-    // This is a bit more complex, so we'll stick to the simpler method for now.
-    // The current implementation creates the record and uploads the file, but doesn't link them back.
-    // Let's fix this slightly.
-
-    // A better approach:
-    if (avatarFile) {
-         const storagePath = `avatars/${userId}/${newRecordId}/${avatarFile.name}`;
-         const storageRef = ref(storage, storagePath);
-         await uploadBytes(storageRef, avatarFile);
-         avatarUrl = await getDownloadURL(storageRef);
-    }
-
-    // Now let's create the document with all data at once.
-    // To do this, we need to delete the placeholder doc and create a new one.
-    // Or just create the doc without an ID, then update it. Let's do that.
-
+    // 2. Create the document in Firestore with all data
     const docRef = await addDoc(collection(db, "records"), {
         userId,
         ...data,
-        avatarUrl: avatarFile ? 'uploading' : '',
+        avatarUrl,
         createdAt: serverTimestamp(),
     });
-
-    if (avatarFile) {
-        const path = `avatars/${userId}/${docRef.id}/${avatarFile.name}`;
-        const storageRef = ref(storage, path);
-        await uploadBytes(storageRef, avatarFile);
-        const finalUrl = await getDownloadURL(storageRef);
-        
-        // This is not available in the client-side SDK in the way we want.
-        // We'll have to use `updateDoc`
-        const { updateDoc } = await import("firebase/firestore");
-        await updateDoc(docRef, { avatarUrl: finalUrl });
-    }
 
     return docRef.id;
 };

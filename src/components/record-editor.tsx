@@ -31,6 +31,12 @@ type Contact = {
   number: string;
 };
 
+type AvatarFile = {
+    buffer: ArrayBuffer;
+    type: string;
+    name: string;
+}
+
 const steps = [
   { id: 1, name: "Personal Information" },
   { id: 2, name: "Family Information" },
@@ -43,7 +49,7 @@ export default function RecordEditor() {
   const { toast } = useToast();
   const [step, setStep] = useState(1);
   const [studentId, setStudentId] = useState("");
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarFile, setAvatarFile] = useState<AvatarFile | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [contacts, setContacts] = useState<Contact[]>([]);
   const nextContactId = useRef(0);
@@ -51,12 +57,14 @@ export default function RecordEditor() {
   const [birthDate, setBirthDate] = React.useState<Date>()
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setAvatarFile(file);
       const url = URL.createObjectURL(file);
       setAvatarPreview(url);
+      
+      const buffer = await file.arrayBuffer();
+      setAvatarFile({ buffer, type: file.type, name: file.name });
     }
   };
 
@@ -90,6 +98,8 @@ export default function RecordEditor() {
     if (form.checkValidity()) {
         setIsLoading(true);
         const formData = new FormData(form);
+        // Exclude the file input from the main data object
+        formData.delete('avatar');
         const recordData = Object.fromEntries(formData.entries());
 
         const otherContacts = contacts.map(c => ({ relation: c.relation, number: c.number }));
@@ -226,7 +236,7 @@ export default function RecordEditor() {
                         <Label>Picture Upload</Label>
                         <div className="flex items-center gap-2">
                           {avatarPreview ? <Image src={avatarPreview} alt="preview" width={56} height={56} className="rounded-lg object-cover h-14 w-14 border" /> : <div className="h-14 w-14 bg-muted rounded-lg"/>}
-                          <Input type="file" accept="image/png,image/jpeg" onChange={handleAvatarChange} />
+                          <Input name="avatar" type="file" accept="image/png,image/jpeg" onChange={handleAvatarChange} />
                         </div>
                       </div>
                     </div>
