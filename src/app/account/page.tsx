@@ -13,6 +13,7 @@ import type { Design, Record } from '@/types';
 import { getDesignsForUser, deleteDesign } from '@/services/design-service';
 import { getRecordsForUser, deleteRecord } from '@/services/record-service';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import Link from 'next/link';
 
 export default function AccountPage() {
   const { user, loading: authLoading } = useAuth();
@@ -134,7 +135,14 @@ export default function AccountPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-muted-foreground mt-4">You haven't saved any designs yet.</p>
+                <div className="text-center py-16">
+                    <ImageIcon className="mx-auto h-12 w-12 text-muted-foreground" />
+                    <h3 className="mt-4 text-lg font-semibold">No Designs Yet</h3>
+                    <p className="mt-2 text-sm text-muted-foreground">You haven't saved any designs. Start creating one!</p>
+                    <Button asChild className="mt-6">
+                        <Link href="/">Create a Design</Link>
+                    </Button>
+                </div>
             )}
           </TabsContent>
           <TabsContent value="records" className="mt-6">
@@ -142,29 +150,35 @@ export default function AccountPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {records.map(record => (
                   <Card key={record.id}>
-                    <CardHeader>
-                      <CardTitle className="text-lg truncate">{record.studentName}</CardTitle>
-                      <p className="text-sm text-muted-foreground">ID: {record.id}</p>
-                    </CardHeader>
-                    <CardContent className="flex items-center gap-4 m-6 mt-0">
-                       <Avatar>
-                          <AvatarImage src={record.avatarUrl} alt={record.studentName}/>
-                          <AvatarFallback><User/></AvatarFallback>
-                       </Avatar>
-                       <div>
-                          <p className="font-medium">{record.roll}</p>
-                          <p className="text-sm text-muted-foreground">Roll No.</p>
-                       </div>
+                    <CardContent className="pt-6">
+                        <div className="flex items-center gap-4">
+                           <Avatar className="w-16 h-16">
+                              <AvatarImage src={record.avatarUrl} alt={record.studentName}/>
+                              <AvatarFallback className="text-xl"><User/></AvatarFallback>
+                           </Avatar>
+                           <div>
+                              <CardTitle className="text-lg leading-tight truncate">{record.studentName}</CardTitle>
+                              <p className="text-sm text-muted-foreground">ID: {record.id}</p>
+                              <p className="text-sm text-muted-foreground">Roll: {record.roll}</p>
+                           </div>
+                        </div>
                     </CardContent>
-                    <CardFooter className="flex justify-between">
-                      <Button variant="outline" size="sm"><Pencil className="w-4 h-4 mr-2" /> Edit</Button>
-                      <Button variant="destructive" size="sm" onClick={() => handleDeleteRecord(record.id)}><Trash2 className="w-4 h-4 mr-2" /> Delete</Button>
+                    <CardFooter className="flex justify-between mt-4">
+                      <Button variant="outline" size="sm" className="w-full"><Pencil className="w-4 h-4 mr-2" /> Edit</Button>
+                      <Button variant="destructive" size="sm" className="w-full" onClick={() => handleDeleteRecord(record.id)}><Trash2 className="w-4 h-4 mr-2" /> Delete</Button>
                     </CardFooter>
                   </Card>
                 ))}
               </div>
             ) : (
-              <p className="text-muted-foreground mt-4">You haven't created any records yet.</p>
+                 <div className="text-center py-16">
+                    <User className="mx-auto h-12 w-12 text-muted-foreground" />
+                    <h3 className="mt-4 text-lg font-semibold">No Records Yet</h3>
+                    <p className="mt-2 text-sm text-muted-foreground">You haven't created any records. Add one now!</p>
+                    <Button asChild className="mt-6">
+                        <Link href="/">Add a Record</Link>
+                    </Button>
+                </div>
             )}
           </TabsContent>
         </Tabs>
