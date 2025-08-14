@@ -2,6 +2,7 @@
 "use client";
 
 import { LogIn, ChevronDown, BadgePercent, Menu, Search, X } from "lucide-react";
+import Link from "next/link";
 import { Button } from "./ui/button";
 import {
   DropdownMenu,
@@ -28,7 +29,7 @@ const IdCreatorLogo = () => (
 );
 
 const navLinks = [
-    { href: "#", label: "Card Designer" },
+    { href: "/", label: "Card Designer" },
     { href: "#", label: "My Designs" },
     { href: "#", label: "My Members" },
 ];
@@ -39,14 +40,14 @@ export default function Header() {
   return (
     <header className="bg-card border-b sticky top-0 z-30">
         <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between h-14">
+            <div className="flex items-center justify-between h-12">
               <div className="flex items-center gap-8">
                 <IdCreatorLogo />
                  <nav className="hidden md:flex items-center gap-6">
                     {navLinks.map((link) => (
-                        <a key={link.label} href={link.href} className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+                        <Link key={link.label} href={link.href} className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
                             {link.label}
-                        </a>
+                        </Link>
                     ))}
                  </nav>
               </div>
@@ -64,18 +65,11 @@ export default function Header() {
                       </DropdownMenuContent>
                     </DropdownMenu>
 
-                    {isSearchOpen ? (
-                       <div className="flex items-center gap-2">
-                            <Input placeholder="Search records..." className="h-9 w-48"/>
-                            <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => setIsSearchOpen(false)}>
-                                <X className="w-4 h-4"/>
-                            </Button>
-                       </div>
-                    ) : (
-                         <Button variant="ghost" className="text-sm font-medium text-muted-foreground h-9" onClick={() => setIsSearchOpen(true)}>
-                            <Search className="w-4 h-4 mr-2" /> Record
-                        </Button>
-                    )}
+                    <Button asChild variant="ghost" className="text-sm font-medium text-muted-foreground h-9">
+                       <Link href="/records">
+                         <Search className="w-4 h-4 mr-2" /> Record
+                       </Link>
+                    </Button>
                    
                     <Button>
                       <LogIn className="w-4 h-4 mr-2"/> Login
@@ -91,10 +85,13 @@ export default function Header() {
                         <SheetContent side="right">
                            <div className="flex flex-col gap-6 pt-8">
                              {navLinks.map((link) => (
-                                <a key={link.label} href={link.href} className="text-lg font-medium text-foreground hover:text-primary transition-colors">
+                                <Link key={link.label} href={link.href} className="text-lg font-medium text-foreground hover:text-primary transition-colors">
                                     {link.label}
-                                </a>
+                                </Link>
                              ))}
+                             <Link href="/records" className="text-lg font-medium text-foreground hover:text-primary transition-colors">
+                                Records
+                             </Link>
                            </div>
                         </SheetContent>
                     </Sheet>
