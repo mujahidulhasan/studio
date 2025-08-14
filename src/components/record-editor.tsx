@@ -14,11 +14,16 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import Image from "next/image";
-import { X, Calendar as CalendarIcon, Facebook, Instagram, Github } from "lucide-react";
+import { X, Calendar as CalendarIcon, Facebook, Instagram, Github, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Calendar } from "./ui/calendar";
 import { format } from "date-fns";
+import { useAuth } from "@/context/auth-context";
+import { createRecord } from "@/services/record-service";
+import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
+
 
 type Contact = {
   id: number;
@@ -34,17 +39,22 @@ const steps = [
 ];
 
 export default function RecordEditor() {
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [step, setStep] = useState(1);
   const [studentId, setStudentId] = useState("");
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [contacts, setContacts] = useState<Contact[]>([]);
   const nextContactId = useRef(0);
   const formRef = useRef<HTMLFormElement>(null);
   const [birthDate, setBirthDate] = React.useState<Date>()
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setAvatarFile(file);
       const url = URL.createObjectURL(file);
       setAvatarPreview(url);
     }
@@ -65,13 +75,44 @@ export default function RecordEditor() {
       setContacts(contacts.map(c => c.id === id ? {...c, [field]: value} : c));
   }
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!user) {
+        toast({
+            variant: "destructive",
+            title: "Not Authenticated",
+            description: "You must be logged in to create a record.",
+        });
+        return;
+    }
+    
     const form = e.currentTarget;
     if (form.checkValidity()) {
-      const newId = Math.floor(1000 + Math.random() * 9000).toString();
-      setStudentId(newId);
-      setStep(4); // Move to the final step
+        setIsLoading(true);
+        const formData = new FormData(form);
+        const recordData = Object.fromEntries(formData.entries());
+
+        const otherContacts = contacts.map(c => ({ relation: c.relation, number: c.number }));
+
+        try {
+            const newId = await createRecord(user.uid, {
+                ...recordData,
+                birthDate: birthDate ? birthDate.toISOString() : '',
+                otherContacts,
+            }, avatarFile);
+
+            setStudentId(newId);
+            setStep(4); // Move to the final step
+        } catch (error) {
+            console.error("Failed to create record:", error);
+            toast({
+                variant: "destructive",
+                title: "Submission Failed",
+                description: "There was an error creating the student record.",
+            });
+        } finally {
+            setIsLoading(false);
+        }
     } else {
       form.reportValidity();
     }
@@ -80,6 +121,7 @@ export default function RecordEditor() {
   const handleReset = () => {
       formRef.current?.reset();
       setAvatarPreview(null);
+      setAvatarFile(null);
       setContacts([]);
       setStudentId("");
       setBirthDate(undefined);
@@ -100,6 +142,17 @@ export default function RecordEditor() {
           setStep(s => s - 1);
       }
   };
+  
+  if (!user) {
+      return (
+          <Alert variant="destructive">
+              <AlertTitle>Authentication Required</AlertTitle>
+              <AlertDescription>
+                  Please log in to add a new student record.
+              </AlertDescription>
+          </Alert>
+      );
+  }
 
   return (
       <form onSubmit={handleSubmit} onReset={handleReset} ref={formRef} className="flex flex-col h-full">
@@ -131,7 +184,11 @@ export default function RecordEditor() {
                 {step === 1 && (
                   <div className="space-y-4">
                     <h3 className="text-base font-bold">Personal Information</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <Label htmlFor="studentName">Student Name *</Label>
+                        <Input id="studentName" name="studentName" required />
+                      </div>
                       <div className="space-y-1">
                         <Label htmlFor="roll">Roll Number *</Label>
                         <Input id="roll" name="roll" required />
@@ -165,7 +222,7 @@ export default function RecordEditor() {
                           <Label htmlFor="phone">Contact Number *</Label>
                           <Input id="phone" name="phone" required placeholder="+8801XXXXXXXXX" />
                       </div>
-                      <div className="space-y-1">
+                      <div className="space-y-1 col-span-2">
                         <Label>Picture Upload</Label>
                         <div className="flex items-center gap-2">
                           {avatarPreview ? <Image src={avatarPreview} alt="preview" width={56} height={56} className="rounded-lg object-cover h-14 w-14 border" /> : <div className="h-14 w-14 bg-muted rounded-lg"/>}
@@ -282,11 +339,11 @@ export default function RecordEditor() {
              <div className="p-4">
               {step < 4 && (
                   <div className="flex justify-between gap-2">
-                     <Button type="button" variant="outline" onClick={handleBack} disabled={step === 1}>
+                     <Button type="button" variant="outline" onClick={handleBack} disabled={step === 1 || isLoading}>
                         Back
                       </Button>
-                      <Button type="button" onClick={handleNext} className={cn(step === 3 && "bg-green-500 hover:bg-green-600")}>
-                        {step === 3 ? 'Submit' : 'Next'}
+                      <Button type="button" onClick={handleNext} className={cn(step === 3 && "bg-green-500 hover:bg-green-600")} disabled={isLoading}>
+                         {isLoading ? <Loader2 className="h-4 w-4 animate-spin"/> : (step === 3 ? 'Submit' : 'Next')}
                       </Button>
                   </div>
               )}

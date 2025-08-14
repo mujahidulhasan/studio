@@ -57,3 +57,31 @@ export interface Template {
 }
 
 export type SlotPunch = 'none' | 'short-side' | 'long-side';
+
+export interface Record {
+    id: string;
+    userId: string;
+    studentName: string;
+    roll: string;
+    registration: string;
+    shift: string;
+    blood: string;
+    phone: string;
+    avatarUrl?: string;
+    motherName?: string;
+    motherPhone?: string;
+    fatherName?: string;
+    fatherPhone?: string;
+    brotherName?: string;
+    brotherPhone?: string;
+    friendName?: string;
+    friendPhone?: string;
+    birthDate?: string;
+    nidNumber?: string;
+    social_facebook?: string;
+    social_instagram?: string;
+    social_github?: string;
+    otherContacts?: { relation: string, number: string }[];
+    notes?: string;
+    createdAt: any;
+}
