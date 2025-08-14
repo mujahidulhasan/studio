@@ -9,7 +9,7 @@ import EditorPanel from "@/components/editor-panel";
 import IdCardPreview from "@/components/id-card-preview";
 import CustomizePanel from "@/components/customize-panel";
 import { Button } from "@/components/ui/button";
-import { Download, PanelLeft, LayoutTemplate, Image as ImageIcon, Type, Shapes, Shield, Badge, Wand2, X } from "lucide-react";
+import { Download, PanelLeft, LayoutTemplate, Image as ImageIcon, Type, Shapes, Shield, Badge, Wand2, X, Database } from "lucide-react";
 import { downloadAsSvg } from "@/lib/download";
 import { cn } from "@/lib/utils";
 import Toolbar from "@/components/toolbar";
@@ -23,7 +23,7 @@ const toolConfig = [
     { id: "photo", icon: ImageIcon, label: "Images" },
     { id: "shapes", icon: Shapes, label: "Shapes" },
     { id: "security", icon: Shield, label: "Security", disabled: true },
-    { id: "accessories", icon: Badge, label: "Accessories", disabled: true },
+    { id: "records", icon: Database, label: "Records" },
 ];
 
 export default function Home() {
@@ -265,6 +265,7 @@ export default function Home() {
       <div className="flex flex-1">
         {/* Icon Strip */}
         <div id="icon-strip" className="w-20 bg-card border-r z-20 flex-shrink-0">
+          <ScrollArea className="h-full">
             <div className="flex flex-col items-center py-4 space-y-1">
               {toolConfig.map((tool) => (
                 <button
@@ -305,6 +306,7 @@ export default function Home() {
                   <span className="text-xs mt-1">Customize</span>
                 </button>
               </div>
+            </ScrollArea>
         </div>
         
         <div className="relative flex-1 flex flex-col">
@@ -363,7 +365,7 @@ export default function Home() {
             </div>
 
             {/* Workspace */}
-            <main className="w-full flex flex-col items-center justify-start gap-6 pt-8 pb-8">
+            <main className="w-full flex flex-col items-center justify-start gap-6 pt-8 pb-8 overflow-auto">
                 <div className="flex flex-col justify-center items-center p-4">
                     <IdCardPreview
                         ref={idCardRef}

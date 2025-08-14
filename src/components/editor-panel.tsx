@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { Dispatch, SetStateAction } from "react";
@@ -5,6 +6,7 @@ import TemplateSelector from "@/components/template-selector";
 import ImageEditor from "@/components/image-editor";
 import TextEditor from "@/components/text-editor";
 import ShapeEditor from "@/components/shape-editor";
+import RecordEditor from "@/components/record-editor";
 import type { Template, ImageElement, TextElement, ShapeElement } from "@/types";
 
 interface EditorPanelProps {
@@ -42,7 +44,7 @@ export default function EditorPanel({
         {activeTab === 'text' && <TextEditor textElements={textElements} setTextElements={setTextElements} />}
         {activeTab === 'shapes' && <ShapeEditor shapeElements={shapeElements} setShapeElements={setShapeElements} />}
         {activeTab === 'security' && <p>Security features coming soon.</p>}
-        {activeTab === 'records' && <p>Record management coming soon.</p>}
+        {activeTab === 'records' && <RecordEditor />}
     </div>
   );
 }
