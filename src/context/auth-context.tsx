@@ -2,15 +2,15 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { onAuthStateChanged, User, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { onAuthStateChanged, User, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, sendEmailVerification } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
-import type { AuthFormValues } from '@/components/auth-dialog';
+import type { LoginValues, SignupValues } from '@/components/auth-dialog';
 
 interface AuthContextType {
     user: User | null;
     loading: boolean;
-    login: (values: AuthFormValues) => Promise<any>;
-    signup: (values: AuthFormValues) => Promise<any>;
+    login: (values: LoginValues) => Promise<any>;
+    signup: (values: SignupValues) => Promise<any>;
     logout: () => Promise<void>;
 }
 
@@ -28,12 +28,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return () => unsubscribe();
     }, []);
 
-    const login = (values: AuthFormValues) => {
+    const login = (values: LoginValues) => {
         return signInWithEmailAndPassword(auth, values.email, values.password);
     };
 
-    const signup = (values: AuthFormValues) => {
-        return createUserWithEmailAndPassword(auth, values.email, values.password);
+    const signup = async (values: SignupValues) => {
+        const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
+        const user = userCredential.user;
+        
+        // Update profile with display name
+        await updateProfile(user, {
+            displayName: values.displayName
+        });
+
+        // Send verification email
+        await sendEmailVerification(user);
+
+        // Refresh user to get updated info
+        await user.reload();
+        setUser(auth.currentUser);
+
+        return userCredential;
     };
 
     const logout = () => {
