@@ -21,7 +21,14 @@ export const getDesignsForUser = async (userId: string): Promise<Design[]> => {
     const querySnapshot = await getDocs(q);
     const designs: Design[] = [];
     querySnapshot.forEach((doc) => {
-        designs.push({ id: doc.id, ...doc.data() } as Design);
+        const data = doc.data();
+        const design: Design = {
+            id: doc.id,
+            ...data,
+            // Convert Firestore Timestamp to a serializable format (ISO string)
+            createdAt: data.createdAt?.toDate().toISOString() || new Date().toISOString(),
+        } as Design;
+        designs.push(design);
     });
     return designs;
 };
