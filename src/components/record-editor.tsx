@@ -14,8 +14,11 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import Image from "next/image";
-import { X } from "lucide-react";
+import { X, Calendar as CalendarIcon, Facebook, Instagram, Github } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { Calendar } from "./ui/calendar";
+import { format } from "date-fns";
 
 type Contact = {
   id: number;
@@ -27,16 +30,17 @@ const steps = [
   { id: 1, name: "Personal Information" },
   { id: 2, name: "Family Information" },
   { id: 3, name: "Additional Information" },
+  { id: 4, name: "Final" },
 ];
 
 export default function RecordEditor() {
   const [step, setStep] = useState(1);
-  const [showSuccess, setShowSuccess] = useState(false);
   const [studentId, setStudentId] = useState("");
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [contacts, setContacts] = useState<Contact[]>([]);
   const nextContactId = useRef(0);
   const formRef = useRef<HTMLFormElement>(null);
+  const [birthDate, setBirthDate] = React.useState<Date>()
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -67,7 +71,7 @@ export default function RecordEditor() {
     if (form.checkValidity()) {
       const newId = Math.floor(1000 + Math.random() * 9000).toString();
       setStudentId(newId);
-      setShowSuccess(true);
+      setStep(4); // Move to the final step
     } else {
       form.reportValidity();
     }
@@ -77,14 +81,17 @@ export default function RecordEditor() {
       formRef.current?.reset();
       setAvatarPreview(null);
       setContacts([]);
-      setShowSuccess(false);
       setStudentId("");
+      setBirthDate(undefined);
       setStep(1);
   }
 
   const handleNext = () => {
-      if (step < 3) {
+      if (step < 3) { // Only allow next up to step 3
           setStep(s => s + 1);
+      } else if (step === 3) {
+          // Trigger form submission when on the last data entry step
+          formRef.current?.requestSubmit();
       }
   };
 
@@ -97,21 +104,21 @@ export default function RecordEditor() {
   return (
       <form onSubmit={handleSubmit} onReset={handleReset} ref={formRef} className="flex flex-col h-full">
          <div className="flex-1 space-y-6">
-          {!showSuccess ? (
+          {step < 4 ? ( // Show form for steps 1-3
             <>
               {/* Progress Bar */}
               <div className="flex items-center justify-between px-2">
                 {steps.map((s, index) => (
                   <React.Fragment key={s.id}>
-                    <div className="flex flex-col items-center">
+                    <div className="flex flex-col items-center text-center">
                       <div className={cn(
                         "w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold",
                         step >= s.id ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
                       )}>
-                        {s.id}
+                        {step > s.id ? '✔' : s.id}
                       </div>
                       <p className={cn(
-                          "text-xs mt-1 text-center",
+                          "text-xs mt-1 w-20",
                           step >= s.id ? "font-semibold text-primary" : "text-muted-foreground"
                       )}>{s.name}</p>
                     </div>
@@ -124,7 +131,7 @@ export default function RecordEditor() {
                 {step === 1 && (
                   <div className="space-y-4">
                     <h3 className="text-base font-bold">Personal Information</h3>
-                    <div className="grid grid-cols-1 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-1">
                         <Label htmlFor="roll">Roll Number *</Label>
                         <Input id="roll" name="roll" required />
@@ -171,7 +178,7 @@ export default function RecordEditor() {
                 {step === 2 && (
                     <div className="space-y-4">
                         <h3 className="text-base font-bold">Family Information</h3>
-                         <div className="grid grid-cols-1 gap-4">
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                              <div className="space-y-1"><Label>Mother’s Name</Label><Input name="motherName" /></div>
                              <div className="space-y-1"><Label>Mother’s Number</Label><Input name="motherPhone" placeholder="+880..." /></div>
                              <div className="space-y-1"><Label>Father’s Name</Label><Input name="fatherName" /></div>
@@ -184,8 +191,53 @@ export default function RecordEditor() {
                     </div>
                 )}
                 {step === 3 && (
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                      <h3 className="text-base font-bold">Additional Information</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                         <div className="space-y-1">
+                            <Label>Birth Date</Label>
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                    variant={"outline"}
+                                    className={cn(
+                                        "w-full justify-start text-left font-normal",
+                                        !birthDate && "text-muted-foreground"
+                                    )}
+                                    >
+                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    {birthDate ? format(birthDate, "PPP") : <span>Pick a date</span>}
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0">
+                                    <Calendar
+                                    mode="single"
+                                    selected={birthDate}
+                                    onSelect={setBirthDate}
+                                    initialFocus
+                                    />
+                                </PopoverContent>
+                            </Popover>
+                         </div>
+                         <div className="space-y-1"><Label>NID Number</Label><Input name="nidNumber" /></div>
+                      </div>
+                       <div>
+                          <h4 className="text-sm font-semibold mb-2">Social Links</h4>
+                           <div className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <Facebook className="w-5 h-5 text-muted-foreground"/>
+                                <Input name="social_facebook" placeholder="Facebook profile URL" />
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Instagram className="w-5 h-5 text-muted-foreground"/>
+                                <Input name="social_instagram" placeholder="Instagram profile URL" />
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Github className="w-5 h-5 text-muted-foreground"/>
+                                <Input name="social_github" placeholder="GitHub profile URL" />
+                              </div>
+                           </div>
+                       </div>
                       <div>
                           <h4 className="text-sm font-semibold mb-2">Other Contacts</h4>
                           <div id="contacts" className="space-y-2">
@@ -204,16 +256,9 @@ export default function RecordEditor() {
                           </div>
                       </div>
                       
-                      <div>
-                          <h4 className="text-sm font-semibold mb-2">Extra Details</h4>
-                          <div className="grid grid-cols-1 gap-4">
-                             <div className="space-y-1"><Label>Birth Certificate Number</Label><Input name="birthCert" /></div>
-                             <div className="space-y-1"><Label>Social Link</Label><Input name="social" placeholder="https://..." /></div>
-                          </div>
-                           <div className="space-y-1 mt-4">
-                                <Label>Notes</Label>
-                                <Textarea name="notes" placeholder="Any notes..." />
-                            </div>
+                      <div className="space-y-1">
+                          <Label>Notes</Label>
+                          <Textarea name="notes" placeholder="Any additional notes..." />
                       </div>
                   </div>
                 )}
@@ -222,29 +267,27 @@ export default function RecordEditor() {
           ) : (
             <div className="text-center p-6">
                 <h3 className="font-bold mb-2">Student record created successfully.</h3>
-                <div className="text-2xl font-black tracking-wider inline-flex items-center gap-2">
+                <div className="text-2xl font-black tracking-wider inline-flex items-center gap-2 bg-muted p-2 px-4 rounded-lg">
                     <span>ID: {studentId}</span>
                 </div>
                 <div className="mx-auto my-4 h-44 w-44 border rounded-lg flex items-center justify-center bg-gray-100">
                     <p className="text-muted-foreground">QR Code</p>
                 </div>
-                <Button onClick={handleReset}>Add Another Record</Button>
+                <Button onClick={handleReset} variant="outline">Add Another Record</Button>
             </div>
           )}
           </div>
           
-          <div className="border-t mt-auto -mx-4 -mb-4 bg-background">
+          <div className="border-t mt-auto -mx-4 -mb-4 bg-background sticky bottom-0">
              <div className="p-4">
-              {!showSuccess && (
+              {step < 4 && (
                   <div className="flex justify-between gap-2">
                      <Button type="button" variant="outline" onClick={handleBack} disabled={step === 1}>
                         Back
                       </Button>
-                      {step < 3 ? (
-                        <Button type="button" onClick={handleNext}>Next</Button>
-                      ) : (
-                        <Button type="submit" className="bg-green-500 hover:bg-green-600">Submit</Button>
-                      )}
+                      <Button type="button" onClick={handleNext} className={cn(step === 3 && "bg-green-500 hover:bg-green-600")}>
+                        {step === 3 ? 'Submit' : 'Next'}
+                      </Button>
                   </div>
               )}
               </div>
