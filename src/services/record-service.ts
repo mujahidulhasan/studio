@@ -108,7 +108,13 @@ export const getRecordsForUser = async (userId: string): Promise<Record[]> => {
     const querySnapshot = await getDocs(q);
     const records: Record[] = [];
     querySnapshot.forEach((doc) => {
-        records.push({ id: doc.id, ...doc.data() } as Record);
+        const data = doc.data();
+        const record: Record = {
+            id: doc.id,
+            ...data,
+            createdAt: data.createdAt?.toDate().toISOString() || new Date().toISOString(),
+        } as Record;
+        records.push(record);
     });
     return records;
 };
