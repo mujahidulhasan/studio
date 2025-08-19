@@ -352,7 +352,7 @@ export default function RecordEditor() {
                      <Button type="button" variant="outline" onClick={handleBack} disabled={step === 1 || isLoading}>
                         Back
                       </Button>
-                      <Button type="button" onClick={handleNext} className={cn(step === 3 && "bg-green-500 hover:bg-green-600")} disabled={isLoading}>
+                      <Button type="button" onClick={handleNext} disabled={isLoading}>
                          {isLoading ? <Loader2 className="h-4 w-4 animate-spin"/> : (step === 3 ? 'Submit' : 'Next')}
                       </Button>
                   </div>
