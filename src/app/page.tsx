@@ -139,7 +139,7 @@ export default function Home() {
     }
 
     const designData: Omit<Design, 'id' | 'userId' | 'createdAt' | 'thumbnailUrl'> = {
-        name: `Design - ${new Date().toLocaleDateString()}`,
+        name: `Design - ${new Date().toISOString()}`,
         template,
         image,
         textElements,
@@ -423,3 +423,5 @@ export default function Home() {
     </div>
   );
 }
+
+    
